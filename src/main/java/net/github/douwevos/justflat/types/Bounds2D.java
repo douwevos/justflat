@@ -72,7 +72,7 @@ public class Bounds2D {
 			return this;
 		}
 
-		return new Bounds2D(xl, xr, yb, yt);
+		return new Bounds2D(xl, yt, xr, yb);
 	}
 
 	
@@ -110,5 +110,17 @@ public class Bounds2D {
 		return line==null ? this : extend(line.pointA(), line.pointB());
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (obj==this) {
+			return true;
+		}
+		if (obj instanceof Bounds2D) {
+			Bounds2D other = (Bounds2D) obj;
+			return other.left == left && other.right == right
+					&& other.bottom == bottom && other.top == top;
+		}
+		return false;
+	}
 	
 }

@@ -2,7 +2,11 @@ package net.github.douwevos.justflat.types;
 
 import java.util.Objects;
 
+import net.github.douwevos.justflat.logging.Log;
+
 public class Line2D {
+
+	Log log = Log.instance();
 
     Point2D pointA, pointB;
 
@@ -66,21 +70,71 @@ public class Line2D {
 		return java.awt.geom.Line2D.ptSegDistSq(pointA.x, pointA.y, pointB.x, pointB.y, point.x, point.y);
     }
     
+	public long signedAlignedDistanceSq(Point2D point) {
+		long dxA = point.x-pointA.x;
+		long dyA = point.y-pointA.y;
+		
+		long squaredDistanceA = dxA*dxA + dyA*dyA;
+		if (squaredDistanceA == 0) {
+			return 0;
+		}
+
+		if (dxA != 0) {
+			long dxB = point.x-pointB.x;
+			if (dxB!=0) {
+				boolean sameDir = dxB<0 && dxA<0 ||  dxB>0 && dxA>0;
+				return sameDir ? -squaredDistanceA : squaredDistanceA; 
+			}
+		}
+		
+		long dyB = point.y-pointB.y;
+		boolean sameDir = dyB<0 && dyA<0 ||  dyB>0 && dyA>0;
+		return sameDir ? -squaredDistanceA : squaredDistanceA; 
+	}
+
+    
     public Point2D crossPoint(Line2D otherSegment, IntersectionInfo info) {
     	if (info == null) {
     		info = new IntersectionInfo();
     	}
+    	info.intersectionPoint = null;
+    	IntersectionInfo info2 = new IntersectionInfo();
+
     	Point2D result = null;
     	Point2D mainIntPoint = otherSegment.intersectionPoint(this, info);
-    	if (mainIntPoint!=null && info.ua>0.0d && info.ua<1.0d) {
-	    	IntersectionInfo info2 = new IntersectionInfo();
+    	if (mainIntPoint!=null && info.ua>=0.0d && info.ua<=1.0d) {
 	    	Point2D intersectionPoint = this.intersectionPoint(otherSegment, info2);
-	    	if (intersectionPoint!=null && info2.ua>0.0d && info2.ua<1.0d) {
+	    	if (info2.ua>=0.0d && info2.ua<=1.0d) {
+	    		info.intersectionPoint = intersectionPoint;
 	    		if (!(otherSegment.isFirstOrSecond(mainIntPoint) || isFirstOrSecond(mainIntPoint))) {
 	    			result = mainIntPoint;
 	    		}
+	    	} else {
+	    		info.intersectionPoint = null;    		
 	    	}
+    	} else {
+    		info.intersectionPoint = null;    		
     	}
+    	
+//    	if (result != null) {
+    		Point2D observePoint = new Point2D(29687l, 15508l);
+    		Point2D observePoint2 = new Point2D(25948l, 15887l);
+    		Point2D observePoint3 = new Point2D(25947l, 15876l);
+    		
+    		boolean isObservePoint = isFirstOrSecond(observePoint3)  && otherSegment.isFirstOrSecond(observePoint2);
+    		
+//    		boolean isObservePoint = (isFirstOrSecond(observePoint) && otherSegment.isFirstOrSecond(observePoint2))
+//    				|| (isFirstOrSecond(observePoint2) && otherSegment.isFirstOrSecond(observePoint));
+    		if (isObservePoint) {
+				log.debug2("||| info:{}, result:{}", info, result);
+				log.debug2("||| info2:{}, mainIntPoint={}", info2, mainIntPoint);
+				
+				log.debug2("||| this:{}", this);
+				log.debug2("||| otherSegment:{}", otherSegment);
+    		}
+//		}
+
+    	
     	return result;
     }
     
@@ -284,7 +338,7 @@ public class Line2D {
 
         @Override
         public String toString() {
-            return "IntersectionInfo[intersectionPoint=" + intersectionPoint + ", ua=" + ua + ", udd=" + udd + "]";
+            return "IntersectionInfo[intersectionPoint=" + intersectionPoint + ", ua=" + ua + ", udd=" + udd + ", ac("+dxAC+","+dyAC+") # ba("+dxBA+","+dyBA+")  # dc("+dxDC+","+dyDC+") ]";
         }
     }
 
@@ -488,5 +542,6 @@ public class Line2D {
         stext = "Line[" + stext + ", A=" + pointA + ", B=" + pointB + "]";
         return stext;
     }
+
 
 }

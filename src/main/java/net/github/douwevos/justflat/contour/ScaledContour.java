@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import net.github.douwevos.justflat.logging.Log;
+import net.github.douwevos.justflat.types.Bounds2D;
 import net.github.douwevos.justflat.types.Line2D;
 import net.github.douwevos.justflat.types.Point2D;
 
@@ -64,6 +65,19 @@ class ScaledContour {
 
 	public Integer getIndex() {
 		return source.getIndex();
+	}
+	
+	
+	public Bounds2D getBounds() {
+		Bounds2D result = null;
+		for(TargetLine tl : lines) {
+			if (result == null) {
+				result = tl.asLine().bounds();
+			} else {
+				result = result.extend(tl.asLine());
+			}
+		}
+		return result;
 	}
 
 

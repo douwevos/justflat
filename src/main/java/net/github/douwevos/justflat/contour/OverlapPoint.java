@@ -1,7 +1,11 @@
 package net.github.douwevos.justflat.contour;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import net.github.douwevos.justflat.types.Point2D;
 
@@ -11,41 +15,56 @@ public class OverlapPoint {
 	
 	private Taint taint = Taint.NONE;
 	
+	private Map<Taint,Taint> taintedSet = new EnumMap<>(Taint.class);
+	
 	private boolean isUSed;
 	
-	private List<TranslatedSegment> segments = new ArrayList<>();
+	private List<Route> routes = new ArrayList<>();
+	
 	
 	public OverlapPoint(Point2D point) {
 		this.point = point;
 	}
 	
-	public boolean add(TranslatedSegment segment) {
-		boolean result = !segments.contains(segment);
+	
+	public boolean add(Route route) {
+		boolean result = !routes.contains(route);
 		if (result) {
-			segments.add(segment);
+			routes.add(route);
 		}
 		return result;
 	}
 
-	public boolean remove(TranslatedSegment segment) {
-		return segments.remove(segment);
+	public boolean remove(Route route) {
+		return routes.remove(route);
 	}
 	
-	public boolean contains(TranslatedSegment segment) {
-		return segments.contains(segment);
+	public boolean contains(Route route) {
+		return routes.contains(route);
 	}
 	
 	
-	public Iterable<TranslatedSegment> segmentIterable() {
-		return segments;
+	public Iterable<Route> routeIterable() {
+		return routes;
 	}
 
 	public boolean isTainted() {
-		return taint != Taint.NONE && taint != Taint.RECONNECT;
+		return !taint.isValid();
 	}
 	
 	public void taintWith(Taint taint) {
+		if (this.taint!=null) {
+			if (!this.taint.isValid() && taint.isValid()) {
+				taintedSet.put(taint, taint);
+				return;
+			}
+		}
+		taintedSet.put(taint, taint);
 		this.taint = taint;
+	}
+	
+	public Set<Taint> getTaintedSet() {
+		return taintedSet.keySet();
 	}
 	
 	public Taint getTaint() {
@@ -53,13 +72,25 @@ public class OverlapPoint {
 	}
 	
 	public enum Taint {
-		NONE,
-		RECONNECT,
-		OBSCURED, 
-		OVERSHOOT,
-		ORIGINAL, 
-		INVALID
+		NONE(true),
+		RECONNECT(true),
+		EDGE(true),
+		OBSCURED(false), 
+		OVERSHOOT(false),
+		ORIGINAL(false), 
+		INVALID(false);
+
+		boolean valid;
+		
+		Taint(boolean isValid) {
+			valid = isValid;
+		}
+		
+		public boolean isValid() {
+			return valid;
+		}
 	}
+	
 	
 	public void markUsed() {
 		isUSed = true;
@@ -86,8 +117,5 @@ public class OverlapPoint {
 	public String toString() {
 		return "OverlapPoint [point=" + point + ", taint=" + taint + ", isUSed=" + isUSed + "]";
 	}
-	
-	
-	
 	
 }

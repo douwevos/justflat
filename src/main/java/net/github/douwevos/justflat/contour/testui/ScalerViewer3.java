@@ -29,17 +29,6 @@ public class ScalerViewer3 extends ScalerViewerBase {
 	double mouseModelY;
 	
 	
-	private Map<Taint, Color> taintColorMap = new EnumMap<>(Taint.class);
-	
-	{
-		taintColorMap.put(Taint.NONE, Color.white);
-		taintColorMap.put(Taint.RECONNECT, Color.yellow.brighter());
-		taintColorMap.put(Taint.OBSCURED, Color.darkGray.brighter());
-		taintColorMap.put(Taint.OVERSHOOT, Color.magenta);
-		taintColorMap.put(Taint.ORIGINAL, Color.orange.darker());
-		taintColorMap.put(Taint.INVALID, Color.red.darker());
-	}
-	
 	
 	@Override
 	public void paintOnTopLayer(Graphics2D gfx, ScalerViewableModel model) {
@@ -168,10 +157,10 @@ public class ScalerViewer3 extends ScalerViewerBase {
 	}
 	
 	protected void drawSegment(Graphics2D gfx, int viewHeight, TranslatedSegment translatedSegment) {
-		Point2D pointA = camera.toViewCoords(translatedSegment.base.getFirstPoint(), viewHeight);
-		Point2D pointB = camera.toViewCoords(translatedSegment.base.getSecondPoint(), viewHeight);
-		Point2D pointC = camera.toViewCoords(translatedSegment.translated.getSecondPoint(), viewHeight);
-		Point2D pointD = camera.toViewCoords(translatedSegment.translated.getFirstPoint(), viewHeight);
+		Point2D pointA = camera.toViewCoords(translatedSegment.base.base.getFirstPoint(), viewHeight);
+		Point2D pointB = camera.toViewCoords(translatedSegment.base.base.getSecondPoint(), viewHeight);
+		Point2D pointC = camera.toViewCoords(translatedSegment.translated.base.getSecondPoint(), viewHeight);
+		Point2D pointD = camera.toViewCoords(translatedSegment.translated.base.getFirstPoint(), viewHeight);
 		
 		int x[] = new int[4];
 		int y[] = new int[4];
@@ -248,8 +237,8 @@ public class ScalerViewer3 extends ScalerViewerBase {
 	protected void paintTranslatedSegmentSelection(Graphics2D gfx, TranslatedSegmentSelection selected) {
 		TranslatedSegment translatedSegment = selected.translatedSegment;
 		
-		Line2D line = translatedSegment.base;
-		Line2D translated = translatedSegment.translated;
+		Line2D line = translatedSegment.base.base;
+		Line2D translated = translatedSegment.translated.base;
 		
 		int viewHeight = getViewDimension().height;
 		
@@ -289,9 +278,9 @@ public class ScalerViewer3 extends ScalerViewerBase {
 //		
 //		gfx.fillArc((int) baseB.x-r, (int) baseB.y-r, sizeI, sizeI, s2, 91);
 		
-		translatedSegment.ensureOrdered();
+		translatedSegment.translated.ensureOrdered();
 		int idx=0;
-		for(OverlapPoint overlapPoint : translatedSegment.overlapPointsIterable()) {
+		for(OverlapPoint overlapPoint : translatedSegment.translated.overlapPointsIterable()) {
 			paintHighlightedOverlapPoint(gfx, viewHeight, overlapPoint, idx);
 			idx++;
 		}

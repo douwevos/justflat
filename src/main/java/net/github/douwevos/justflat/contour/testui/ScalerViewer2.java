@@ -46,10 +46,10 @@ public class ScalerViewer2 extends ScalerViewerBase {
 	
 	@Override
 	protected void drawSegment(Graphics2D gfx, int viewHeight, TranslatedSegment translatedSegment) {
-		Point2D pointA = camera.toViewCoords(translatedSegment.base.getFirstPoint(), viewHeight);
-		Point2D pointB = camera.toViewCoords(translatedSegment.base.getSecondPoint(), viewHeight);
-		Point2D pointC = camera.toViewCoords(translatedSegment.translated.getSecondPoint(), viewHeight);
-		Point2D pointD = camera.toViewCoords(translatedSegment.translated.getFirstPoint(), viewHeight);
+		Point2D pointA = camera.toViewCoords(translatedSegment.base.base.getFirstPoint(), viewHeight);
+		Point2D pointB = camera.toViewCoords(translatedSegment.base.base.getSecondPoint(), viewHeight);
+		Point2D pointC = camera.toViewCoords(translatedSegment.translated.base.getSecondPoint(), viewHeight);
+		Point2D pointD = camera.toViewCoords(translatedSegment.translated.base.getFirstPoint(), viewHeight);
 		
 		int x[] = new int[4];
 		int y[] = new int[4];
@@ -115,8 +115,8 @@ public class ScalerViewer2 extends ScalerViewerBase {
 	protected void paintTranslatedSegmentSelection(Graphics2D gfx, TranslatedSegmentSelection selected) {
 		TranslatedSegment translatedSegment = selected.translatedSegment;
 		
-		Line2D line = translatedSegment.base;
-		Line2D translated = translatedSegment.translated;
+		Line2D line = translatedSegment.base.base;
+		Line2D translated = translatedSegment.translated.base;
 		
 		int viewHeight = getViewDimension().height;
 		

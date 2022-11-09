@@ -3,30 +3,35 @@ package net.github.douwevos.justflat.contour.testui;
 import java.awt.Dimension;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.tools.Tool;
 
 import net.github.douwevos.justflat.contour.Contour;
 import net.github.douwevos.justflat.contour.ContourLayer;
 import net.github.douwevos.justflat.contour.DiscLayerFillContext;
 import net.github.douwevos.justflat.contour.DiscLayerOverlapCutter2;
 import net.github.douwevos.justflat.contour.DiscLayerScaler;
+import net.github.douwevos.justflat.contour.testui.examples.TestModelOne;
+import net.github.douwevos.justflat.contour.testui.examples.TestModelOne2;
 import net.github.douwevos.justflat.ttf.TextLayout;
 import net.github.douwevos.justflat.ttf.TextLayoutToDiscLayer;
 import net.github.douwevos.justflat.ttf.format.Ttf;
 import net.github.douwevos.justflat.ttf.reader.TrueTypeFontParser;
 import net.github.douwevos.justflat.types.Layer;
 import net.github.douwevos.justflat.types.Point2D;
-import net.github.douwevos.justflat.types.Point3D;
 
 @SuppressWarnings("serial")
 public class LayerShower2 extends JPanel implements Runnable, ComponentListener {
@@ -41,6 +46,8 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 	}
 
 	
+	private JComboBox<String> cmbTestModels;
+	
 	private ContourLayer designedLayer;
 	
 	private Layer cutLayer;
@@ -53,26 +60,48 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 
 	
 	private DiscLayerViewer reachableLayerViewer1;
-//	private ScalerViewer scalerViewer;
 	private ScalerViewer2 scalerViewer2;
 	private ScalerViewer3 scalerViewer3;
-	private DirectedLinesViewer reachableLayerViewer3;
 
-	private volatile int thickness = 3758;
+//	private volatile int thickness = 3758;
+	private volatile int thickness = 3225;
+
 	private volatile boolean dirty = true;
 	
-	public LayerShower2() {
+	List<ContourLayerTestProducer> testModelProducers = new ArrayList<>();
 	
+	public LayerShower2() {
+
+		testModelProducers.add(new TestModelOne());
+		testModelProducers.add(new TestModelOne2());
+		
+		List<String> testModelNames = testModelProducers.stream().map(s -> s.name()).collect(Collectors.toList());
+		
+//		List<String> testModelNames = new ArrayList<>(Arrays.asList("Fix 1", "Fix 2"));
+		String[] array = testModelNames.toArray(new String[testModelNames.size()]);
+		
+		cmbTestModels = new JComboBox<>(array);
+		cmbTestModels.setBounds(0,0, 100, 35);
+		add(cmbTestModels);
+		cmbTestModels.setSe
+		cmbTestModels.addItemListener(event -> {
+			if (event.getStateChange() == ItemEvent.SELECTED) {
+		          String item = (String) event.getItem();
+		          ContourLayerTestProducer testProducer = testModelProducers.stream().filter(s -> s.name().equals(item)).findAny().orElse(null);
+		          selectModel(testProducer);
+		       }		
+			System.exit(1);
+			});
+		
 		designedLayer = createMainDiscLayer();
 		
 		setLayout(null);
 		
 		baseViewer = new DiscLayerViewer();
-		baseViewer.setBounds(0,0, 100,100);
+		baseViewer.setBounds(0,35, 100,100);
 		
 		add(baseViewer);
 
-//		int blockWidth = 1650;
 		int blockWidth = 1050;
 		int blockHeight = 1000;
 		
@@ -113,30 +142,17 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 		reachableLayerViewer1.setDrawDirections(true);
 		add(reachableLayerViewer1);
 
-
-//		reachableLayerViewer3 = new DirectedLinesViewer();
-//		reachableLayerViewer3.setCamera(camera, false);
-//		reachableLayerViewer3.setBounds(180+blockWidth, blockHeight+20, blockWidth,blockHeight);
-//		add(reachableLayerViewer3);
-
 		scalerViewer2 = new ScalerViewer2();
 		scalerViewer2.setCamera(camera, false);
 		scalerViewer2.setBounds(180+blockWidth, blockHeight+20, blockWidth,blockHeight);
 		add(scalerViewer2);
 
-//		scalerViewer = new ScalerViewer();
-//		scalerViewer.setCamera(camera, false);
-//		scalerViewer.setBounds(210+blockWidth*2, blockHeight+20, blockWidth,blockHeight);
-//		add(scalerViewer);
-		
-		
 		resultViewer = new DiscLayerViewer();
 		resultViewer.setCamera(camera, false);
 		resultViewer.setBounds(210+blockWidth*2, blockHeight+20, blockWidth,blockHeight);
 		add(resultViewer);
 
 		
-//		JSlider jSlider = new JSlider(-100, 700, thickness);
 		JSlider jSlider = new JSlider(-10, 7000, thickness);
 		jSlider.setOrientation(JSlider.VERTICAL);
 		jSlider.setBounds(0, 200, 30, blockHeight);
@@ -154,6 +170,11 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 
 	}
 	
+	private void selectModel(ContourLayerTestProducer testProducer) {
+		designedLayer = testProducer.produceSourceLayer();
+		dirty = true;
+	}
+
 	@Override
 	public void addNotify() {
 		super.addNotify();
@@ -184,7 +205,10 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 //		discLayer.moveDot(Point2D.of(28218, 40764), Point2D.of(14080, 14801));
 		
 //		discLayer.moveDot(Point2D.of(28218, 40764), Point2D.of(31812, 14533));
-		discLayer.moveDot(Point2D.of(28218, 40764), Point2D.of(29687, 15508));
+//		discLayer.moveDot(Point2D.of(28218, 40764), Point2D.of(29687, 15508));
+//		discLayer.moveDot(Point2D.of(28218, 40764), Point2D.of(29566, 14821));
+//		discLayer.moveDot(Point2D.of(28218, 40764), Point2D.of(14397, 14178));
+		discLayer.moveDot(Point2D.of(28218, 40764), Point2D.of(20944, 14946));
 //		discLayer.moveDot(Point2D.of(28218, 40764), Point2D.of(22946, 14290));
 		discLayer.contours.remove(1);
 
@@ -201,10 +225,6 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 		return discLayer;
 	}
 
-	
-//	LayeredCncContext layeredCncContext;
-//	long scanY;
-//	long scanX;
 	
 	@Override
 	public void run() {
@@ -225,15 +245,6 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 			dd = thickness;
 			dirty = false;
 			
-	//		CncHeadServiceImpl cncHeadService = new CncHeadServiceImpl(head);
-	//
-	//		CncActionQueue actionQueue = cncHeadService.getContext().getActiveQueue().branch(false);
-	//		RunContext runContext = new RunContext(configuration, actionQueue, model);
-	//		runContext.setSelectedTool(tool);
-	//		layeredCncContext = new LayeredCncContext(tool, 0, ()-> {
-	//			callPaint(layeredCncContext);
-	//		} ) ;
-	//		
 			
 			ContourLayer discLayer = designedLayer.duplicate();
 			
@@ -245,26 +256,12 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 			int discSizeSq = discSize*discSize;
 			
 			ContourLayer newLayer = discLayerFillContext.reduceResolution(discLayerFillContext.discLayer, discSizeSq, 1);
-			
-//			DiscLayerOverlapCutter overlapCutter = new DiscLayerOverlapCutter();
-//			newLayer = overlapCutter.scale(newLayer, false);
 
 			DiscLayerOverlapCutter2 overlapCutter = new DiscLayerOverlapCutter2();
-//			newLayer = overlapCutter.scale(discLayer, false);
 			newLayer = overlapCutter.scale(newLayer, false);
 
 			
 			discLayerFillContext.reduceResolution = newLayer;
-			
-//			System.out.println("reduced");
-			
-	
-//			DiscLayer scaledLayer = discLayerFillContext.scale(newLayer, dd, false);
-//			discLayerFillContext.scaled = scaledLayer;
-//	
-//			DiscLayer scaledLayer2 = discLayerFillContext.scale(newLayer, dd, true);
-//			discLayerFillContext.scaled2 = scaledLayer2;
-//			head.stepTo(new MicroLocation(1, 1, 0), CncHeadSpeed.NORMAL);
 			
 			
 			ContourLayer contourLayer = new ContourLayer(100000, 100000);
@@ -327,16 +324,9 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 	private void callPaint(DiscLayerFillContext discLayerFillContext) {
 		if (discLayerFillContext.discLayer!=null) {
 			ContourLayer duplicate = discLayerFillContext.discLayer.duplicate();
-//			duplicate.cutAt(layeredCncContext.circleCoords, scanX, scanY);
-//			moveLayerViewer.setModelLayer(moveLayer);
-//			baseViewer.setModelLayer(duplicate);
 
 			moveLayerViewer.setModel(designedLayer);
 			baseViewer.setModel(designedLayer);
-			
-			
-//			reachableLayerViewer3.setModel(new DirectedLines(duplicate));
-			
 			
 		}
 		if (discLayerFillContext.reduceResolution!=null) {
@@ -349,29 +339,10 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 		}
 
 		if (discLayerFillContext.scalerViewableModel != null) {
-//			scalerViewer.setModel(discLayerFillContext.scalerViewableModel);
 			scalerViewer2.setModel(discLayerFillContext.scalerViewableModel);
 			scalerViewer3.setModel(discLayerFillContext.scalerViewableModel);
 		}
 
-		//
-//		if (layeredCncContext.modelReachableLayer != null) {
-//			adaptiveLayer = layeredCncContext.modelReachableLayer.duplicate();
-//			adaptiveLayerViewer.setModelLayer(adaptiveLayer);
-//			reachableLayerViewer1.setModelLayer(adaptiveLayer);
-//		}
-//
-//		if (layeredCncContext.modelReachableLayer2 != null) {
-//			Layer layer = layeredCncContext.modelReachableLayer2.duplicate();
-//			reachableLayerViewer2.setModelLayer(layer);
-//		}
-//
-//		if (layeredCncContext.modelReachableLayer3 != null) {
-////			Layer layer = layeredCncContext.modelReachableLayer3.duplicate();
-//			reachableLayerViewer3.setModelLayer(layeredCncContext.modelReachableLayer3);
-//		}
-//		
-//		floatingBalls = layeredCncContext.floatingBalls;
 
 		
 		repaint();
@@ -421,4 +392,9 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 
 	}
 
+	
+	public interface ScalerConfigProvider {
+		int getThickness();
+	}
+	
 }

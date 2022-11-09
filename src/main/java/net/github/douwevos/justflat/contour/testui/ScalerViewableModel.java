@@ -38,39 +38,39 @@ public class ScalerViewableModel implements ViewableModel {
 		Bounds2D result = null;
 		for(TranslatedSegment translatedSegment : mutableContour.segmentIterable()) {
 			if (result == null) {
-				result = translatedSegment.base.bounds();
+				result = translatedSegment.base.base.bounds();
 			} else {
-				result = result.extend(translatedSegment.base);
+				result = result.extend(translatedSegment.base.base);
 			}
-			result = result.extend(translatedSegment.translated);
+			result = result.extend(translatedSegment.translated.base);
 		}
 		
 		return result;
 	}
 	
 	public Selection<?> selectAt(double nx, double ny, double zoomFactor) {
-		CrossPoint bestCrossPoint = null;
+		OverlapPoint bestOverlapPoint = null;
 		double bestSqDist = 0;
 		
 		for(MutableContour mutableContour : mutableContours) {
 			
-			List<OverlapPoint> points = mutableContour.segements.stream().flatMap(s -> s.streamOverlapPoints()).collect(Collectors.toList());
+			List<OverlapPoint> points = mutableContour.segements.stream().flatMap(s -> s.streamAllOverlapPoints()).collect(Collectors.toList());
 			for (OverlapPoint overlapPoint : points) {
 				
 				Point2D dot = overlapPoint.point;
 				double sx = dot.x-nx;
 				double sy = dot.y-ny;
 				double d = sx*sx + sy*sy;
-				if (bestCrossPoint==null || d<bestSqDist) {
+				if (bestOverlapPoint==null || d<bestSqDist) {
 					bestSqDist = d;
-					bestCrossPoint = new CrossPoint(overlapPoint.point);
+					bestOverlapPoint = overlapPoint;
 				}
 			}			
 		}
 //		System.out.println("nx="+nx+", ny="+ny+", bestCrossPoint="+bestCrossPoint+", zoomFactor="+zoomFactor+" bestSqDist="+bestSqDist);
 		
-		if (bestCrossPoint!=null && bestSqDist<(400d*zoomFactor*zoomFactor)) {
-			return new CrossPointSelection(bestCrossPoint);
+		if (bestOverlapPoint!=null && bestSqDist<(400d*zoomFactor*zoomFactor)) {
+			return new OverlapPointSelection(bestOverlapPoint);
 		}
 
 		
@@ -83,7 +83,7 @@ public class ScalerViewableModel implements ViewableModel {
 		for(MutableContour mutableContour : mutableContours) {
 			for(TranslatedSegment translatedSegment : mutableContour.segmentIterable()) {
 				
-				Line2D baseLine = translatedSegment.base;
+				Line2D baseLine = translatedSegment.base.base;
 				double pointDistanceSq = baseLine.pointDistanceSq(mousePoint);
 				if ((bestLine==null) || pointDistanceSq<bestPointDistanceSq) {
 					bestTranslatedSegment = translatedSegment;
@@ -93,7 +93,7 @@ public class ScalerViewableModel implements ViewableModel {
 				}
 				
 
-				Line2D transLine = translatedSegment.translated;
+				Line2D transLine = translatedSegment.translated.base;
 				pointDistanceSq = transLine.pointDistanceSq(mousePoint);
 				if ((bestLine==null) || pointDistanceSq<bestPointDistanceSq) {
 					bestTranslatedSegment = translatedSegment;
@@ -130,7 +130,21 @@ public class ScalerViewableModel implements ViewableModel {
 			return crossPoint;
 		}
 	}
-	
+
+	public static class OverlapPointSelection implements Selection<OverlapPoint> {
+		
+		public final OverlapPoint overlapPoint;
+
+		public OverlapPointSelection(OverlapPoint overlapPoint) {
+			this.overlapPoint = overlapPoint;
+		}
+		
+		@Override
+		public OverlapPoint get() {
+			return overlapPoint;
+		}
+	}
+
 	
 	public static class TranslatedSegmentSelection implements Selection<Line2D> {
 		

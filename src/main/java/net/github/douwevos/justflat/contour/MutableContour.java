@@ -120,19 +120,47 @@ public class MutableContour {
 		baseLines.stream().map(l -> translate(l, thickness)).forEach(translatedLines::add);
 		
 		
-		Set<Point2D> segmentConnectPoints = new HashSet<>();
+		Point2D observePoint = new Point2D(29566l, 14821l);
+		
+//		Set<Point2D> segmentConnectPoints = new HashSet<>();
 
 		IntersectionInfo info = new IntersectionInfo();
 		for(int idx=0; idx<translatedLines.size(); idx++) {
 			int nidx = (idx+1) % translatedLines.size();
+			
+			Line2D lineBase = baseLines.get(idx);
+			boolean isObservePoint = lineBase.pointB().equals(observePoint);
+			
 			Line2D line = translatedLines.get(idx);
 			Line2D nline = translatedLines.get(nidx);
 			Point2D nextPoint = line.intersectionPoint(nline, info);
 			if (info.ua>=1d) {
 				translatedLines.set(idx, line.withSecondPoint(nextPoint));
 				translatedLines.set(nidx, nline.withFirstPoint(nextPoint));
-				segmentConnectPoints.add(nextPoint);
+//				segmentConnectPoints.add(nextPoint);
+			} else if (info.intersectionPoint!=null) {
+				nextPoint = info.intersectionPoint;
+				long squaredDistance = line.getSecondPoint().squaredDistance(nline.getFirstPoint());
+				long sqDist1 = info.intersectionPoint.squaredDistance(line.getSecondPoint());
+				long sqDist2 = info.intersectionPoint.squaredDistance(nline.getFirstPoint());
+				if (squaredDistance<sqDist1 || squaredDistance<sqDist2) {
+					translatedLines.set(idx, line.withSecondPoint(nextPoint));
+					translatedLines.set(nidx, nline.withFirstPoint(nextPoint));
+				}
 			}
+			
+			if (isObservePoint) {
+				log.debug2("%%%%%%%%%%%%%%%%%%%% info:{}, nextPoint:{}", info, nextPoint);
+				
+				log.debug2("%%%%%%%%%%%%%%%%%%%% line:{}", line);
+				log.debug2("%%%%%%%%%%%%%%%%%%%% nline:{}", nline);
+				
+				Point2D crossPoint = line.crossPoint(nline, info);
+				log.debug2("%%%%%%%%%%%%%%%%%%%% info:{}, crossPoint-A:{}", info, crossPoint);
+				crossPoint = nline.crossPoint(line, info);
+				log.debug2("%%%%%%%%%%%%%%%%%%%% info:{}, crossPoint-A:{}", info, crossPoint);
+			}
+			
 		}
 		
 
@@ -162,18 +190,17 @@ public class MutableContour {
 		long dy = pb.y - pa.y;
 		
 		double lineLength = Math.sqrt(dx*dx + dy*dy);
-		double halfDx = dx/2d;
-		double halfDy = dy/2d;
-		double midX = pa.x+ halfDx;
-		double midY = pa.y+ halfDy;
 		
-		double tMidX = midX - (dy*thickness)/lineLength;
-		double tMidY = midY + (dx*thickness)/lineLength;
+		double transY = (dy*thickness)/lineLength;
+		double transX = (dx*thickness)/lineLength;
 		
-		Point2D pointA = new Point2D(Math.round(tMidX-halfDx), Math.round(tMidY-halfDy));
-		Point2D pointB = new Point2D(Math.round(tMidX+halfDx), Math.round(tMidY+halfDy));
+		long xa = Math.round((pa.x - transY));
+		long ya = Math.round((pa.y + transX));
+
+		Point2D pointA = new Point2D(xa, ya);
+		Point2D pointB = new Point2D(pointA.x+dx, pointA.y+dy);
+		
 		return new Line2D(pointA, pointB);
-	
 	}
 
 	public void setIndex(Integer index) {
