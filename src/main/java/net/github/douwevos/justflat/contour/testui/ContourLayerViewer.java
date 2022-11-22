@@ -4,19 +4,27 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+
 import net.github.douwevos.justflat.contour.Contour;
 import net.github.douwevos.justflat.contour.ContourLayer;
+import net.github.douwevos.justflat.contour.ContourLayer.LineSelection;
+import net.github.douwevos.justflat.contour.ContourLayer.Selection;
 import net.github.douwevos.justflat.startstop.StartStop;
 import net.github.douwevos.justflat.types.Line2D;
 import net.github.douwevos.justflat.types.Point2D;
 
 
 @SuppressWarnings("serial")
-public class DiscLayerViewer extends ModelViewer<DiscLayerViewableModel> {
+public class ContourLayerViewer extends ModelViewer<ContourLayerViewableModel> {
 
 	final Color colors[] = new Color[] { Color.red, Color.orange, Color.cyan, Color.magenta, Color.BLUE, Color.green, Color.pink, Color.yellow, new Color(192, 64, 64) };
 
@@ -26,7 +34,7 @@ public class DiscLayerViewer extends ModelViewer<DiscLayerViewableModel> {
 	public boolean drawDiscSize = false;
 	
 	public void setModel(ContourLayer discLayer) {
-		setModel(discLayer==null ? null : new DiscLayerViewableModel(discLayer));
+		setModel(discLayer==null ? null : new ContourLayerViewableModel(discLayer));
 	}
 
 	public void setDrawDirections(boolean drawDirections) {
@@ -34,7 +42,7 @@ public class DiscLayerViewer extends ModelViewer<DiscLayerViewableModel> {
 	}
 	
 	@Override
-	protected void paintModel(BufferedImage image, Graphics2D g, DiscLayerViewableModel model) {
+	protected void paintModel(BufferedImage image, Graphics2D g, ContourLayerViewableModel model) {
 		ContourLayer modelLayer = model.discLayer;
 
 		Dimension viewDimension = getViewDimension();
@@ -133,12 +141,12 @@ public class DiscLayerViewer extends ModelViewer<DiscLayerViewableModel> {
 	}
 
 	@Override
-	public void paintOnTopLayer(Graphics2D gfx, DiscLayerViewableModel model) {
+	public void paintOnTopLayer(Graphics2D gfx, ContourLayerViewableModel model) {
 		drawScanLine(gfx, model);
 	}
 
 	
-	private void drawScanLine(Graphics2D gfx, DiscLayerViewableModel viewableModel) {
+	private void drawScanLine(Graphics2D gfx, ContourLayerViewableModel viewableModel) {
 		if (viewableModel==null || viewableModel.discLayer == null) {
 			return;
 		}
@@ -249,7 +257,7 @@ public class DiscLayerViewer extends ModelViewer<DiscLayerViewableModel> {
 	}
 	
 	public Contour getSelectedContour() {
-		Object sel = this.selected;
+		Object sel = this.highlighted;
 
 		if (sel instanceof ContourLayer.Selection) {
 			ContourLayer.Selection selection = (ContourLayer.Selection) sel;
@@ -301,6 +309,51 @@ public class DiscLayerViewer extends ModelViewer<DiscLayerViewableModel> {
 
 	
 	@Override
+	protected void onClicked(MouseEvent event, double modelX, double modelY) {
+		super.onClicked(event, modelX, modelY);
+		if (event.getButton() == 3) {
+			
+			JPopupMenu p = new JPopupMenu();
+			
+			System.err.println("selected="+highlighted);
+			
+			if (highlighted instanceof Selection) {
+				Selection s = (Selection) highlighted;
+				Action actDeletePoint = new AbstractAction("Delete point") {
+					
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						s.contour.removeAt(s.dotIndex);
+						layerImage = null;
+						repaint();
+					}
+				};
+				p.add(actDeletePoint);
+			}
+
+			if (highlighted instanceof LineSelection) {
+				LineSelection l = (LineSelection) highlighted;
+				Action actDummy = new AbstractAction("Add point") {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						l.contour.addAt(new Point2D(Math.round(modelX), Math.round(modelY)), l.dotIndex+1);
+						layerImage = null;
+						repaint();
+					}
+				};
+				p.add(actDummy);
+			}
+
+			
+
+			
+			p.show(this, event.getX(), event.getY());
+			
+			
+		}
+	}
+	
+	@Override
 	public boolean onDrag(MouseEvent event, Object selected, double mx, double my) {
 		return model==null ? false : model.discLayer.dragTo(selected, mx, my);
 	}
@@ -309,7 +362,7 @@ public class DiscLayerViewer extends ModelViewer<DiscLayerViewableModel> {
 	@Override
 	protected void onMove(MouseEvent event, double modelX, double modelY) {
 		Contour oldContour = getSelectedContour();
-		selected = model==null ? null : model.discLayer.selectAt(modelX, modelY, camera.getZoom());
+		highlighted = model==null ? null : model.discLayer.selectAt(modelX, modelY, camera.getZoom());
 		Contour newContour = getSelectedContour();
 		long ns = (long) modelY;
 		if (scanLine != ns || newContour!=oldContour) {

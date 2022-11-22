@@ -84,8 +84,8 @@ public class ScalerViewer2 extends ScalerViewerBase {
 		mouseModelY = modelY;
 
 		
-		Object selectedOld = selected;
-		selected = model==null ? null : model.selectAt(modelX, modelY, camera.getZoom());
+		Object selectedOld = highlighted;
+		highlighted = model==null ? null : model.selectAt(modelX, modelY, camera.getZoom());
 
 //		if (selectedOld == selected) {
 //			return;
@@ -112,7 +112,7 @@ public class ScalerViewer2 extends ScalerViewerBase {
 	}
 	
 	
-	protected void paintTranslatedSegmentSelection(Graphics2D gfx, TranslatedSegmentSelection selected) {
+	protected void paintHighlightedTranslatedSegment(Graphics2D gfx, TranslatedSegmentSelection selected) {
 		TranslatedSegment translatedSegment = selected.translatedSegment;
 		
 		Line2D line = translatedSegment.base.base;

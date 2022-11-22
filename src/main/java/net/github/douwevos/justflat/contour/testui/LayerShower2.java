@@ -1,21 +1,30 @@
 package net.github.douwevos.justflat.contour.testui;
 
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.event.ActionEvent;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.ListCellRenderer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -24,8 +33,8 @@ import net.github.douwevos.justflat.contour.ContourLayer;
 import net.github.douwevos.justflat.contour.DiscLayerFillContext;
 import net.github.douwevos.justflat.contour.DiscLayerOverlapCutter2;
 import net.github.douwevos.justflat.contour.DiscLayerScaler;
-import net.github.douwevos.justflat.contour.testui.examples.TestModelOne;
-import net.github.douwevos.justflat.contour.testui.examples.TestModelOne2;
+import net.github.douwevos.justflat.contour.testui.examples.ScalarTests;
+import net.github.douwevos.justflat.contour.testui.examples.ScalarTests.ScalarTest;
 import net.github.douwevos.justflat.ttf.TextLayout;
 import net.github.douwevos.justflat.ttf.TextLayoutToDiscLayer;
 import net.github.douwevos.justflat.ttf.format.Ttf;
@@ -53,13 +62,13 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 	private Layer cutLayer;
 	
 	
-	private DiscLayerViewer baseViewer;
-	private DiscLayerViewer moveLayerViewer;
-	private DiscLayerViewer adaptiveLayerViewer;
-	private DiscLayerViewer resultViewer;
+	private ContourLayerViewer baseViewer;
+	private ContourLayerViewer moveLayerViewer;
+	private ContourLayerViewer adaptiveLayerViewer;
+	private ContourLayerViewer resultViewer;
 
 	
-	private DiscLayerViewer reachableLayerViewer1;
+	private ContourLayerViewer reachableLayerViewer1;
 	private ScalerViewer2 scalerViewer2;
 	private ScalerViewer3 scalerViewer3;
 
@@ -68,44 +77,59 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 
 	private volatile boolean dirty = true;
 	
-	List<ContourLayerTestProducer> testModelProducers = new ArrayList<>();
+	ScalarTests scalarTests;
 	
 	public LayerShower2() {
 
-		testModelProducers.add(new TestModelOne());
-		testModelProducers.add(new TestModelOne2());
+		scalarTests = new ScalarTests();
+
 		
-		List<String> testModelNames = testModelProducers.stream().map(s -> s.name()).collect(Collectors.toList());
 		
-//		List<String> testModelNames = new ArrayList<>(Arrays.asList("Fix 1", "Fix 2"));
+		List<String> testModelNames = scalarTests.streamNames().collect(Collectors.toList());
+		
 		String[] array = testModelNames.toArray(new String[testModelNames.size()]);
 		
 		cmbTestModels = new JComboBox<>(array);
-		cmbTestModels.setBounds(0,0, 100, 35);
+		cmbTestModels.setBounds(0,0, 140, 35);
 		add(cmbTestModels);
-		cmbTestModels.setSe
+		cmbTestModels.setRenderer(new ComboBoxRenderer(cmbTestModels));
 		cmbTestModels.addItemListener(event -> {
 			if (event.getStateChange() == ItemEvent.SELECTED) {
 		          String item = (String) event.getItem();
-		          ContourLayerTestProducer testProducer = testModelProducers.stream().filter(s -> s.name().equals(item)).findAny().orElse(null);
+		          ScalarTest scalarTest = scalarTests.get(item);
+		          ContourLayerTestProducer testProducer = scalarTest.producer;
 		          selectModel(testProducer);
 		       }		
-			System.exit(1);
+//			System.exit(1);
 			});
+		
+		
+		
+		Action actOutputScaled = new AbstractAction("out") {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				writeScaled();
+			}
+
+		};
+		JButton butOutputScaled = new JButton(actOutputScaled);
+		add(butOutputScaled);
+		butOutputScaled.setBounds(0,35, 140,35);
 		
 		designedLayer = createMainDiscLayer();
 		
 		setLayout(null);
 		
-		baseViewer = new DiscLayerViewer();
-		baseViewer.setBounds(0,35, 100,100);
+		baseViewer = new ContourLayerViewer();
+		baseViewer.setBounds(0,70, 140,100);
 		
 		add(baseViewer);
 
 		int blockWidth = 1050;
 		int blockHeight = 1000;
 		
-		moveLayerViewer = new DiscLayerViewer() {
+		moveLayerViewer = new ContourLayerViewer() {
 			@Override
 			public void onModelChanged() {
 				dirty = true;
@@ -117,7 +141,7 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 
 		Camera camera = moveLayerViewer.getCamera();
 		
-		adaptiveLayerViewer = new DiscLayerViewer();
+		adaptiveLayerViewer = new ContourLayerViewer();
 		adaptiveLayerViewer.setCamera(camera, false);
 		adaptiveLayerViewer.setBounds(180+blockWidth, 0, blockWidth,blockHeight);
 		adaptiveLayerViewer.setFillWithAlpha(true);
@@ -136,7 +160,13 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 		blockWidth = 1050;
 		
 		
-		reachableLayerViewer1 = new DiscLayerViewer();
+		reachableLayerViewer1 = new ContourLayerViewer() {
+			@Override
+			public void paint(Graphics g) {
+				super.paint(g);
+				drawVisibleText(g, ""+thickness, 5, 30, Color.yellow, Color.black);
+			}
+		};
 		reachableLayerViewer1.setCamera(camera, false);
 		reachableLayerViewer1.setBounds(150,blockHeight+20, blockWidth, blockHeight);
 		reachableLayerViewer1.setDrawDirections(true);
@@ -147,7 +177,7 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 		scalerViewer2.setBounds(180+blockWidth, blockHeight+20, blockWidth,blockHeight);
 		add(scalerViewer2);
 
-		resultViewer = new DiscLayerViewer();
+		resultViewer = new ContourLayerViewer();
 		resultViewer.setCamera(camera, false);
 		resultViewer.setBounds(210+blockWidth*2, blockHeight+20, blockWidth,blockHeight);
 		add(resultViewer);
@@ -170,7 +200,9 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 
 	}
 	
+
 	private void selectModel(ContourLayerTestProducer testProducer) {
+		thickness = testProducer.getThickness();
 		designedLayer = testProducer.produceSourceLayer();
 		dirty = true;
 	}
@@ -179,6 +211,12 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 	public void addNotify() {
 		super.addNotify();
 		addComponentListener(this);
+		
+		ScalarTest failedTest = scalarTests.streamNames().map(s -> scalarTests.get(s)).filter(s -> !s.testOk).findFirst().orElse(null);
+		if (failedTest != null) {
+			cmbTestModels.setSelectedItem(failedTest.name());
+		}
+
 	}
 	
 	public static void main(String[] args) {
@@ -317,10 +355,63 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 			callPaint(discLayerFillContext);
 			
 		}
+	}
+
+	private void writeScaled() {
+		PrintWriter out = new PrintWriter(System.out);
+
+		out.println("	@Override");
+		out.println("	public int getThickness() {");
+		out.println("		return "+thickness+";");
+		out.println("	}");
+		out.println();
+
+		out.println("	@Override");
+		out.println("	public String name() {");
+		out.println("		return getClass().getSimpleName();");
+		out.println("	}");
+		out.println();
 		
+		out.println("	public ContourLayer produceSourceLayer() {");
+		out.println("		ContourLayer contourLayer = new ContourLayer("+designedLayer.getWidth()+", "+designedLayer.getHeight()+");");
+		
+		int contourOffset = 0;
+		for(Contour contour : designedLayer) {
+			String contourVarName = "contour"+(contourOffset++);
+			out.println("		Contour "+contourVarName+" = new Contour();");
+			for(Point2D p : contour) {
+				out.println("		"+contourVarName+".add(Point2D.of("+p.x+", "+p.y+"));");
+			}
+			out.println("		"+contourVarName+".setClosed("+contour.isClosed()+");");
+			out.println("		contourLayer.add("+contourVarName+");");
+			out.println();
+		}
+		out.println("		return contourLayer;");
+		out.println("	}");
+		out.println();
+
+		
+		ContourLayer contourLayer = scalarTests.applyScaling(designedLayer, thickness);
+		out.println("	public ContourLayer produceResultLayer() {");
+		out.println("		ContourLayer contourLayer = new ContourLayer("+contourLayer.getWidth()+", "+contourLayer.getHeight()+");");
+		
+		for(Contour contour : contourLayer) {
+			String contourVarName = "contour"+(contourOffset++);
+			out.println("		Contour "+contourVarName+" = new Contour();");
+			for(Point2D p : contour) {
+				out.println("		"+contourVarName+".add(Point2D.of("+p.x+", "+p.y+"));");
+			}
+			out.println("		"+contourVarName+".setClosed("+contour.isClosed()+");");
+			out.println("		contourLayer.add("+contourVarName+");");
+			out.println();
+		}
+		out.println("		return contourLayer;");
+		out.println("	}");
+		out.flush();
 		
 	}
 
+	
 	private void callPaint(DiscLayerFillContext discLayerFillContext) {
 		if (discLayerFillContext.discLayer!=null) {
 			ContourLayer duplicate = discLayerFillContext.discLayer.duplicate();
@@ -397,4 +488,50 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 		int getThickness();
 	}
 	
+	
+	
+	class ComboBoxRenderer extends JPanel implements ListCellRenderer {
+
+	    private static final long serialVersionUID = -1L;
+
+	    JPanel textPanel;
+	    JLabel text;
+
+	    public ComboBoxRenderer(JComboBox combo) {
+
+	        textPanel = new JPanel();
+	        textPanel.add(this);
+	        text = new JLabel();
+	        text.setOpaque(true);
+	        text.setFont(combo.getFont());
+	        textPanel.add(text);
+	    }
+
+
+	    @Override
+	    public Component getListCellRendererComponent(JList list, Object value,
+	            int index, boolean isSelected, boolean cellHasFocus) {
+
+	        if (isSelected) {
+	            setBackground(list.getSelectionBackground());
+	        }
+	        else {
+	            setBackground(Color.WHITE);
+	        }
+
+	        String name = value.toString();
+	        ScalarTest scalarTest = scalarTests.get(name);
+
+	        text.setBackground(getBackground());
+	        text.setText(value.toString());
+	        
+	        if (scalarTest.testOk) {
+	        	text.setForeground(Color.BLACK);
+	        } else {
+	        	text.setForeground(Color.RED);
+	        }
+	        
+	        return text;
+	    }
+	}
 }

@@ -3,7 +3,9 @@ package net.github.douwevos.justflat.contour.testui;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.EnumMap;
@@ -14,6 +16,7 @@ import net.github.douwevos.justflat.contour.MutableContour;
 import net.github.douwevos.justflat.contour.MutableLine;
 import net.github.douwevos.justflat.contour.OverlapPoint;
 import net.github.douwevos.justflat.contour.OverlapPoint.Taint;
+import net.github.douwevos.justflat.contour.Route;
 import net.github.douwevos.justflat.contour.TargetLine;
 import net.github.douwevos.justflat.contour.TranslatedSegment;
 import net.github.douwevos.justflat.contour.testui.ScalerViewableModel.TranslatedSegmentSelection;
@@ -28,6 +31,8 @@ public class ScalerViewer3 extends ScalerViewerBase {
 	double mouseModelX;
 	double mouseModelY;
 	
+	TranslatedSegmentSelection selected;
+	Point2D mouse;
 	
 	
 	@Override
@@ -35,6 +40,10 @@ public class ScalerViewer3 extends ScalerViewerBase {
 		if (selectedTargetLine != null) {
 			Point2D point = new Point2D(Math.round(mouseModelX), Math.round(mouseModelY));
 			paintProjection(gfx, model, selectedTargetLine, point);
+		}
+		
+		if (selected!=null) {
+			paintSelectedTranslatedSegment(gfx, selected);
 		}
 	}
 
@@ -78,6 +87,10 @@ public class ScalerViewer3 extends ScalerViewerBase {
 		
 		if (selectedTargetLine != null) {
 			paintTargetLine(gfx, viewableModel, selectedTargetLine);
+		}
+		
+		if (selected != null) {
+			paintHighlightedTranslatedSegment(gfx, selected);
 		}
 		
 		
@@ -204,37 +217,39 @@ public class ScalerViewer3 extends ScalerViewerBase {
 		mouseModelX = modelX;
 		mouseModelY = modelY;
 
-		
-		Object selectedOld = selected;
-		selected = model==null ? null : model.selectAt(modelX, modelY, camera.getZoom());
-
-//		if (selectedOld == selected) {
-//			return;
-//		}
-		
+		if (selected == null) {
+			highlighted = model==null ? null : model.selectAt(modelX, modelY, camera.getZoom());
+		} else {
+			mouse = Point2D.of(Math.round(modelX), Math.round(modelY));
+		}
 		repaint();
 	}
 	
 	@Override
 	protected void onClicked(MouseEvent event, double modelX, double modelY) {
 		Object selectOnClick = model==null ? null : model.selectAt(modelX, modelY, camera.getZoom());
-//		if (selectOnClick instanceof TargetLineSelection) {
+		if (selectOnClick instanceof TranslatedSegmentSelection) {
 //			TargetLineSelection targetLineSelection = (TargetLineSelection) selectOnClick;
-//			selectedTargetLine = targetLineSelection.get();
-//			layerImage = null;
-//			repaint();
-//		} else {
+			selected = (TranslatedSegmentSelection) selectOnClick;
+			layerImage = null;
+			repaint();
+		} else {
+			if (selected!=null) {
+				selected = null;
+				layerImage = null;
+				repaint();
+			}
 			if (selectedTargetLine!=null) {
 				selectedTargetLine = null;
 				layerImage = null;
 				repaint();
 			}
-//		}
+		}
 	}
 	
 
 
-	protected void paintTranslatedSegmentSelection(Graphics2D gfx, TranslatedSegmentSelection selected) {
+	protected void paintHighlightedTranslatedSegment(Graphics2D gfx, TranslatedSegmentSelection selected) {
 		TranslatedSegment translatedSegment = selected.translatedSegment;
 		
 		Line2D line = translatedSegment.base.base;
@@ -287,6 +302,103 @@ public class ScalerViewer3 extends ScalerViewerBase {
 
 	}
 	
+	
+	protected void paintSelectedTranslatedSegment(Graphics2D gfx, TranslatedSegmentSelection selected) {
+		TranslatedSegment translatedSegment = selected.translatedSegment;
+		
+		int viewHeight = getViewDimension().height;
+		
+		Graphics2D tempGfx = (Graphics2D) gfx.create();
+		tempGfx.setStroke(new BasicStroke(2.5f));
+		
+		if (translatedSegment.headTailCrossPoint!=null) {
+			paintSegmentPart(tempGfx, translatedSegment.base0, mouse, viewHeight);
+			paintSegmentPart(tempGfx, translatedSegment.base1, mouse, viewHeight);
+			paintSegmentPart(tempGfx, translatedSegment.base, mouse, viewHeight);
+			
+			paintSegmentPart(tempGfx, translatedSegment.translated0, mouse, viewHeight);
+			paintSegmentPart(tempGfx, translatedSegment.translated1, mouse, viewHeight);
+			paintSegmentPart(tempGfx, translatedSegment.translated, mouse, viewHeight);
+		}
+
+
+		paintSegmentPart(tempGfx, translatedSegment.base, mouse, viewHeight);
+		paintSegmentPart(tempGfx, translatedSegment.translated, mouse, viewHeight);
+
+		paintSegmentPart(tempGfx, translatedSegment.head, mouse, viewHeight);
+		paintSegmentPart(tempGfx, translatedSegment.tail, mouse, viewHeight);
+
+		
+		//		Line2D line = translatedSegment.base.base;
+//		Line2D translated = translatedSegment.translated.base;
+//		
+//		int viewHeight = getViewDimension().height;
+//		
+//		Point2D baseA = camera.toViewCoords(line.pointA(), viewHeight);
+//		Point2D baseB = camera.toViewCoords(line.pointB(), viewHeight);
+//		
+//		
+//		Point2D transA = camera.toViewCoords(translated.pointA(), viewHeight);
+//		Point2D transB = camera.toViewCoords(translated.pointB(), viewHeight);
+//		
+//		int polyX[] = new int[4];
+//		int polyY[] = new int[4];
+//		
+//		polyX[0] = (int) baseA.x;
+//		polyX[1] = (int) baseB.x;
+//		polyX[2] = (int) transB.x;
+//		polyX[3] = (int) transA.x;
+//
+//		polyY[0] = (int) baseA.y;
+//		polyY[1] = (int) baseB.y;
+//		polyY[2] = (int) transB.y;
+//		polyY[3] = (int) transA.y;
+//		
+//		gfx.setColor(new Color(255,128,255,40));
+//		gfx.fillPolygon(polyX, polyY, 4);
+////		
+////		double cosAlpha = line.getAlpha();
+////		int alpha = (int) Math.round(cosAlpha);
+////		double size = Math.abs(mutableLine.thickness*2d) / camera.getZoom();
+////		System.err.println("size="+size+" cosAlpha="+cosAlpha);
+////		int sizeI = (int) Math.round(size);
+////		int r = sizeI/2;
+////		int s1 = (alpha+180) % 360;
+////		int s2 = (alpha+270) % 360;
+////		gfx.fillArc((int) baseA.x-r, (int) baseA.y-r, sizeI, sizeI, s1, 91);
+////
+////		
+////		gfx.fillArc((int) baseB.x-r, (int) baseB.y-r, sizeI, sizeI, s2, 91);
+//		
+//		translatedSegment.translated.ensureOrdered();
+//		int idx=0;
+//		for(OverlapPoint overlapPoint : translatedSegment.translated.overlapPointsIterable()) {
+//			paintHighlightedOverlapPoint(gfx, viewHeight, overlapPoint, idx);
+//			idx++;
+//		}
+
+	}
+
+
+	private void paintSegmentPart(Graphics2D gfx, Route route, Point2D mouse, int viewHeight) {
+		Line2D line = route.base;
+		int relativeCCW = line.relativeCCW(mouse);
+		if (relativeCCW<0) {
+			gfx.setColor(Color.red);
+		} else if (relativeCCW>0) {
+			gfx.setColor(Color.green);
+		} else {
+			gfx.setColor(Color.blue);
+		}
+		Point2D baseA = camera.toViewCoords(line.pointA(), viewHeight);
+		Point2D baseB = camera.toViewCoords(line.pointB(), viewHeight);
+		int xA = (int) baseA.x;
+		int yA = (int) baseA.y;
+		int xB = (int) baseB.x;
+		int yB = (int) baseB.y;
+		gfx.drawLine(xA, yA, xB, yB);
+	}
+
 
 
 	protected void paintHighlightedOverlapPoint(Graphics2D gfx, int viewHeight, OverlapPoint overlapPoint, int index) {

@@ -99,7 +99,14 @@ public class Route {
 		if (overlapPoints.contains(overlapPoint)) {
 			return 0;
 		}
-		return base.relativeCCW(overlapPoint.point);
+		return relativeCCW(overlapPoint.point);
+	}
+
+	public int relativeCCW(Point2D point) {
+		if (overlapPoints.stream().anyMatch(op -> op.point.equals(point))) {
+			return 0;
+		}
+		return base.relativeCCW(point);
 	}
 
 	public Point2D crossPoint(Line2D line, IntersectionInfo info) {

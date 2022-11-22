@@ -33,7 +33,7 @@ public abstract class ModelViewer<T extends ViewableModel> extends JPanel implem
 	
 	protected Image layerImage;
 	
-	protected Object selected;
+	protected Object highlighted;
 	
 	protected boolean fillWithAlpha = false;
 	
@@ -91,7 +91,7 @@ public abstract class ModelViewer<T extends ViewableModel> extends JPanel implem
 			paintOnTopLayer(gfx, model);
 		}
 
-		Object localSelected = selected;
+		Object localSelected = highlighted;
 		if (localSelected != null) {
 			paintSelected(gfx, localSelected);
 		}
@@ -200,7 +200,7 @@ public abstract class ModelViewer<T extends ViewableModel> extends JPanel implem
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		int button = e.getButton();
-		if (button == 1) {
+//		if (button == 1) {
 			grabFocus();
 			if (e.getClickCount()==2) {
 				camera.setLockType(CameraLockType.FIT_MODEL);
@@ -217,7 +217,8 @@ public abstract class ModelViewer<T extends ViewableModel> extends JPanel implem
 				double nx = camera.getTranslateX() + mouseX * cameraZoom;
 				onClicked(e, nx, ny);
 			}
-		}
+//		}
+		
 		
 	}
 
@@ -257,13 +258,13 @@ public abstract class ModelViewer<T extends ViewableModel> extends JPanel implem
 		double nx = dragTX + (dragX - mouseX)*cameraZoom;
 		double ny = dragTY + (mouseY - dragY)*cameraZoom;
 
-		if (model!=null && selected!=null) {
+		if (model!=null && highlighted!=null) {
 
 			int bottom = getViewDimension().height-1;
 			int loc = bottom-mouseY;
 			double my = camera.getTranslateY() + loc * cameraZoom;
 			double mx = camera.getTranslateX() + mouseX * cameraZoom;
-			if (onDrag(e, selected, mx, my)) {
+			if (onDrag(e, highlighted, mx, my)) {
 				layerImage = null;
 				onModelChanged();
 				repaint();

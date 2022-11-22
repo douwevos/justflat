@@ -48,12 +48,12 @@ public class ContourLayer implements Layer, Iterable<Contour> {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends Layer> T duplicate() {
+	public ContourLayer duplicate() {
 		ContourLayer result = new ContourLayer(width, height);
 		for(Contour contour : contours) {
 			result.contours.add(contour.duplicate());
 		}
-		return (T) result;
+		return result;
 	}
 
 	@Override

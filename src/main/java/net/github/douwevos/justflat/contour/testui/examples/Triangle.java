@@ -9,7 +9,7 @@ import net.github.douwevos.justflat.ttf.TextLayoutToDiscLayer;
 import net.github.douwevos.justflat.ttf.format.Ttf;
 import net.github.douwevos.justflat.types.Point2D;
 
-public class TestModelOne implements ContourLayerTestProducer, ScalerConfigProvider {
+public class Triangle implements ContourLayerTestProducer, ScalerConfigProvider {
 
 	@Override
 	public int getThickness() {
@@ -18,7 +18,7 @@ public class TestModelOne implements ContourLayerTestProducer, ScalerConfigProvi
 
 	@Override
 	public String name() {
-		return "SansFree outer-d";
+		return getClass().getSimpleName();
 	}
 
 	@Override
@@ -28,12 +28,16 @@ public class TestModelOne implements ContourLayerTestProducer, ScalerConfigProvi
 		int textSize = 60000;
 
 		TextLayoutToDiscLayer textLayoutToDiscLayer = new TextLayoutToDiscLayer(textLayout, textSize);
-		ContourLayer result = new ContourLayer(100000, 100000);
-		textLayoutToDiscLayer.produceLayer(result, 1000, 1000);
-		result.moveDot(Point2D.of(28218, 40764), Point2D.of(32000, 39000));
-		result.moveDot(Point2D.of(28218, 40764), Point2D.of(20944, 14946));
-		result.contours.remove(1);
-		return result;
+
+		ContourLayer contourLayer = new ContourLayer(100000, 100000);
+		Contour contour0 = new Contour();
+		contour0.add(Point2D.of(1000, 100));
+		contour0.add(Point2D.of(5000, 100));
+		contour0.add(Point2D.of(2500, 3000));
+		contour0.setClosed(true);
+		contourLayer.add(contour0);
+
+		return contourLayer;
 	}
 
 

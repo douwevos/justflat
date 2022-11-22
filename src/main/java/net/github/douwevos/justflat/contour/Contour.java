@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
 import net.github.douwevos.justflat.startstop.OnOffLine;
 import net.github.douwevos.justflat.types.Bounds2D;
@@ -52,6 +53,24 @@ public class Contour implements Iterable<Point2D> {
 			bounds = bounds.extend(dot.x, dot.y);
 		}
 	}
+
+	public void addAt(Point2D dot, int dotIndex) {
+		dots.add(dotIndex, dot);
+		if (bounds==null) {
+			bounds = new Bounds2D(dot.x, dot.y, dot.x, dot.y);
+		} else {
+			bounds = bounds.extend(dot.x, dot.y);
+		}
+		
+	}
+
+	
+	public void removeAt(int dotIndex) {
+		dots.remove(dotIndex);
+		refreshBounds();
+		
+	}
+
 	
 	public void addAll(List<Point2D> collectedPoints) {
 		dots.addAll(collectedPoints);
@@ -109,6 +128,10 @@ public class Contour implements Iterable<Point2D> {
 
 	public Point2D getLast() {
 		return dots.isEmpty() ? null : dots.get(dots.size()-1);
+	}
+	
+	public Stream<Point2D> streamDots() {
+		return dots.stream();
 	}
 	
 	public List<Point2D> getDots() {
@@ -205,6 +228,12 @@ public class Contour implements Iterable<Point2D> {
 			pa = pb;
 		}
 	}
+
+
+
+
+
+
 
 //	public void scanLineDouble(long y, OnOffLineDouble onOffLine) {
 //		Point2D pa = getLast();

@@ -398,7 +398,15 @@ public class DiscLayerScaler {
 
 	private boolean isObscuredOverlapPoint(OverlapPoint overlapPoint, MutableContour mutableContour,
 			TranslatedSegment translatedSegment2) {
+		boolean j = false;
+		if (overlapPoint.point.equals(Point2D.of(3813, 1362))) {
+			System.err.println("he");
+			j = true;
+		}
 		for(TranslatedSegment translatedSegment : mutableContour.segmentIterable()) {
+			if (j && translatedSegment.isObscuredOverlapPoint(overlapPoint)) {
+				System.err.println("me");
+			}
 			if (translatedSegment.isObscuredOverlapPoint(overlapPoint)) {
 				return true;
 			}
@@ -420,7 +428,7 @@ public class DiscLayerScaler {
 				
 				Point2D crossPointSide = translatedSegment.translated.crossPoint(subSegment.head.base, info);
 				if (crossPointSide != null) {
-					overlapPointFactory.create(crossPointSide, Taint.OBSCURED, translatedSegment.translated);
+					overlapPointFactory.create(crossPointSide, Taint.NONE, translatedSegment.translated);
 //					OverlapPoint overlapPoint = new OverlapPoint(crossPointSide);
 //					overlapPoint.taintWith(Taint.OBSCURED);
 //					translatedSegment.translated.add(overlapPoint);
@@ -437,7 +445,7 @@ public class DiscLayerScaler {
 				
 				crossPointSide = translatedSegment.translated.crossPoint(subSegment.tail.base, info);
 				if (crossPointSide != null) {
-					overlapPointFactory.create(crossPointSide, Taint.OBSCURED, translatedSegment.translated);
+					overlapPointFactory.create(crossPointSide, Taint.NONE, translatedSegment.translated);
 //					OverlapPoint overlapPoint = new OverlapPoint(crossPointSide);
 //					overlapPoint.taintWith(Taint.OBSCURED);
 //					translatedSegment.translated.add(overlapPoint);

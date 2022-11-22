@@ -8,4 +8,8 @@ public interface ContourLayerTestProducer {
 	String name();
 	
 	ContourLayer produceSourceLayer();
+
+	ContourLayer produceResultLayer();
+
+	int getThickness();
 }

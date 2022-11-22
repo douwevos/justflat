@@ -71,7 +71,7 @@ public abstract class ScalerViewerBase extends ModelViewer<ScalerViewableModel> 
 			paintOverlapPointSelection(g, (OverlapPointSelection) selected);
 		} 
 		else if (selected instanceof TranslatedSegmentSelection) {
-			paintTranslatedSegmentSelection(g, (TranslatedSegmentSelection) selected);
+			paintHighlightedTranslatedSegment(g, (TranslatedSegmentSelection) selected);
 		}
 
 	}
@@ -87,10 +87,10 @@ public abstract class ScalerViewerBase extends ModelViewer<ScalerViewableModel> 
 		mouseModelX = modelX;
 		mouseModelY = modelY;
 		
-		Object selectedOld = selected;
-		selected = model==null ? null : model.selectAt(modelX, modelY, camera.getZoom());
+		Object selectedOld = highlighted;
+		highlighted = model==null ? null : model.selectAt(modelX, modelY, camera.getZoom());
 
-		if (selectedOld == selected) {
+		if (selectedOld == highlighted) {
 			return;
 		}
 		
@@ -156,7 +156,7 @@ public abstract class ScalerViewerBase extends ModelViewer<ScalerViewableModel> 
 
 	
 	
-	protected void paintTranslatedSegmentSelection(Graphics2D g, TranslatedSegmentSelection selected) {
+	protected void paintHighlightedTranslatedSegment(Graphics2D g, TranslatedSegmentSelection selected) {
 		
 	}
 
