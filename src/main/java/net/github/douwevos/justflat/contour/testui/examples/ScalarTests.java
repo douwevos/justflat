@@ -18,10 +18,11 @@ public class ScalarTests {
 
 	
 	public ScalarTests() {
-		add(new TestModelOne());
-		add(new TestModelOne2());
-		add(new Triangle());
+//		add(new TestModelOne());
+//		add(new TestModelOne2());
+//		add(new Triangle());
 		add(new TDBird());
+		add(new TDBird2());
 		runTests();
 	}
 	

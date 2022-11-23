@@ -3,6 +3,7 @@ package net.github.douwevos.justflat.contour.testui;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.util.EnumMap;
@@ -11,8 +12,10 @@ import java.util.Map;
 import java.util.Set;
 
 import net.github.douwevos.justflat.contour.MutableContour;
+import net.github.douwevos.justflat.contour.ObscuredInfo;
 import net.github.douwevos.justflat.contour.OverlapPoint;
 import net.github.douwevos.justflat.contour.OverlapPoint.Taint;
+import net.github.douwevos.justflat.contour.Range;
 import net.github.douwevos.justflat.contour.TranslatedSegment;
 import net.github.douwevos.justflat.contour.testui.ScalerViewableModel.CrossPointSelection;
 import net.github.douwevos.justflat.contour.testui.ScalerViewableModel.OverlapPointSelection;
@@ -152,10 +155,44 @@ public abstract class ScalerViewerBase extends ModelViewer<ScalerViewableModel> 
 			drawVisibleText(g, taint.name(), tx, ty, taintColorMap.get(taint), Color.BLACK);
 			ty += 25;
 		}
+		
+		ObscuredInfo obscuredInfo = sel.overlapPoint.getObscuredInfo();
+		drawObscuredInfo(g, viewCoords, obscuredInfo);
+	}
+	
+	private void drawObscuredInfo(Graphics2D g, Point2D viewCoords, ObscuredInfo obscuredInfo) {
+		
+		Graphics gfxTemp = g.create();
+		
+		final int R = 60;
+		final int D = R*2;
+		
+		int xb = (int) viewCoords.x-10-R;
+		int yb = (int) viewCoords.y-R / 2;
+		int yb1 = (int) viewCoords.y +50 + R / 2;
+		g.setColor(Color.RED);
+		g.drawArc(xb, yb, R, R, 0, 360);
+
+		g.setColor(new Color(255,0,0,100));
+
+		for(Range range : obscuredInfo) {
+//			int start = (int) Math.round(Math.toDegrees(range.start));
+//			int end = (int) Math.round(Math.toDegrees(range.end));
+			int start = (int) Math.round(range.start);
+			int end = (int) Math.round(range.end);
+			int ang = end-start;
+			if (ang<0) {
+				ang+=360;
+			}
+			g.fillArc(xb, yb, R, R, start, ang);
+			drawVisibleText(gfxTemp, ""+range, xb, yb1, Color.LIGHT_GRAY, Color.black);
+			yb1 += 30;
+		}
+		
+		gfxTemp.dispose();
 	}
 
-	
-	
+
 	protected void paintHighlightedTranslatedSegment(Graphics2D g, TranslatedSegmentSelection selected) {
 		
 	}

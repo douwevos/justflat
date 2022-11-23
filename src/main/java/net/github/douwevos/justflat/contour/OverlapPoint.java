@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.github.douwevos.justflat.types.Line2D;
 import net.github.douwevos.justflat.types.Point2D;
 
 public class OverlapPoint {
@@ -16,6 +17,8 @@ public class OverlapPoint {
 	private Taint taint = Taint.NONE;
 	
 	private Map<Taint,Taint> taintedSet = new EnumMap<>(Taint.class);
+	
+	private ObscuredInfo obscuredInfo = new ObscuredInfo();
 	
 	private boolean isUSed;
 	
@@ -91,6 +94,27 @@ public class OverlapPoint {
 		}
 	}
 	
+	public ObscuredInfo getObscuredInfo() {
+		return obscuredInfo;
+	}
+	
+
+	public void addObscure(Line2D from, boolean fromReverse, Line2D to, boolean toReverse) {
+		
+	}
+
+	public void addObscure2(Line2D from, boolean fromReverse, Line2D to, boolean toReverse) {
+		double fromA = from.getAlpha();
+		if (fromReverse) {
+			fromA = (fromA+180d)%360d;
+		}
+		double toA = to.getAlpha();
+		if (toReverse) {
+			toA = (toA+180d)%360d;
+		}
+		obscuredInfo = obscuredInfo.add(new Range(fromA, toA));
+	}
+
 	
 	public void markUsed() {
 		isUSed = true;
@@ -117,5 +141,7 @@ public class OverlapPoint {
 	public String toString() {
 		return "OverlapPoint [point=" + point + ", taint=" + taint + ", isUSed=" + isUSed + "]";
 	}
+
+
 	
 }

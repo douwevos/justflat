@@ -14,6 +14,10 @@ public class OverlapPointFactory {
 	public OverlapPoint create(Point2D point, Taint obscured, Route ... routes) {
 		OverlapPoint result = overlapPoints.get(point);
 		if (result == null) {
+			if (point.equals(Point2D.of(3813, 1363)) || point.equals(Point2D.of(3813, 1362))) {
+				System.err.println("s");
+			}
+				
 			result = new OverlapPoint(point);
 			overlapPoints.put(point, result);
 		}

@@ -96,29 +96,6 @@ public class DiscLayerScaler {
 		markConnectingSegementPoints(overlapPointFactory, mutableContour);
 		
 		taintObscuredSegmentPoints(mutableContour);
-		
-//		taintOvershootingPoints(mutableContour);
-		
-		
-//		
-////		mutableContour.connectTranslatedLines();
-//		
-//		
-//		reconnectAfterTranslate(mutableContour);
-//		
-//		
-//		stripFlipped(mutableContour);
-//		
-//		markCleanSections(mutableContour);
-//
-//		calculateAllIntermediateCrossPoints(mutableContour);
-//		
-////		hideLinesInOppositeDirection(mutableContour);
-//
-//		markLinesAsFlippedInOppositeDirection(mutableContour);
-
-//		int firstCleanSection = taintTargetLines(mutableContour);
-//		taintNewTargetLines(mutableContour);
 
 		allMutableContours.add(mutableContour);
 		
@@ -366,18 +343,17 @@ public class DiscLayerScaler {
 //				prevSegment.translated.add(overlapPoint);
 //				translatedSegment.translated.add(overlapPoint);
 
-				overlapPointFactory.create(translatedSegment.translated.base.getFirstPoint(), Taint.RECONNECT, prevSegment.translated, translatedSegment.translated);
-
+				OverlapPoint op = overlapPointFactory.create(translatedSegment.translated.base.getFirstPoint(), Taint.RECONNECT, prevSegment.translated, translatedSegment.translated);
+				op.addObscure(translatedSegment.translated.base, false, prevSegment.translated.base, true);
 			} else {
-//				OverlapPoint overlapPoint = new OverlapPoint(translatedSegment.translated.base.getFirstPoint());
-//				translatedSegment.translated.add(overlapPoint);
-//
-				overlapPointFactory.create(translatedSegment.translated.base.getFirstPoint(), Taint.NONE, translatedSegment.translated);
+				OverlapPoint op = overlapPointFactory.create(translatedSegment.translated.base.getFirstPoint(), Taint.NONE, translatedSegment.translated);
+				op.addObscure(translatedSegment.translated.base, false, translatedSegment.head.base, true);
 
 //				overlapPoint = new OverlapPoint(prevSegment.translated.base.getSecondPoint());
 //				prevSegment.translated.add(overlapPoint);
 
-				overlapPointFactory.create(prevSegment.translated.base.getSecondPoint(), Taint.NONE, prevSegment.translated);
+				op = overlapPointFactory.create(prevSegment.translated.base.getSecondPoint(), Taint.NONE, prevSegment.translated);
+				op.addObscure(prevSegment.head.base, true, prevSegment.translated.base, true);
 
 
 			}
@@ -389,6 +365,7 @@ public class DiscLayerScaler {
 
 	private void taintObscuredSegmentPoints(MutableContour mutableContour) {
 		for(TranslatedSegment translatedSegment : mutableContour.segmentIterable()) {
+			translatedSegment.finalizeObscuredInfo();
 			translatedSegment.streamAllOverlapPoints()
 				.filter(s -> !s.isTainted())
 				.filter(op -> isObscuredOverlapPoint(op, mutableContour, translatedSegment))
@@ -420,436 +397,81 @@ public class DiscLayerScaler {
 		
 		
 		for(TranslatedSegment translatedSegment : mutableContour.segmentIterable()) {
+
+			if (translatedSegment.headTailCrossPoint != null) {
+				Point2D p = translatedSegment.headTailCrossPoint;
+				OverlapPoint op = overlapPointFactory.create(p, Taint.NONE, translatedSegment.head, translatedSegment.tail);
+				op.addObscure(translatedSegment.base1.base, false, translatedSegment.base0.base, true);
+				op.addObscure(translatedSegment.base1.base, true, translatedSegment.base0.base, false);
+			}
 			
 			for(TranslatedSegment subSegment : mutableContour.segmentIterable()) {
 				if (subSegment == translatedSegment) {
 					continue;
 				}
-				
-				Point2D crossPointSide = translatedSegment.translated.crossPoint(subSegment.head.base, info);
-				if (crossPointSide != null) {
-					overlapPointFactory.create(crossPointSide, Taint.NONE, translatedSegment.translated);
-//					OverlapPoint overlapPoint = new OverlapPoint(crossPointSide);
-//					overlapPoint.taintWith(Taint.OBSCURED);
-//					translatedSegment.translated.add(overlapPoint);
-				} else if (Objects.equals(info.intersectionPoint, subSegment.head.base.getSecondPoint())) { // TODO what todo if the intersectionPoint is the wrong side of 'tail'
-//				} else if (info.intersectionPoint!=null) { // TODO what todo if the intersectionPoint is the wrong side of 'head'
+
+//				if (subSegment.headTailCrossPoint == null) {
 					
-					overlapPointFactory.create(info.intersectionPoint, Taint.EDGE, translatedSegment.translated, subSegment.head);
-					
-//					OverlapPoint overlapPoint = new OverlapPoint(info.intersectionPoint);
-//					overlapPoint.taintWith(Taint.EDGE);
-//					translatedSegment.translated.add(overlapPoint);
-//					subSegment.head.add(overlapPoint);
-				}
-				
-				crossPointSide = translatedSegment.translated.crossPoint(subSegment.tail.base, info);
-				if (crossPointSide != null) {
-					overlapPointFactory.create(crossPointSide, Taint.NONE, translatedSegment.translated);
-//					OverlapPoint overlapPoint = new OverlapPoint(crossPointSide);
-//					overlapPoint.taintWith(Taint.OBSCURED);
-//					translatedSegment.translated.add(overlapPoint);
-				} else if (Objects.equals(info.intersectionPoint, subSegment.tail.base.getSecondPoint())) { // TODO what todo if the intersectionPoint is the wrong side of 'tail'
-					overlapPointFactory.create(info.intersectionPoint, Taint.EDGE, translatedSegment.translated, subSegment.tail);
-
-//					OverlapPoint overlapPoint = new OverlapPoint(info.intersectionPoint);
-//					overlapPoint.taintWith(Taint.EDGE);
-//					translatedSegment.translated.add(overlapPoint);
-//					subSegment.tail.add(overlapPoint);
-				}
-
-				
-				
-//				if (translatedSegment.findByTranslatedSegment(subSegment) == null) {
-					
-					/* crossing translated lines */
-					Point2D crossPoint = translatedSegment.translated.crossPoint(subSegment.translated.base, info);
-					if (crossPoint != null) {
-//						OverlapPoint overlapPoint = new OverlapPoint(crossPoint);
-//						translatedSegment.translated.add(overlapPoint);
-//						subSegment.translated.add(overlapPoint);
-						
-						overlapPointFactory.create(crossPoint, Taint.NONE, translatedSegment.translated, subSegment.translated);
-
-					}
-
-					/* translated line crosses original */
-					Point2D badCrossPoint = translatedSegment.translated.crossPoint(subSegment.base.base, info);
-					if (info.intersectionPoint != null) {
-//						OverlapPoint overlapPoint = new OverlapPoint(badCrossPoint);
-//						translatedSegment.translated.add(overlapPoint);
-////						subSegment.add(overlapPoint);
-//						overlapPoint.taintWith(Taint.ORIGINAL);
-
-						overlapPointFactory.create(info.intersectionPoint, Taint.ORIGINAL, translatedSegment.translated, subSegment.base);
-					}
-
-					/* translated line crosses original */
-					badCrossPoint = translatedSegment.base.crossPoint(subSegment.translated.base, info);
-					if (info.intersectionPoint != null) {
-//						OverlapPoint overlapPoint = new OverlapPoint(badCrossPoint);
-////						translatedSegment.add(overlapPoint);
-//						subSegment.translated.add(overlapPoint);
-//						overlapPoint.taintWith(Taint.ORIGINAL);
-						overlapPointFactory.create(info.intersectionPoint, Taint.ORIGINAL, translatedSegment.base, subSegment.translated);
-					}
+					createSegmentSidePoints(overlapPointFactory, translatedSegment, subSegment.head);
+					createSegmentSidePoints(overlapPointFactory, translatedSegment, subSegment.tail);
+//				} else {
+//					createSegmentSidePoints(overlapPointFactory, translatedSegment, subSegment.base0);
+//					createSegmentSidePoints(overlapPointFactory, translatedSegment, subSegment.base1);
+//					createSegmentSidePoints(overlapPointFactory, translatedSegment, subSegment.translated0);
+//					createSegmentSidePoints(overlapPointFactory, translatedSegment, subSegment.translated1);
 //				}
+
+				
+				
+				/* crossing translated lines */
+				Point2D crossPoint = translatedSegment.translated.crossPoint(subSegment.translated.base, info);
+				if (crossPoint != null) {
+					OverlapPoint op = overlapPointFactory.create(crossPoint, Taint.NONE, translatedSegment.translated, subSegment.translated);
+					op.addObscure(translatedSegment.translated.base, false, subSegment.translated.base, true);
+				}
+
+				/* translated line crosses original */
+				Point2D badCrossPoint = translatedSegment.translated.crossPoint(subSegment.base.base, info);
+				if (info.intersectionPoint != null) {
+					OverlapPoint op = overlapPointFactory.create(info.intersectionPoint, Taint.ORIGINAL, translatedSegment.translated, subSegment.base);
+					op.addObscure(subSegment.base.base, true, translatedSegment.translated.base, true);
+				}
+
+				/* translated line crosses original */
+				badCrossPoint = translatedSegment.base.crossPoint(subSegment.translated.base, info);
+				if (info.intersectionPoint != null) {
+					OverlapPoint op = overlapPointFactory.create(info.intersectionPoint, Taint.ORIGINAL, translatedSegment.base, subSegment.translated);
+					op.addObscure(translatedSegment.base.base, true, subSegment.translated.base, true);
+				}
 			}
-			
-//			Line translated = translatedSegment.translated;
-//			
-//			
-//			for(TranslatedSegment translatedSegmentTest : mutableContour.segmentIterable()) {
-//				translatedSegmentTest.intersectingSegement
-//			}
-//			List<Point2D> collect = mutableContour.streamSegments().map(ts -> ts.translated).map(o -> translated.crossPoint(o, info)).filter(Objects::nonNull).collect(Collectors.toList());
-//			
 			
 		}
 	}
-//
-//	private void stripFlipped(MutableContour mutableContour) {
-//		List<MutableLine> lines = mutableContour.lines;
-//		int lineCount = lines.size();
-//		for(int idx=0; idx<lineCount; idx++) {
-//			MutableLine mutableLine = lines.get(idx);
-//			CrossPoint crossPointStart = mutableLine.getCrossPointStart();
-//			CrossPoint crossPointEnd = mutableLine.getCrossPointEnd();
-//			if (!mutableLine.sameDirection(crossPointStart.crossPoint, crossPointEnd.crossPoint)) {
-//				
-//				
-//				MutableLine prevMl = lines.get((idx+lineCount-1) % lineCount);
-//				MutableLine nextMl = lines.get((idx+1) % lineCount);
-//				
-//				IntersectionInfo info = new IntersectionInfo();
-//				Point2D intersectionPoint = prevMl.translated.intersectionPoint(nextMl.translated, info);
-//				if (intersectionPoint!=null && info.ua>0d) {
-////					CrossPoint crossPoint = new CrossPoint(intersectionPoint);
-////					prevMl.setCrossPointEnd(crossPoint);
-////					nextMl.setCrossPointStart(crossPoint);
-////					
-////					
-////					mutableLine.setCrossPointStart(crossPoint);
-////					mutableLine.setCrossPointEnd(crossPoint);
-////					lines.remove(idx);
-////					idx--;
-////					lineCount--;
-//				}
-//			}
-//		}
-//	}
-//
-//	private void markLinesAsFlippedInOppositeDirection(MutableContour mutableContour) {
-//		for (MutableLine mutableLine : mutableContour) {
-//			CrossPoint crossPointStart = mutableLine.getCrossPointStart();
-//			CrossPoint crossPointEnd = mutableLine.getCrossPointEnd();
-//			if (!mutableLine.sameDirection(crossPointStart.crossPoint, crossPointEnd.crossPoint)) {
-//				mutableLine.streamTargetLines().forEach(TargetLine::markFlipped);
-//			}
-//		}
-//	}
-//
-//	private void hideLinesInOppositeDirection(MutableContour mutableContour) {
-//		for (MutableLine mutableLine : mutableContour) {
-//			CrossPoint crossPointStart = mutableLine.getCrossPointStart();
-//			CrossPoint crossPointEnd = mutableLine.getCrossPointEnd();
-//			if (!mutableLine.sameDirection(crossPointStart.crossPoint, crossPointEnd.crossPoint)) {
-//				mutableLine.streamTargetLines().forEach(TargetLine::markHidden);
-//			}
-//		}
-//		
-//		boolean repeat = true;
-//		while(repeat) {
-//			repeat = false;
-//			for (MutableLine mutableLine : mutableContour) {
-//				int changeCount = mutableLine.streamTargetLines()
-//						.filter(s -> !s.isHidden())
-//						.mapToInt(tl -> {
-//							if ((tl.pointA().lineCount()<=1) || (tl.pointB().lineCount()<=1)) {
-//								tl.markHidden();
-//								return 1;
-//							}
-//							return 0;
-//						}).sum();
-//				if (changeCount > 0) {
-//					repeat = true;
-//				}
-//			}
-//		}
-//	}
-//
-//	private void reconnectAfterTranslate(MutableContour mutableContour) {
-//		List<MutableLine> lines = mutableContour.lines;
-//		int linesCount = lines.size();
-//		IntersectionInfo info = new IntersectionInfo();
-//		for(int idx=0; idx<lines.size(); idx++) {
-//			MutableLine mutableLineA = lines.get(idx);
-//			CrossPoint rightCrossPoint = mutableLineA.getCrossPointEnd();
-//			
-//			MutableLine mutableLineB = lines.get((idx+1) % linesCount);
-//			CrossPoint leftCrossPoint = mutableLineB.getCrossPointStart();
-//			
-//			if (leftCrossPoint == rightCrossPoint) {
-//				continue;
-//			}
-//			
-//			List<TargetLine> targetLinesA = mutableLineA.getTargetLines();
-//			if (targetLinesA.isEmpty()) {
-//				continue;
-//			}
-//			TargetLine targetLineA = targetLinesA.get(0);
-//
-//			List<TargetLine> targetLinesB = mutableLineB.getTargetLines();
-//			if (targetLinesB.isEmpty()) {
-//				continue;
-//			}
-//			TargetLine targetLineB = targetLinesB.get(0);
-//
-//			Line lineA = targetLineA.asLine();
-//			Line lineB = targetLineB.asLine();
-//			Point2D point = lineA.intersectionPoint(lineB, info);
-//			if (point==null) {
-//				// parallel lines ?
-//				continue;
-//			}
-//			CrossPoint crossPoint = new CrossPoint(point);
-//			
-//			mutableLineA.setCrossPointEnd(crossPoint);
-//			mutableLineB.setCrossPointStart(crossPoint);
-//		}
-//	}
-//	
-//	private ScaledContour rebuiltScaledContourNew(MutableContour mutableContour) {
-//		List<MutableLine> lines = mutableContour.lines;
-//		List<TargetLine> allTargetLines = lines.stream().flatMap(p -> p.getTargetLines().stream()).collect(Collectors.toList());
-//		List<TargetLine> targetLinesOut = new ArrayList<>();
-//		
-//		TargetLine startTargetLine = mutableContour.streamLines().flatMap(ml -> ml.streamTargetLines()).filter(s -> !s.isTainted() && !s.isUsed()).findAny().orElse(null);
-//		log.debug2("startTargetLine={}", startTargetLine);
-//		if (startTargetLine == null) {
-//			return null;
-//		}
-//		
-//		targetLinesOut.add(startTargetLine);
-//		while(true) {
-//			TargetLine tlHead = targetLinesOut.get(targetLinesOut.size()-1);
-//			Point2D headPoint = tlHead.asLine().getSecondPoint();
-//			List<TargetLine> targetLinesThrougPoint = targetLinesThroughPoint(allTargetLines, headPoint);
-//			List<TargetLine> targetLinesLeavingPoint = targetLinesThrougPoint.stream()
-//				.filter(tl -> !tl.isTainted() && !tl.isUsed())
-//				.filter(tl -> tl.asLine().getFirstPoint().equals(headPoint))
-//				.collect(Collectors.toList());
-//			
-//			log.debug2("tlHead={}, headPoint={}, targetLinesLeavingPoint={}", tlHead, headPoint, targetLinesLeavingPoint);
-//			
-//			if (targetLinesLeavingPoint.size()>1) {
-//				targetLinesLeavingPoint = targetLinesLeavingPoint.stream()
-//					.filter(tl -> tl.getMutableLine()!=tlHead.getMutableLine())
-//					.collect(Collectors.toList());
-//
-//				if (targetLinesLeavingPoint.size()>1) {
-//					System.err.println("multipe targetLinesLeaving point:"+headPoint+" tls:"+targetLinesLeavingPoint);
-//				}
-//			}
-//			if (targetLinesLeavingPoint.isEmpty()) {
-//				System.err.println("empty !!");
-//				targetLinesLeavingPoint.stream().forEach(tl -> tl.markUsed());
-//				return null;
-//			}
-//			
-//			TargetLine targetLine = targetLinesLeavingPoint.get(0);
-//			int indexOftargetLine = targetLinesOut.indexOf(targetLine);
-//			if (indexOftargetLine==0) {
-//				break;
-//			} else if (indexOftargetLine>0) {
-//				targetLinesOut.subList(0, indexOftargetLine).clear();
-//				System.err.println("indexOftargetLine gt 0 : indexOftargetLine="+indexOftargetLine);
-//				break;
-//			}
-//			targetLinesOut.add(targetLine);
-//		}
-//		
-//		targetLinesOut.stream().forEach(s -> s.markUsed());
-//
-//		return new ScaledContour(mutableContour.source, targetLinesOut);
-//	}
 
+	private void createSegmentSidePoints(OverlapPointFactory overlapPointFactory, TranslatedSegment translatedSegment, Route sideRoute) {
+		IntersectionInfo info = new IntersectionInfo();
+		Point2D crossPointSide = translatedSegment.translated.crossPoint(sideRoute.base, info );
+		if (crossPointSide != null) {
+			OverlapPoint op = overlapPointFactory.create(crossPointSide, Taint.NONE, translatedSegment.translated, sideRoute);
+			op.addObscure(sideRoute.base, false, translatedSegment.translated.base, true);
+		} else if (Objects.equals(info.intersectionPoint, sideRoute.base.getSecondPoint())) { // TODO what todo if the intersectionPoint is the wrong side of 'tail'
+			overlapPointFactory.create(info.intersectionPoint, Taint.EDGE, translatedSegment.translated, sideRoute);
+			// TODO addObscure
+		}
+		
+		
+		Point2D crossPointHead = translatedSegment.head.crossPoint(sideRoute.base, info);
+		if (crossPointHead != null) {
+			OverlapPoint op = overlapPointFactory.create(crossPointHead, Taint.NONE, translatedSegment.head, sideRoute);
+			op.addObscure(sideRoute.base, false, translatedSegment.head.base, true);
+		}
 
-//	private int taintNewTargetLines(MutableContour mutableContour) {
-//		List<MutableLine> lines = mutableContour.lines;
-//		int lineCount = lines.size();
-//		for(int idxA=0; idxA<lineCount; idxA++) {
-//			MutableLine mlMain = lines.get(idxA);
-//			if (mlMain.cleanSection) {
-//				continue;
-//			}
-//
-//			for(int idxB=0; idxB<lineCount; idxB++) {
-//				MutableLine mlSub = lines.get(idxB);
-//				if (mlSub.cleanSection || idxB==idxA) {
-//					continue;
-//				}
-//				
-//				taintTargetLines(mlMain, mlSub);
-//			}
-//		}
-//		return 0;
-//	}
+		Point2D crossPointTail = translatedSegment.tail.crossPoint(sideRoute.base, info);
+		if (crossPointTail != null) {
+			OverlapPoint op = overlapPointFactory.create(crossPointTail, Taint.NONE, translatedSegment.tail, sideRoute);
+			op.addObscure(sideRoute.base, false, translatedSegment.tail.base, true);
+		}
 
-//	
-//	private void taintTargetLines(MutableLine mlMain, MutableLine mlSub) {
-//		
-//		List<TargetLine> targetLinesMain = mlMain.getTargetLines();
-//		for (TargetLine targetLineMain : targetLinesMain) {
-//			if (targetLineMain.isTainted() || targetLineMain.isFlipped()) {
-//				continue;
-//			}
-//			Line asLineMain = targetLineMain.asLine();
-//			
-//			CrossPoint mainCpLeft = mlMain.findCrossPoint(asLineMain.getFirstPoint());
-//			CrossPoint mainCpRight = mlMain.findCrossPoint(asLineMain.getSecondPoint());
-//			double leftOffset = mlMain.crossPointProjectionOffset(mainCpLeft);
-//			double rightOffset = mlMain.crossPointProjectionOffset(mainCpRight);
-//			
-//			Line projectionMain = mlMain.base.createByOffsets(rightOffset, leftOffset);
-//			
-//			Line projectionLeft = new Line(projectionMain.getSecondPoint(), asLineMain.getFirstPoint());
-//			Line projectionRight = new Line(asLineMain.getSecondPoint(), projectionMain.getFirstPoint());
-//
-//			
-//			List<CrossPoint> subCrossPoints = mlSub.streamTargetLines().filter(s -> !s.isHidden()).flatMap(s -> Stream.of(s.pointA(), s.pointB())).filter(NoRepeats.filter())
-//				.collect(Collectors.toList());
-//			
-//			for(CrossPoint crossPointSub : subCrossPoints) {
-//				if (asLineMain.isFirstOrSecond(crossPointSub.crossPoint)) {
-//					continue;
-//				}
-//				Point2D testPoint = crossPointSub.crossPoint;
-//				if (asLineMain.relativeCCW(testPoint)<=0 && projectionMain.relativeCCW(testPoint)<=0
-//						&& projectionLeft.relativeCCW(testPoint)<=0 && projectionRight.relativeCCW(testPoint)<=0) {
-////					targetLineMain.markTainted();
-//					crossPointSub.forEach(tl -> {
-//						tl.markTainted();
-//						System.err.println("tainting: "+tl+" for croispoint:"+crossPointSub+" targetLineMain:"+targetLineMain);
-//					});
-//					
-//				}
-//			}
-//			
-//			
-//			mlSub.streamTargetLines().filter(s -> !s.isTainted() && !s.isFlipped()).forEach(tlSub -> {
-//				if (tlSub == targetLineMain) {
-//					return;
-//				}
-//				if (tlSub.asLine().hasCrossPointWith(projectionLeft) || tlSub.asLine().hasCrossPointWith(projectionRight)) {
-//					tlSub.markTainted();
-//				}
-//			});
-//			
-//		}		
-//	}
+	}
 
-//
-//	private List<TargetLine> targetLinesThroughPoint(List<TargetLine> allTargetLines, Point2D point) {
-//		return allTargetLines.stream().filter(p -> p.asLine().isFirstOrSecond(point)).collect(Collectors.toList());
-//	}
-
-//
-//	private void calculateAllIntermediateCrossPoints(MutableContour mutableContour) {
-//		List<MutableLine> lines = mutableContour.lines;
-//		int lineCount = lines.size();
-//		for(int idxA=0; idxA<lineCount; idxA++) {
-//			MutableLine mlMain = lines.get(idxA);
-//			if (mlMain.cleanSection) {
-//				continue;
-//			}
-//
-//			for(int idxB=idxA+1; idxB<lineCount; idxB++) {
-//				MutableLine mlSub = lines.get(idxB);
-//				if (mlSub.cleanSection) {
-//					continue;
-//				}
-//				
-//				calculateAllIntermediateCrossPoints(mlMain, mlSub);
-//			}
-//		}
-//	}
-
-//	private void calculateAllIntermediateCrossPoints(MutableLine mlMain, MutableLine mlSub) {
-//		IntersectionInfo info = new IntersectionInfo();
-//		List<TargetLine> targetLinesMain = mlMain.getTargetLines();
-//
-//		List<CrossPoint> mainCuttingPoints = new ArrayList<>();
-//		for (TargetLine targetLineMain : targetLinesMain) {
-//			Line asLineMain = targetLineMain.asLine();
-//			List<CrossPoint> cuttingCrossPoints = mlSub.streamTargetLines()
-//				.filter(tl -> targetLineMain!=tl && !asLineMain.sharePoints(tl.asLine()))
-//				.map(tl-> asLineMain.crossPoint(tl.asLine(), info))
-//				.filter(Objects::nonNull)
-//				.map(p -> new CrossPoint(p))
-//				.collect(Collectors.toList());
-//			
-//			cuttingCrossPoints.forEach(crossPoint -> {
-//				mlSub.cutAt(crossPoint);
-//			});
-//			mainCuttingPoints.addAll(cuttingCrossPoints);
-//		}
-//		
-//		mainCuttingPoints.forEach(crossPoint -> {
-//			mlMain.cutAt(crossPoint);
-//		});
-//	}
-
-//	private void markCleanSections(MutableContour mutableContour) {
-//		IntersectionInfo info = new IntersectionInfo();
-//		int lineCount = mutableContour.lines.size();
-//		for(int idx=0; idx<lineCount; idx++) {
-//			MutableLine mutableLine = mutableContour.lines.get(idx);
-//			Line base = mutableLine.base;
-//			List<TargetLine> targetLines = mutableLine.getTargetLines();
-//			if (targetLines.isEmpty()) {
-//				continue;
-//			}
-//			Line targetLine = targetLines.get(0).asLine();
-//			
-//			Line left = new Line(base.getFirstPoint(), targetLine.getFirstPoint());
-//			Line right = new Line(base.getSecondPoint(), targetLine.getSecondPoint());
-//			
-//			Point2D crossPoint = left.crossPoint(right, info);
-//			if (crossPoint != null) {
-//				continue;
-//			}
-//			
-//			mutableLine.cleanSection = true;
-//
-//			for(int testidx=0; testidx<lineCount; testidx++) {
-//				if (testidx == idx) {
-//					continue;
-//				}
-//				MutableLine testMutableLine = mutableContour.lines.get(testidx);
-//				List<TargetLine> testTargetLines = testMutableLine.getTargetLines();
-//				if (testTargetLines.isEmpty()) {
-//					continue;
-//				}
-//				Line testTargetLine = testTargetLines.get(0).asLine();
-//
-//				
-//				if (testTargetLine.hasCrossPointWith(base) || testTargetLine.hasCrossPointWith(targetLine)
-//						|| testTargetLine.hasCrossPointWith(left) || testTargetLine.hasCrossPointWith(right)) {
-//					mutableLine.cleanSection = false;
-//					break;
-//				}
-//
-//				testTargetLine = testMutableLine.base;
-//
-//				if (testTargetLine.hasCrossPointWith(base) || testTargetLine.hasCrossPointWith(targetLine)
-//						|| testTargetLine.hasCrossPointWith(left) || testTargetLine.hasCrossPointWith(right)) {
-//					mutableLine.cleanSection = false;
-//					break;
-//				}
-//
-//			}
-//		}
-//		
-//	}
 }

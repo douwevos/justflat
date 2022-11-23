@@ -45,16 +45,6 @@ import net.github.douwevos.justflat.types.Point2D;
 @SuppressWarnings("serial")
 public class LayerShower2 extends JPanel implements Runnable, ComponentListener {
 
-	private static Ttf ttf2;
-	static {
-		TrueTypeFontParser ttfParser = new TrueTypeFontParser();
-		try {
-			ttf2 = ttfParser.parse(new File("/usr/share/fonts/truetype/freefont/FreeSans.ttf"));
-		} catch (IOException e) {
-		}
-	}
-
-	
 	private JComboBox<String> cmbTestModels;
 	
 	private ContourLayer designedLayer;
@@ -83,9 +73,10 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 
 		scalarTests = new ScalarTests();
 
-		
+		designedLayer = new ContourLayer(100, 100);
 		
 		List<String> testModelNames = scalarTests.streamNames().collect(Collectors.toList());
+		testModelNames.add(0, "Please select");
 		
 		String[] array = testModelNames.toArray(new String[testModelNames.size()]);
 		
@@ -104,7 +95,6 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 			});
 		
 		
-		
 		Action actOutputScaled = new AbstractAction("out") {
 			
 			@Override
@@ -116,8 +106,6 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 		JButton butOutputScaled = new JButton(actOutputScaled);
 		add(butOutputScaled);
 		butOutputScaled.setBounds(0,35, 140,35);
-		
-		designedLayer = createMainDiscLayer();
 		
 		setLayout(null);
 		
@@ -227,41 +215,6 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 		jFrame.setExtendedState(jFrame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
 	}
 
-	
-	ContourLayer createMainDiscLayer() {
-		TextLayout textLayout = new TextLayout(ttf2, "d");
-		int textSize = 60000;
-
-		TextLayoutToDiscLayer textLayoutToDiscLayer = new TextLayoutToDiscLayer(textLayout, textSize);
-		ContourLayer discLayer = new ContourLayer(100000, 100000);
-		textLayoutToDiscLayer.produceLayer(discLayer, 1000, 1000);
-		discLayer.moveDot(Point2D.of(28218, 40764), Point2D.of(32000, 39000));
-//		discLayer.moveDot(Point2D.of(28218, 40764), Point2D.of(33500, 22000));
-//		discLayer.moveDot(Point2D.of(28218, 40764), Point2D.of(18914, 9972));
-//		discLayer.moveDot(Point2D.of(28218, 40764), Point2D.of(22519, 10303));
-//		discLayer.moveDot(Point2D.of(28218, 40764), Point2D.of(23142, 15223));
-//		discLayer.moveDot(Point2D.of(28218, 40764), Point2D.of(14080, 14801));
-		
-//		discLayer.moveDot(Point2D.of(28218, 40764), Point2D.of(31812, 14533));
-//		discLayer.moveDot(Point2D.of(28218, 40764), Point2D.of(29687, 15508));
-//		discLayer.moveDot(Point2D.of(28218, 40764), Point2D.of(29566, 14821));
-//		discLayer.moveDot(Point2D.of(28218, 40764), Point2D.of(14397, 14178));
-		discLayer.moveDot(Point2D.of(28218, 40764), Point2D.of(20944, 14946));
-//		discLayer.moveDot(Point2D.of(28218, 40764), Point2D.of(22946, 14290));
-		discLayer.contours.remove(1);
-
-		
-//		Contour boxContour = new Contour();
-//		boxContour.add(Point2D.of(2000, 2000));
-//		boxContour.add(Point2D.of(2000, 8000));
-//		boxContour.add(Point2D.of(115024, 58174));
-////		boxContour.add(Point2D.of(27438, 23144));
-////		boxContour.add(Point2D.of(21627, 17798));
-////		boxContour.add(Point2D.of(8000, 8000));
-//		boxContour.add(Point2D.of(8000, 2000));
-//		discLayer.add(boxContour);
-		return discLayer;
-	}
 
 	
 	@Override
@@ -525,7 +478,7 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 	        text.setBackground(getBackground());
 	        text.setText(value.toString());
 	        
-	        if (scalarTest.testOk) {
+	        if (scalarTest== null || scalarTest.testOk) {
 	        	text.setForeground(Color.BLACK);
 	        } else {
 	        	text.setForeground(Color.RED);

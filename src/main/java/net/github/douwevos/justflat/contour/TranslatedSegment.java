@@ -26,11 +26,9 @@ public class TranslatedSegment {
 		this.base = new Route(this, base);
 		this.translated = new Route(this, translated);
 		Line2D lineHead = new Line2D(base.getFirstPoint(), translated.getFirstPoint());
-		head = new Route(this, lineHead);
 		Line2D lineTail = new Line2D(base.getSecondPoint(), translated.getSecondPoint());
-		tail = new Route(this, lineTail);
 		
-		Point2D crossPoint = head.crossPoint(lineTail, null);
+		Point2D crossPoint = lineHead.crossPoint(lineTail, null);
 		headTailCrossPoint = crossPoint;
 		if (crossPoint != null) {
 			Line2D lineBase0 = new Line2D(crossPoint, base.getFirstPoint());
@@ -43,19 +41,31 @@ public class TranslatedSegment {
 			translated0 = new Route(this, lineTail0);
 			Line2D lineTail1 = new Line2D(translated.getSecondPoint(), crossPoint);
 			translated1 = new Route(this, lineTail1);
+
 		}
+		head = new Route(this, lineHead);
+		tail = new Route(this, lineTail);
 		
 	}
 	
 	
 	public Stream<OverlapPoint> streamAllOverlapPoints() {
 		Stream<OverlapPoint> streamsA = Stream.concat(base.streamOverlapPoints(), translated.streamOverlapPoints());
-		Stream<OverlapPoint> streamsB = Stream.concat(tail.streamOverlapPoints(), head.streamOverlapPoints());
-		return Stream.concat(streamsA, streamsB); 
+		if (head != null) {
+			Stream<OverlapPoint> streamsB = Stream.concat(tail.streamOverlapPoints(), head.streamOverlapPoints());
+			return Stream.concat(streamsA, streamsB); 
+		}
+		Stream<OverlapPoint> bases = Stream.concat(base0.streamOverlapPoints(), base1.streamOverlapPoints());
+		Stream<OverlapPoint> translates = Stream.concat(translated0.streamOverlapPoints(), translated1.streamOverlapPoints());
+		Stream<OverlapPoint> sides = Stream.concat(bases, translates);
+		return Stream.concat(streamsA, sides); 
 	}
 
 	public boolean isObscuredOverlapPoint(OverlapPoint overlapPoint) {
 		if (headTailCrossPoint != null) {
+			if (head.indexOf(overlapPoint)>=0 || tail.indexOf(overlapPoint)>=0) {
+				return false;
+			}
 			return isObscuredOverlapPointForHourglassTranslated(overlapPoint) || isObscuredOverlapPointForHourglassBase(overlapPoint);
 		}
 		
@@ -106,13 +116,30 @@ public class TranslatedSegment {
 		if (ccw1 == 0) {
 			return false;
 		}
-		int ccw2 = base0.relativeCCW(overlapPoint);
+		int ccw2 = base.relativeCCW(overlapPoint);
 		if (ccw2 == 0) {
 			return false;
 		}
 		return ccw0==ccw1 && ccw1==ccw2;
 	}
 
+	public void finalizeObscuredInfo() {
+//		obscureInBetweenOverlapPoints(translated.translatedSegment.translated, false);
+//		obscureInBetweenOverlapPoints(translated.translatedSegment.base, true);
+		if (headTailCrossPoint != null) {
+			obscureInBetweenOverlapPoints(translated.translatedSegment.base0, true);
+		}
+	}
+
+
+	private void obscureInBetweenOverlapPoints(Route route, boolean up) {
+		route.streamOverlapPoints().forEach(op -> {
+			Line2D l = route.base;
+			if (!l.isFirstOrSecond(op.point)) {
+				op.addObscure2(l, up, l, !up);
+			}
+		});
+	}
 	
 	
 }
