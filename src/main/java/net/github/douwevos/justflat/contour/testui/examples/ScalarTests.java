@@ -21,8 +21,9 @@ public class ScalarTests {
 //		add(new TestModelOne());
 //		add(new TestModelOne2());
 //		add(new Triangle());
-		add(new TDBird());
-		add(new TDBird2());
+//		add(new TDBird());
+//		add(new TDBird2());
+		add(new OLetter());
 		runTests();
 	}
 	

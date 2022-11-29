@@ -95,6 +95,8 @@ public class DiscLayerScaler {
 		
 		markConnectingSegementPoints(overlapPointFactory, mutableContour);
 		
+		obscureInBetween(mutableContour);
+		
 		taintObscuredSegmentPoints(mutableContour);
 
 		allMutableContours.add(mutableContour);
@@ -162,7 +164,7 @@ public class DiscLayerScaler {
 
 	private OverlapPoint findNextUntaintedAndUnusedOverlapPoint(MutableContour mutableContour) {
 		List<OverlapPoint> overlapPoints = mutableContour.streamSegments().flatMap(s -> s.streamAllOverlapPoints())
-				.filter(s -> s.getTaint()==Taint.NONE && !s.isUSed())
+				.filter(s -> !s.isTainted() && !s.isUSed())
 				.distinct().collect(Collectors.toList());
 		return overlapPoints.isEmpty() ? null : overlapPoints.get(0);
 		
@@ -240,13 +242,17 @@ public class DiscLayerScaler {
 		
 		
 		
+		ObscuredInfo info = new ObscuredInfo();
 		List<TargetLine> lines = new ArrayList<>();
 		OverlapPoint overlapPoint = passed.get(0);
 		overlapPoint.markUsed();
 		Point2D start = overlapPoint.point;
+		info = info.invert(overlapPoint.getObscuredInfo());
 		CrossPoint cpStart = new CrossPoint(start);
+		
 		for(int idx=1; idx<passed.size(); idx++) {
 			overlapPoint = passed.get(idx);
+			info = info.invert(overlapPoint.getObscuredInfo());
 			overlapPoint.markUsed();
 			Point2D end = overlapPoint.point;
 			CrossPoint cpEnd = new CrossPoint(end);
@@ -254,7 +260,10 @@ public class DiscLayerScaler {
 			lines.add(targetLine);
 			cpStart = cpEnd;
 		}
-		
+
+		if (!info.isFullyObscured()) {
+			return null;
+		}
 		System.err.println("lines="+lines);
 		
 		ScaledContour scaledContour = new ScaledContour(mutableContour.getSource(), lines );
@@ -344,28 +353,37 @@ public class DiscLayerScaler {
 //				translatedSegment.translated.add(overlapPoint);
 
 				OverlapPoint op = overlapPointFactory.create(translatedSegment.translated.base.getFirstPoint(), Taint.RECONNECT, prevSegment.translated, translatedSegment.translated);
-				op.addObscure(translatedSegment.translated.base, false, prevSegment.translated.base, true);
+				op.addObscure2(translatedSegment.translated.base, false, prevSegment.translated.base, true, "reconnect");
 			} else {
+				boolean isSplit = translatedSegment.headTailCrossPoint != null;
 				OverlapPoint op = overlapPointFactory.create(translatedSegment.translated.base.getFirstPoint(), Taint.NONE, translatedSegment.translated);
-				op.addObscure(translatedSegment.translated.base, false, translatedSegment.head.base, true);
+				op.addObscure2(translatedSegment.translated.base, isSplit, translatedSegment.head.base, !isSplit, "openThis");
 
 //				overlapPoint = new OverlapPoint(prevSegment.translated.base.getSecondPoint());
 //				prevSegment.translated.add(overlapPoint);
 
-				op = overlapPointFactory.create(prevSegment.translated.base.getSecondPoint(), Taint.NONE, prevSegment.translated);
-				op.addObscure(prevSegment.head.base, true, prevSegment.translated.base, true);
+				if (prevSegment.headTailCrossPoint == null) {
+					op = overlapPointFactory.create(prevSegment.translated.base.getSecondPoint(), Taint.NONE, prevSegment.translated, prevSegment.tail);
+					op.addObscure2(prevSegment.tail.base, true, prevSegment.translated.base, true, "openPrecS");
+				} else {
+					op = overlapPointFactory.create(prevSegment.translated.base.getSecondPoint(), Taint.NONE, prevSegment.translated, prevSegment.tail);
+					op.addObscure2(prevSegment.translated.base, true, prevSegment.tail.base, true, "openPrecHT");
+				}
 
 
 			}
 			
 			prevSegment = translatedSegment;
 		}
-		
+	}
+	
+	private void obscureInBetween(MutableContour mutableContour) {
+		mutableContour.streamSegments().forEach(t -> t.obscureInBetween());
+		mutableContour.streamSegments().forEach(t -> t.reduceObscureInfo());
 	}
 
 	private void taintObscuredSegmentPoints(MutableContour mutableContour) {
 		for(TranslatedSegment translatedSegment : mutableContour.segmentIterable()) {
-			translatedSegment.finalizeObscuredInfo();
 			translatedSegment.streamAllOverlapPoints()
 				.filter(s -> !s.isTainted())
 				.filter(op -> isObscuredOverlapPoint(op, mutableContour, translatedSegment))
@@ -376,14 +394,19 @@ public class DiscLayerScaler {
 	private boolean isObscuredOverlapPoint(OverlapPoint overlapPoint, MutableContour mutableContour,
 			TranslatedSegment translatedSegment2) {
 		boolean j = false;
-		if (overlapPoint.point.equals(Point2D.of(3813, 1362))) {
-			System.err.println("he");
-			j = true;
+		
+		if (overlapPoint.isFullyObscured()) {
+			return true;
 		}
+//		
+//		if (overlapPoint.point.equals(Point2D.of(3813, 1362))) {
+//			System.err.println("he");
+//			j = true;
+//		}
 		for(TranslatedSegment translatedSegment : mutableContour.segmentIterable()) {
-			if (j && translatedSegment.isObscuredOverlapPoint(overlapPoint)) {
-				System.err.println("me");
-			}
+//			if (j && translatedSegment.isObscuredOverlapPoint(overlapPoint)) {
+//				System.err.println("me");
+//			}
 			if (translatedSegment.isObscuredOverlapPoint(overlapPoint)) {
 				return true;
 			}
@@ -401,8 +424,8 @@ public class DiscLayerScaler {
 			if (translatedSegment.headTailCrossPoint != null) {
 				Point2D p = translatedSegment.headTailCrossPoint;
 				OverlapPoint op = overlapPointFactory.create(p, Taint.NONE, translatedSegment.head, translatedSegment.tail);
-				op.addObscure(translatedSegment.base1.base, false, translatedSegment.base0.base, true);
-				op.addObscure(translatedSegment.base1.base, true, translatedSegment.base0.base, false);
+				op.addObscure2(translatedSegment.tail.base, true, translatedSegment.head.base, true, "headTailSplitA");
+				op.addObscure2(translatedSegment.tail.base, false, translatedSegment.head.base, false, "headTailSplitB");
 			}
 			
 			for(TranslatedSegment subSegment : mutableContour.segmentIterable()) {
@@ -427,21 +450,21 @@ public class DiscLayerScaler {
 				Point2D crossPoint = translatedSegment.translated.crossPoint(subSegment.translated.base, info);
 				if (crossPoint != null) {
 					OverlapPoint op = overlapPointFactory.create(crossPoint, Taint.NONE, translatedSegment.translated, subSegment.translated);
-					op.addObscure(translatedSegment.translated.base, false, subSegment.translated.base, true);
+					op.addObscure2(translatedSegment.translated.base, false, subSegment.translated.base, true, "crossTrans");
 				}
 
 				/* translated line crosses original */
 				Point2D badCrossPoint = translatedSegment.translated.crossPoint(subSegment.base.base, info);
 				if (info.intersectionPoint != null) {
 					OverlapPoint op = overlapPointFactory.create(info.intersectionPoint, Taint.ORIGINAL, translatedSegment.translated, subSegment.base);
-					op.addObscure(subSegment.base.base, true, translatedSegment.translated.base, true);
+					op.addObscure2(subSegment.base.base, true, translatedSegment.translated.base, true, "origA");
 				}
 
 				/* translated line crosses original */
 				badCrossPoint = translatedSegment.base.crossPoint(subSegment.translated.base, info);
 				if (info.intersectionPoint != null) {
 					OverlapPoint op = overlapPointFactory.create(info.intersectionPoint, Taint.ORIGINAL, translatedSegment.base, subSegment.translated);
-					op.addObscure(translatedSegment.base.base, true, subSegment.translated.base, true);
+					op.addObscure2(translatedSegment.base.base, true, subSegment.translated.base, true, "origB");
 				}
 			}
 			
@@ -453,7 +476,7 @@ public class DiscLayerScaler {
 		Point2D crossPointSide = translatedSegment.translated.crossPoint(sideRoute.base, info );
 		if (crossPointSide != null) {
 			OverlapPoint op = overlapPointFactory.create(crossPointSide, Taint.NONE, translatedSegment.translated, sideRoute);
-			op.addObscure(sideRoute.base, false, translatedSegment.translated.base, true);
+//			op.addObscure2(sideRoute.base, false, translatedSegment.translated.base, true, "spA");
 		} else if (Objects.equals(info.intersectionPoint, sideRoute.base.getSecondPoint())) { // TODO what todo if the intersectionPoint is the wrong side of 'tail'
 			overlapPointFactory.create(info.intersectionPoint, Taint.EDGE, translatedSegment.translated, sideRoute);
 			// TODO addObscure
@@ -463,13 +486,13 @@ public class DiscLayerScaler {
 		Point2D crossPointHead = translatedSegment.head.crossPoint(sideRoute.base, info);
 		if (crossPointHead != null) {
 			OverlapPoint op = overlapPointFactory.create(crossPointHead, Taint.NONE, translatedSegment.head, sideRoute);
-			op.addObscure(sideRoute.base, false, translatedSegment.head.base, true);
+//			op.addObscure2(sideRoute.base, false, translatedSegment.head.base, true, "spB");
 		}
 
 		Point2D crossPointTail = translatedSegment.tail.crossPoint(sideRoute.base, info);
 		if (crossPointTail != null) {
 			OverlapPoint op = overlapPointFactory.create(crossPointTail, Taint.NONE, translatedSegment.tail, sideRoute);
-			op.addObscure(sideRoute.base, false, translatedSegment.tail.base, true);
+//			op.addObscure2(sideRoute.base, false, translatedSegment.tail.base, true, "spC");
 		}
 
 	}

@@ -289,12 +289,12 @@ public class ScalerViewer3 extends ScalerViewerBase {
 		
 		
 		if (translatedSegment.headTailCrossPoint!=null) {
-			paintSegmentPart(tempGfx, translatedSegment.base0, mouse, viewHeight, false);
-			paintSegmentPart(tempGfx, translatedSegment.base1, mouse, viewHeight, false);
+			paintSegmentPart(tempGfx, translatedSegment.head0, mouse, viewHeight, false);
+			paintSegmentPart(tempGfx, translatedSegment.tail0, mouse, viewHeight, false);
 			paintSegmentPart(tempGfx, translatedSegment.base, mouse, viewHeight, false);
 			
-			paintSegmentPart(tempGfx, translatedSegment.translated0, mouse, viewHeight, false);
-			paintSegmentPart(tempGfx, translatedSegment.translated1, mouse, viewHeight, false);
+			paintSegmentPart(tempGfx, translatedSegment.head1, mouse, viewHeight, false);
+			paintSegmentPart(tempGfx, translatedSegment.tail1, mouse, viewHeight, false);
 			paintSegmentPart(tempGfx, translatedSegment.translated, mouse, viewHeight, false);
 		} else {
 	

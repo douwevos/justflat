@@ -164,7 +164,7 @@ public abstract class ScalerViewerBase extends ModelViewer<ScalerViewableModel> 
 		
 		Graphics gfxTemp = g.create();
 		
-		final int R = 60;
+		final int R = 120;
 		final int D = R*2;
 		
 		int xb = (int) viewCoords.x-10-R;

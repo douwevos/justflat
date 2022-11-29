@@ -10,7 +10,7 @@ public class TDBird2 implements ContourLayerTestProducer, ScalerConfigProvider {
 
 	@Override
 	public int getThickness() {
-		return 310;
+		return 2905;
 	}
 
 	@Override

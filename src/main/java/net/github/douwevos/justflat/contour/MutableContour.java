@@ -134,19 +134,22 @@ public class MutableContour {
 			Line2D line = translatedLines.get(idx);
 			Line2D nline = translatedLines.get(nidx);
 			Point2D nextPoint = line.intersectionPoint(nline, info);
+			
+			
+			
 			if (info.ua>=1d) {
 				translatedLines.set(idx, line.withSecondPoint(nextPoint));
 				translatedLines.set(nidx, nline.withFirstPoint(nextPoint));
 //				segmentConnectPoints.add(nextPoint);
 			} else if (info.intersectionPoint!=null) {
 				nextPoint = info.intersectionPoint;
-				long squaredDistance = line.getSecondPoint().squaredDistance(nline.getFirstPoint());
-				long sqDist1 = info.intersectionPoint.squaredDistance(line.getSecondPoint());
-				long sqDist2 = info.intersectionPoint.squaredDistance(nline.getFirstPoint());
-				if (squaredDistance<sqDist1 || squaredDistance<sqDist2) {
-					translatedLines.set(idx, line.withSecondPoint(nextPoint));
-					translatedLines.set(nidx, nline.withFirstPoint(nextPoint));
-				}
+//				long squaredDistance = line.getSecondPoint().squaredDistance(nline.getFirstPoint());
+//				long sqDist1 = info.intersectionPoint.squaredDistance(line.getSecondPoint());
+//				long sqDist2 = info.intersectionPoint.squaredDistance(nline.getFirstPoint());
+//				if (squaredDistance<sqDist1 || squaredDistance<sqDist2) {
+//					translatedLines.set(idx, line.withSecondPoint(nextPoint));
+//					translatedLines.set(nidx, nline.withFirstPoint(nextPoint));
+//				}
 			}
 			
 			if (isObservePoint) {

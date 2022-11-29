@@ -2,7 +2,6 @@ package net.github.douwevos.justflat.contour;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -103,7 +102,10 @@ public class OverlapPoint {
 		
 	}
 
-	public void addObscure2(Line2D from, boolean fromReverse, Line2D to, boolean toReverse) {
+	public void addObscure2(Line2D from, boolean fromReverse, Line2D to, boolean toReverse, String rangeName) {
+//		if (!rangeName.equals("headTailSplitB")) {
+//			return;
+//		}
 		double fromA = from.getAlpha();
 		if (fromReverse) {
 			fromA = (fromA+180d)%360d;
@@ -112,7 +114,7 @@ public class OverlapPoint {
 		if (toReverse) {
 			toA = (toA+180d)%360d;
 		}
-		obscuredInfo = obscuredInfo.add(new Range(fromA, toA));
+		obscuredInfo = obscuredInfo.add(new Range(fromA, toA, rangeName));
 	}
 
 	
@@ -140,6 +142,24 @@ public class OverlapPoint {
 	@Override
 	public String toString() {
 		return "OverlapPoint [point=" + point + ", taint=" + taint + ", isUSed=" + isUSed + "]";
+	}
+
+
+	public void reduceObscureInfo() {
+		obscuredInfo = obscuredInfo.reduceObscureInfo();
+	}
+
+
+	public boolean isFullyObscured() {
+		return obscuredInfo.isFullyObscured();
+	}
+	
+	public static void main(String[] args) {
+		double s = 86.403289d;
+		s = (s + 180d) % 360d;
+		System.out.println("s="+s);
+		s = (s + 180d) % 360d;
+		System.out.println("s="+s);
 	}
 
 

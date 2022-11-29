@@ -74,7 +74,18 @@ public class Route {
 		}
 		return this;
 	}
+
 	
+	public OverlapPoint overlapFirst() {
+		Point2D firstPoint = base.getFirstPoint();
+		return overlapPoints.stream().filter(op -> op.point.equals(firstPoint)).findAny().orElse(null);
+	}
+
+	public OverlapPoint overlapSecond() {
+		Point2D secondPoint = base.getSecondPoint();
+		return overlapPoints.stream().filter(op -> op.point.equals(secondPoint)).findAny().orElse(null);
+	}
+
 	public Stream<OverlapPoint> streamOverlapPoints() {
 		return overlapPoints.stream(); 
 	}
@@ -112,6 +123,11 @@ public class Route {
 	public Point2D crossPoint(Line2D line, IntersectionInfo info) {
 		return base.crossPoint(line, info);
 	}
+
+	public void reduceObscureInfo() {
+		streamOverlapPoints().forEach(op -> op.reduceObscureInfo());
+	}
+
 
 
 }
