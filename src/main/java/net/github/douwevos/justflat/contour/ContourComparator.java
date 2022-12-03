@@ -21,6 +21,9 @@ public class ContourComparator {
 		
 		for(Contour contourA : layerA) {
 			Contour contourB = findMatchingContour(layerB, contourA);
+			if (contourB == null) {
+				return false;
+			}
 		}
 		
 		

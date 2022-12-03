@@ -3,26 +3,19 @@ package net.github.douwevos.justflat.contour.testui;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Shape;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 
-import net.github.douwevos.justflat.contour.MutableContour;
-import net.github.douwevos.justflat.contour.MutableLine;
-import net.github.douwevos.justflat.contour.OverlapPoint;
-import net.github.douwevos.justflat.contour.OverlapPoint.Taint;
-import net.github.douwevos.justflat.contour.Route;
-import net.github.douwevos.justflat.contour.TargetLine;
-import net.github.douwevos.justflat.contour.TranslatedSegment;
+import net.github.douwevos.justflat.contour.scaler.MutableContour;
+import net.github.douwevos.justflat.contour.scaler.OverlapPoint;
+import net.github.douwevos.justflat.contour.scaler.Route;
+import net.github.douwevos.justflat.contour.scaler.TranslatedSegment;
+import net.github.douwevos.justflat.contour.scaler.OverlapPoint.Taint;
 import net.github.douwevos.justflat.contour.testui.ScalerViewableModel.OverlapPointSelection;
 import net.github.douwevos.justflat.contour.testui.ScalerViewableModel.TranslatedSegmentSelection;
 import net.github.douwevos.justflat.types.Line2D;
-import net.github.douwevos.justflat.types.Line2D.IntersectionInfo;
 import net.github.douwevos.justflat.types.Point2D;
 
 public class ScalerViewer3 extends ScalerViewerBase {
@@ -68,55 +61,6 @@ public class ScalerViewer3 extends ScalerViewerBase {
 		}
 	}
 
-	
-	private void paintTargetLine(Graphics2D gfx, ScalerViewableModel viewableModel,
-			TargetLine targetLine) {
-		MutableLine mutableLine = targetLine.getMutableLine();
-		Line2D line = mutableLine.base;
-		Line2D translated = mutableLine.translated;
-		
-		int viewHeight = getViewDimension().height;
-		
-		Point2D baseA = camera.toViewCoords(line.pointA(), viewHeight);
-		Point2D baseB = camera.toViewCoords(line.pointB(), viewHeight);
-		
-		
-		Point2D transA = camera.toViewCoords(translated.pointA(), viewHeight);
-		Point2D transB = camera.toViewCoords(translated.pointB(), viewHeight);
-		
-		int polyX[] = new int[4];
-		int polyY[] = new int[4];
-		
-		polyX[0] = (int) baseA.x;
-		polyX[1] = (int) baseB.x;
-		polyX[2] = (int) transB.x;
-		polyX[3] = (int) transA.x;
-
-		polyY[0] = (int) baseA.y;
-		polyY[1] = (int) baseB.y;
-		polyY[2] = (int) transB.y;
-		polyY[3] = (int) transA.y;
-		
-		gfx.setColor(new Color(255,128,255,40));
-		gfx.fillPolygon(polyX, polyY, 4);
-		
-		double cosAlpha = line.getAlpha();
-		int alpha = (int) Math.round(cosAlpha);
-		double size = Math.abs(mutableLine.thickness*2d) / camera.getZoom();
-		System.err.println("size="+size+" cosAlpha="+cosAlpha);
-		int sizeI = (int) Math.round(size);
-		int r = sizeI/2;
-		int s1 = (alpha+180) % 360;
-		int s2 = (alpha+270) % 360;
-		gfx.fillArc((int) baseA.x-r, (int) baseA.y-r, sizeI, sizeI, s1, 91);
-
-		
-		gfx.fillArc((int) baseB.x-r, (int) baseB.y-r, sizeI, sizeI, s2, 91);
-		
-	}
-
-
-
 
 	protected void drawOverlapPoint(Graphics2D gfx, int viewHeight, OverlapPoint overlapPoint) {
 		Taint taint = overlapPoint.getTaint();
@@ -125,13 +69,6 @@ public class ScalerViewer3 extends ScalerViewerBase {
 		drawCircle(gfx, point, 5, false);
 	}
 
-
-
-	private void drawMutableSegment(Graphics2D gfx, MutableContour mutableContour, int viewHeight) {
-		for(TranslatedSegment mutableLine : mutableContour.segmentIterable()) {
-			drawSegment(gfx, viewHeight, mutableLine);
-		}
-	}
 	
 	protected void drawSegment(Graphics2D gfx, int viewHeight, TranslatedSegment translatedSegment) {
 		Point2D pointA = camera.toViewCoords(translatedSegment.base.base.getFirstPoint(), viewHeight);
@@ -299,9 +236,9 @@ public class ScalerViewer3 extends ScalerViewerBase {
 		} else {
 	
 			paintSegmentPart(tempGfx, translatedSegment.base, mouse, viewHeight, false);
-			paintSegmentPart(tempGfx, translatedSegment.translated, mouse, viewHeight, false);
+			paintSegmentPart(tempGfx, translatedSegment.translated, mouse, viewHeight, true);
 	
-			paintSegmentPart(tempGfx, translatedSegment.head, mouse, viewHeight, false);
+			paintSegmentPart(tempGfx, translatedSegment.head, mouse, viewHeight, true);
 			paintSegmentPart(tempGfx, translatedSegment.tail, mouse, viewHeight, false);
 		}
 		tempGfx.dispose();

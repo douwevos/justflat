@@ -2,11 +2,7 @@ package net.github.douwevos.justflat.contour;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import net.github.douwevos.justflat.contour.testui.DirectedLine;
@@ -296,24 +292,6 @@ public class DiscLayerOverlapCutter2 {
 		return bestLine;
 	}
 
-	private TargetLine findBestStartLine2(List<TargetLine> linesTroughPoint, Point2D mostLeftPoint) {
-		TargetLine bestLine = null;
-		long bestDeltaY=0;
-		long bestDeltaX=0;
-		for (TargetLine crossableLine : linesTroughPoint) {
-			Line2D baseLine = crossableLine.targetLine;
-			Point2D otherPoint = baseLine.getOtherPoint(mostLeftPoint);
-			
-			long deltaY = otherPoint.y - mostLeftPoint.y;
-			long deltaX = otherPoint.x - mostLeftPoint.x;
-			if (bestLine==null || deltaY>bestDeltaY || (deltaY==bestDeltaY && deltaX<bestDeltaX)) {
-				bestLine = crossableLine;
-				bestDeltaX = deltaX;
-				bestDeltaY = deltaY;
-			}
-		}
-		return bestLine;
-	}
 
 	private TargetLine findBestStartLine(List<TargetLine> linesTroughPoint, Point2D mostLeftPoint) {
 		TargetLine bestLine = null;
@@ -363,135 +341,6 @@ public class DiscLayerOverlapCutter2 {
 		return testPoint.y>pointThusFar.y ? testPoint : pointThusFar;
 	}
 
-	private Contour extractContour(Map<Point2D, List<TargetLine>> departureMap) {
-		Iterator<Entry<Point2D, List<TargetLine>>> iterator = departureMap.entrySet().iterator();
-		if (!iterator.hasNext()) {
-			return null;
-		}
-		Entry<Point2D, List<TargetLine>> startEntry = iterator.next();
-		List<TargetLine> targetLineList = startEntry.getValue();
-		TargetLine targetLine = targetLineList.get(0);
-		List<TargetLine> contourLines = new ArrayList<>();
-		contourLines.add(targetLine);
-		while(true) {
-			Point2D nextStart = targetLine.targetLine.pointB();
-			log.debug("contour-adding:"+nextStart);
-			targetLineList = departureMap.get(nextStart);
-			if (targetLineList == null) {
-				log.debug("no next target-line-list "+nextStart);
-				break;
-			}
-			
-			TargetLine nextTargetLine = null;
-			if (targetLineList.size()==1) {
-				nextTargetLine = targetLineList.get(0);
-			} else {
-				double departingAlpha = targetLine.targetLine.getAlpha();
-				nextTargetLine = null;
-				double bestAngle=0d;
-				for(TargetLine l : targetLineList) {
-					double testAlpha = l.targetLine.getAlpha();
-					double testAngle = testAlpha-departingAlpha;
-					if (testAngle<0) {
-						testAngle += 360;
-					}
-					
-					if (nextTargetLine==null || testAngle<bestAngle) {
-						nextTargetLine = l;
-						bestAngle = testAngle;
-					}
-
-				}
-				
-			}
-			
-			
-			if (nextTargetLine == null) {
-				log.debug("no next target-line "+nextStart);
-				break;
-			}
-			
-			int idxa = contourLines.indexOf(nextTargetLine);
-			if (idxa==0) {
-				Contour result = new Contour();
-				for(TargetLine tline : contourLines) {
-					result.add(tline.targetLine.pointA());
-					List<TargetLine> list = departureMap.get(tline.targetLine.pointA());
-					list.remove(tline);
-					if (list.isEmpty()) {
-						departureMap.remove(tline.targetLine.pointA());
-					}
-				}
-				return result;
-			} else if (idxa>0) {
-				log.debug("weird looping at "+nextStart);
-				break;
-			}
-			
-			
-			targetLine = nextTargetLine;
-			contourLines.add(targetLine);
-		}
-		
-		return null;
-	}
-
-	private Map<Point2D, List<TargetLine>> createDepartureMap(List<CrossableLine> crossLines) {
-		Map<Point2D, List<TargetLine>> targetMap = new HashMap<>();
-		
-		for(CrossableLine crossableLine : crossLines) {
-			DirectedLine directedLine = crossableLine.directedLine;
-			if (crossableLine.crossPoints == null) {
-				Line2D target;
-				if (directedLine.reverse) {
-					target = new Line2D(directedLine.baseLine.pointB(), directedLine.baseLine.pointA());
-				} else {
-					target = new Line2D(directedLine.baseLine.pointA(), directedLine.baseLine.pointB());
-				}
-				TargetLine targetLine = new TargetLine(directedLine, target);
-				List<TargetLine> targetLines = targetMap.computeIfAbsent(target.pointA(), (p) -> new ArrayList<>());
-				log.debug("target: "+target.pointA() + " targetLine="+targetLine);
-				targetLines.add(targetLine);
-			} else {
-				
-				Line2D baseLine = crossableLine.directedLine.baseLine;
-				boolean reverse = crossableLine.directedLine.reverse;
-				Point2D startPoint = reverse ? baseLine.pointB() : baseLine.pointA();
-				
-				List<CrossPoint> crossPoints = new ArrayList<>(crossableLine.crossPoints);
-				Collections.sort(crossPoints, (a,b) -> Long.compare(a.crossPoint.squaredDistance(startPoint), b.crossPoint.squaredDistance(startPoint)));
-
-				
-				crossPoints.add(new CrossPoint(reverse ? baseLine.pointA() : baseLine.pointB()));
-				
-				Point2D pointA = startPoint;
-				
-				for(CrossPoint cp : crossPoints) {
-					Point2D pointB = cp.crossPoint;
-					
-					Line2D target;
-					if (reverse) {
-						target = new Line2D(pointB, pointA);
-					} else {
-						target = new Line2D(pointA, pointB);
-					}
-					TargetLine targetLine = new TargetLine(directedLine, target);
-					List<TargetLine> targetLines = targetMap.computeIfAbsent(target.pointA(), (p) -> new ArrayList<>());
-					targetLines.add(targetLine);
-
-					log.debug("target: "+target.pointA() + " at cp:"+cp+" targetLine="+targetLine);
-					
-					pointA = pointB;
-					
-					reverse = !reverse;
-				}
-				
-				
-				
-			}
-		}
-		return targetMap;
-	}
 
 	private List<CrossableLine> createCrossLines(DirectedLines directedLines) {
 		List<CrossableLine> cutLines = directedLines.stream().map(dl -> new CrossableLine(dl)).collect(Collectors.toList());

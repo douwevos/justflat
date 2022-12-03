@@ -1,4 +1,4 @@
-package net.github.douwevos.justflat.contour;
+package net.github.douwevos.justflat.contour.scaler;
 
 import java.util.stream.Stream;
 
@@ -8,7 +8,7 @@ import net.github.douwevos.justflat.types.Point2D;
 
 public class TranslatedSegment {
 
-	private static final double DIST_DELTA = 1.1d;
+	private static final double DIST_DELTA = 0.00000001d;
 
 	public final Route base;
 	public final Route translated;
@@ -16,15 +16,17 @@ public class TranslatedSegment {
 	public final Route tail;
 	
 	public final Point2D headTailCrossPoint;
+	public final boolean shrink;
 	
 	public Route head0, tail0;
 	public Route head1, tail1;
 	
 	
-	public TranslatedSegment(Line2D base, Line2D translated) {
+	public TranslatedSegment(Line2D base, Line2D translated, boolean shrink) {
 		if (base == null) {
 			throw new RuntimeException();
 		}
+		this.shrink = shrink;
 		this.base = new Route(this, base);
 		this.translated = new Route(this, translated);
 		Line2D lineHead = new Line2D(base.getFirstPoint(), translated.getFirstPoint());
@@ -141,9 +143,14 @@ public class TranslatedSegment {
 			obscureInBetweenOverlapPoints(translated, false, "InBtwTransN");
 			obscureInBetweenOverlapPoints(base, true, "InBtwBaseN");
 			OverlapPoint opFirst = translated.overlapFirst();
-			opFirst.addObscure2(translated.base, false, head.base, true, "transToHeadN");
 			OverlapPoint opSecond = translated.overlapSecond();
-			opSecond.addObscure2(tail.base, true, translated.base, true, "transToTailN");
+			if (shrink) {
+				opFirst.addObscure2(translated.base, false, head.base, true, "sh-transToHeadN");
+				opSecond.addObscure2(tail.base, true, translated.base, true, "sh-transToTailN");
+			} else {
+				opFirst.addObscure2(head.base, true, translated.base, false, "ex-transToHeadN");
+				opSecond.addObscure2(translated.base, true, tail.base, true, "ex-transToTailN");
+			}
 		}
 	}
 	
@@ -174,6 +181,10 @@ public class TranslatedSegment {
 				op.addObscure2(l, up, l, !up, rangeName);
 			}
 		});
+	}
+	
+	public boolean isShrinking() {
+		return shrink;
 	}
 	
 	

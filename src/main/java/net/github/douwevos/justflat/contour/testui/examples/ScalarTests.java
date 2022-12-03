@@ -7,10 +7,9 @@ import java.util.stream.Stream;
 
 import net.github.douwevos.justflat.contour.ContourComparator;
 import net.github.douwevos.justflat.contour.ContourLayer;
-import net.github.douwevos.justflat.contour.DiscLayerFillContext;
 import net.github.douwevos.justflat.contour.DiscLayerOverlapCutter2;
 import net.github.douwevos.justflat.contour.testui.ContourLayerTestProducer;
-import net.github.douwevos.justflat.types.Layer;
+import net.github.douwevos.justflat.contour.testui.DiscLayerFillContext;
 
 public class ScalarTests {
 
@@ -18,12 +17,14 @@ public class ScalarTests {
 
 	
 	public ScalarTests() {
-//		add(new TestModelOne());
-//		add(new TestModelOne2());
-//		add(new Triangle());
-//		add(new TDBird());
-//		add(new TDBird2());
+		add(new TestModelOne());
+		add(new TestModelOne2());
+		add(new Triangle());
+		add(new Triangle2());
+		add(new TDBird());
+		add(new TDBird2());
 		add(new OLetter());
+		add(new AlmostStraight());
 		runTests();
 	}
 	
@@ -46,7 +47,8 @@ public class ScalarTests {
 		for(ScalarTest scalarTest : testMap.values()) {
 			ContourLayer sourceLayer = scalarTest.producer.produceSourceLayer();
 			int thickness = scalarTest.producer.getThickness();
-			ContourLayer scaledLayer = applyScaling(sourceLayer, thickness);
+			boolean doReduceFirst = scalarTest.producer.doReduceFirst();
+			ContourLayer scaledLayer = applyScaling(sourceLayer, thickness, doReduceFirst);
 			
 			ContourLayer expectedLayer = scalarTest.producer.produceResultLayer();
 			ContourComparator contourComparator = new ContourComparator();
@@ -56,12 +58,15 @@ public class ScalarTests {
 		}
 	}
 
-	public ContourLayer applyScaling(ContourLayer input, int thickness) {
+	public ContourLayer applyScaling(ContourLayer input, int thickness, boolean doReduceFirst) {
 		ContourLayer duplicate = input.duplicate();
 		DiscLayerFillContext discLayerFillContext = new DiscLayerFillContext(duplicate);
 		int discSize = 800;
 		int discSizeSq = discSize*discSize;
-		ContourLayer newLayer = discLayerFillContext.reduceResolution(discLayerFillContext.discLayer, discSizeSq, 1);
+		ContourLayer newLayer = discLayerFillContext.discLayer;
+		if (doReduceFirst) {
+			newLayer = discLayerFillContext.reduceResolution(discLayerFillContext.discLayer, discSizeSq, 1);
+		}
 		DiscLayerOverlapCutter2 overlapCutter = new DiscLayerOverlapCutter2();
 		newLayer = overlapCutter.scale(newLayer, false);
 		ContourLayer scaledLayer = discLayerFillContext.scale(newLayer, thickness, false);

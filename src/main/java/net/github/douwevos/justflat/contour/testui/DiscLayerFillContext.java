@@ -1,6 +1,8 @@
-package net.github.douwevos.justflat.contour;
+package net.github.douwevos.justflat.contour.testui;
 
-import net.github.douwevos.justflat.contour.testui.ScalerViewableModel;
+import net.github.douwevos.justflat.contour.ContourLayer;
+import net.github.douwevos.justflat.contour.ContourLayerResolutionReducer;
+import net.github.douwevos.justflat.contour.scaler.ContourLayerScaler;
 
 public class DiscLayerFillContext {
 
@@ -15,12 +17,12 @@ public class DiscLayerFillContext {
 	}
 
 	public ContourLayer reduceResolution(ContourLayer discLayer, double distortionLevel, int stepping) {
-		DiscLayerResolutionReducer resolutionReducer = new DiscLayerResolutionReducer();
+		ContourLayerResolutionReducer resolutionReducer = new ContourLayerResolutionReducer();
 		return resolutionReducer.reduceResolution(discLayer, distortionLevel, stepping);
 	}
 	
 	public ContourLayer scale(ContourLayer discLayer, double thickness, boolean cleanup) {
-		DiscLayerScaler scaler = new DiscLayerScaler();
+		ContourLayerScaler scaler = new ContourLayerScaler();
 		return scaler.scale(discLayer, thickness, cleanup);
 	}
 	

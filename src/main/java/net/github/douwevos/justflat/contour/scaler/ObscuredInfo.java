@@ -1,4 +1,4 @@
-package net.github.douwevos.justflat.contour;
+package net.github.douwevos.justflat.contour.scaler;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -37,6 +37,11 @@ public class ObscuredInfo implements Iterable<Range> {
 	}
 	
 	public ObscuredInfo add(Range r) {
+		
+//		if (!r.name.endsWith("reconnect")) {
+//			return this;
+//		}
+		
 		double start = (r.start + 360d) % 360d;
 		double end = (r.end + 360d) % 360d;
 

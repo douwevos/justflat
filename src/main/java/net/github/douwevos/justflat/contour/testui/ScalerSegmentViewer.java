@@ -8,16 +8,16 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
-import net.github.douwevos.justflat.contour.MutableContour;
-import net.github.douwevos.justflat.contour.TargetLine;
-import net.github.douwevos.justflat.contour.TranslatedSegment;
+import net.github.douwevos.justflat.contour.scaler.MutableContour;
+import net.github.douwevos.justflat.contour.scaler.TargetLine;
+import net.github.douwevos.justflat.contour.scaler.TranslatedSegment;
 import net.github.douwevos.justflat.contour.testui.ScalerViewableModel.TranslatedSegmentSelection;
 import net.github.douwevos.justflat.types.Line2D;
 import net.github.douwevos.justflat.types.Point2D;
 
 
 @SuppressWarnings("serial")
-public class ScalerViewer2 extends ScalerViewerBase {
+public class ScalerSegmentViewer extends ScalerViewerBase {
 
 	TargetLine selectedTargetLine;
 	

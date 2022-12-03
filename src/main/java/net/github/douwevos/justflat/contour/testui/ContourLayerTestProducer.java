@@ -5,11 +5,17 @@ import net.github.douwevos.justflat.contour.ContourLayer;
 public interface ContourLayerTestProducer {
 
 	
-	String name();
+	default String name() {
+		return getClass().getSimpleName();
+	}
 	
 	ContourLayer produceSourceLayer();
 
 	ContourLayer produceResultLayer();
 
 	int getThickness();
+	
+	default boolean doReduceFirst() {
+		return true;
+	}
 }

@@ -11,7 +11,6 @@ import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import net.github.douwevos.justflat.contour.Contour;
@@ -213,11 +212,6 @@ public class ContourLayerViewer extends ModelViewer<ContourLayerViewableModel> {
 				int ixa = (int) Math.round((transX + xa)/cameraZoom);
 				int iya = viewDimension.height+(int) Math.round((transY - ya)/cameraZoom);
 
-				long xb = line.getSecondPoint().getX();
-				long yb = line.getSecondPoint().getY();
-				int ixb = (int) Math.round((transX + xb)/cameraZoom);
-				int iyb = viewDimension.height+(int) Math.round((transY - yb)/cameraZoom);
-
 				Point2D sp = camera.toViewCoords(line.getSecondPoint(), viewDimension.height);
 
 				
@@ -281,8 +275,6 @@ public class ContourLayerViewer extends ModelViewer<ContourLayerViewableModel> {
 		int dy = iyb-iya; 
 		
 		double len = Math.sqrt(dx*dx + dy*dy);
-		
-		double rp = len*2/3d;
 		
 		double s = len*0.07d;
 		

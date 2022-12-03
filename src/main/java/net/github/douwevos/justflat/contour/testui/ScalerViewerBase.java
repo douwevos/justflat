@@ -11,21 +11,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.github.douwevos.justflat.contour.MutableContour;
-import net.github.douwevos.justflat.contour.ObscuredInfo;
-import net.github.douwevos.justflat.contour.OverlapPoint;
-import net.github.douwevos.justflat.contour.OverlapPoint.Taint;
-import net.github.douwevos.justflat.contour.Range;
-import net.github.douwevos.justflat.contour.TranslatedSegment;
-import net.github.douwevos.justflat.contour.testui.ScalerViewableModel.CrossPointSelection;
+import net.github.douwevos.justflat.contour.scaler.MutableContour;
+import net.github.douwevos.justflat.contour.scaler.ObscuredInfo;
+import net.github.douwevos.justflat.contour.scaler.OverlapPoint;
+import net.github.douwevos.justflat.contour.scaler.Range;
+import net.github.douwevos.justflat.contour.scaler.TranslatedSegment;
+import net.github.douwevos.justflat.contour.scaler.OverlapPoint.Taint;
 import net.github.douwevos.justflat.contour.testui.ScalerViewableModel.OverlapPointSelection;
+import net.github.douwevos.justflat.contour.testui.ScalerViewableModel.PointSelection;
 import net.github.douwevos.justflat.contour.testui.ScalerViewableModel.TranslatedSegmentSelection;
 import net.github.douwevos.justflat.types.Point2D;
 
 public abstract class ScalerViewerBase extends ModelViewer<ScalerViewableModel> {
 
-//	TargetLine selectedTargetLine;
-	
 	protected double mouseModelX;
 	protected double mouseModelY;
 
@@ -36,7 +34,6 @@ public abstract class ScalerViewerBase extends ModelViewer<ScalerViewableModel> 
 		taintColorMap.put(Taint.RECONNECT, Color.green.brighter());
 		taintColorMap.put(Taint.EDGE, Color.cyan.brighter());
 		taintColorMap.put(Taint.OBSCURED, Color.darkGray.brighter());
-		taintColorMap.put(Taint.OVERSHOOT, Color.magenta);
 		taintColorMap.put(Taint.ORIGINAL, Color.orange.darker());
 		taintColorMap.put(Taint.INVALID, Color.red.darker());
 	}
@@ -67,8 +64,8 @@ public abstract class ScalerViewerBase extends ModelViewer<ScalerViewableModel> 
 	protected void paintSelected(Graphics2D g, Object selected) {
 		super.paintSelected(g, selected);
 
-		if (selected instanceof CrossPointSelection) {
-			paintCrossPointSelection(g, (CrossPointSelection) selected);
+		if (selected instanceof PointSelection) {
+			paintPointSelection(g, (PointSelection) selected);
 		} 
 		else if (selected instanceof OverlapPointSelection) {
 			paintOverlapPointSelection(g, (OverlapPointSelection) selected);
@@ -137,8 +134,8 @@ public abstract class ScalerViewerBase extends ModelViewer<ScalerViewableModel> 
 	
 	
 	
-	protected void paintCrossPointSelection(Graphics2D g, CrossPointSelection sel) {
-		paintSelectedPointWithLocation(g, sel.crossPoint.crossPoint);
+	protected void paintPointSelection(Graphics2D g, PointSelection sel) {
+		paintSelectedPointWithLocation(g, sel.point);
 	}
 
 	protected void paintOverlapPointSelection(Graphics2D g, OverlapPointSelection sel) {
@@ -164,6 +161,8 @@ public abstract class ScalerViewerBase extends ModelViewer<ScalerViewableModel> 
 		
 		Graphics gfxTemp = g.create();
 		
+		final int N =28;
+		
 		final int R = 120;
 		final int D = R*2;
 		
@@ -187,6 +186,9 @@ public abstract class ScalerViewerBase extends ModelViewer<ScalerViewableModel> 
 			g.fillArc(xb, yb, R, R, start, ang);
 			drawVisibleText(gfxTemp, ""+range, xb, yb1, Color.LIGHT_GRAY, Color.black);
 			yb1 += 30;
+
+			g.fillArc(xb-N, yb1-N-20, N, N, start, ang);
+
 		}
 		
 		gfxTemp.dispose();

@@ -30,9 +30,8 @@ import javax.swing.event.ChangeListener;
 
 import net.github.douwevos.justflat.contour.Contour;
 import net.github.douwevos.justflat.contour.ContourLayer;
-import net.github.douwevos.justflat.contour.DiscLayerFillContext;
 import net.github.douwevos.justflat.contour.DiscLayerOverlapCutter2;
-import net.github.douwevos.justflat.contour.DiscLayerScaler;
+import net.github.douwevos.justflat.contour.scaler.ContourLayerScaler;
 import net.github.douwevos.justflat.contour.testui.examples.ScalarTests;
 import net.github.douwevos.justflat.contour.testui.examples.ScalarTests.ScalarTest;
 import net.github.douwevos.justflat.ttf.TextLayout;
@@ -59,13 +58,15 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 
 	
 	private ContourLayerViewer reachableLayerViewer1;
-	private ScalerViewer2 scalerViewer2;
+	private ScalerSegmentViewer scalerViewer2;
 	private ScalerViewer3 scalerViewer3;
 
 //	private volatile int thickness = 3758;
 	private volatile int thickness = 3225;
 
 	private volatile boolean dirty = true;
+	
+	private volatile boolean doReduceLayer = false;
 	
 	ScalarTests scalarTests;
 	
@@ -160,7 +161,7 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 		reachableLayerViewer1.setDrawDirections(true);
 		add(reachableLayerViewer1);
 
-		scalerViewer2 = new ScalerViewer2();
+		scalerViewer2 = new ScalerSegmentViewer();
 		scalerViewer2.setCamera(camera, false);
 		scalerViewer2.setBounds(180+blockWidth, blockHeight+20, blockWidth,blockHeight);
 		add(scalerViewer2);
@@ -171,7 +172,7 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 		add(resultViewer);
 
 		
-		JSlider jSlider = new JSlider(-10, 7000, thickness);
+		JSlider jSlider = new JSlider(-500, 7000, thickness);
 		jSlider.setOrientation(JSlider.VERTICAL);
 		jSlider.setBounds(0, 200, 30, blockHeight);
 		jSlider.addChangeListener(new ChangeListener() {
@@ -191,6 +192,7 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 
 	private void selectModel(ContourLayerTestProducer testProducer) {
 		thickness = testProducer.getThickness();
+		doReduceLayer = testProducer.doReduceFirst();
 		designedLayer = testProducer.produceSourceLayer();
 		dirty = true;
 	}
@@ -246,7 +248,10 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 			int discSize = 800;
 			int discSizeSq = discSize*discSize;
 			
-			ContourLayer newLayer = discLayerFillContext.reduceResolution(discLayerFillContext.discLayer, discSizeSq, 1);
+			ContourLayer newLayer = discLayerFillContext.discLayer;
+			if (doReduceLayer) {
+				newLayer = discLayerFillContext.reduceResolution(discLayerFillContext.discLayer, discSizeSq, 1);
+			}
 
 			DiscLayerOverlapCutter2 overlapCutter = new DiscLayerOverlapCutter2();
 			newLayer = overlapCutter.scale(newLayer, false);
@@ -280,7 +285,7 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 			discLayerFillContext.scaled = contourLayer;
 			
 			
-			DiscLayerScaler discLayerScaler = new DiscLayerScaler();
+			ContourLayerScaler discLayerScaler = new ContourLayerScaler();
 			
 			discLayerScaler.scale(discLayerFillContext.reduceResolution, dd, false);
 			discLayerFillContext.scalerViewableModel = new ScalerViewableModel(discLayerScaler.allMutableContours);
@@ -301,6 +306,7 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 				for(Contour c : newLayer) {
 					multiResultLayer.add(c);
 				}
+//				newLayer = discLayerFillContext.reduceResolution(newLayer, discSizeSq, 1);
 			}
 			
 			resultViewer.setModel(multiResultLayer);
@@ -344,7 +350,7 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 		out.println();
 
 		
-		ContourLayer contourLayer = scalarTests.applyScaling(designedLayer, thickness);
+		ContourLayer contourLayer = scalarTests.applyScaling(designedLayer, thickness, doReduceLayer);
 		out.println("	public ContourLayer produceResultLayer() {");
 		out.println("		ContourLayer contourLayer = new ContourLayer("+contourLayer.getWidth()+", "+contourLayer.getHeight()+");");
 		

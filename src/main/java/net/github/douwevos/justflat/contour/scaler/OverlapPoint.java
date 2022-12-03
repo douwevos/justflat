@@ -1,4 +1,4 @@
-package net.github.douwevos.justflat.contour;
+package net.github.douwevos.justflat.contour.scaler;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -78,7 +78,6 @@ public class OverlapPoint {
 		RECONNECT(true),
 		EDGE(true),
 		OBSCURED(false), 
-		OVERSHOOT(false),
 		ORIGINAL(false), 
 		INVALID(false);
 
@@ -98,10 +97,6 @@ public class OverlapPoint {
 	}
 	
 
-	public void addObscure(Line2D from, boolean fromReverse, Line2D to, boolean toReverse) {
-		
-	}
-
 	public void addObscure2(Line2D from, boolean fromReverse, Line2D to, boolean toReverse, String rangeName) {
 //		if (!rangeName.equals("headTailSplitB")) {
 //			return;
@@ -116,7 +111,6 @@ public class OverlapPoint {
 		}
 		obscuredInfo = obscuredInfo.add(new Range(fromA, toA, rangeName));
 	}
-
 	
 	public void markUsed() {
 		isUSed = true;

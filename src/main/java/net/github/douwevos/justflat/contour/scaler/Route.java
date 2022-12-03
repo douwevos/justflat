@@ -1,4 +1,4 @@
-package net.github.douwevos.justflat.contour;
+package net.github.douwevos.justflat.contour.scaler;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import net.github.douwevos.justflat.contour.OverlapPoint.Taint;
+import net.github.douwevos.justflat.contour.scaler.OverlapPoint.Taint;
 import net.github.douwevos.justflat.types.Line2D;
 import net.github.douwevos.justflat.types.Line2D.IntersectionInfo;
 import net.github.douwevos.justflat.types.Point2D;
@@ -47,6 +47,12 @@ public class Route {
 
 	public Route ensureOrdered() {
 		if (!overlapPointsOrdered) {
+			Point2D bpa = base.getFirstPoint();
+			Point2D bpb = base.getSecondPoint();
+			
+			long dx = bpa.x - bpb.x;
+			long dy = bpa.y - bpb.y;
+			final Point2D pr = Point2D.of(bpa.x + dx*10, bpa.y + dy*10);
 			Comparator<OverlapPoint> p = (a,b) -> {
 				if (a==null) {
 					return -1;
@@ -54,19 +60,9 @@ public class Route {
 				if (b==null) {
 					return 1;
 				}
-				long distA = base.signedAlignedDistanceSq(a.point);
-				long distB = base.signedAlignedDistanceSq(b.point);
-//				Point2D basePoint = base.pointA();
-//				long dxa = a.point.x-basePoint.x;
-//				long dya = a.point.y-basePoint.y;
-//
-//				long dxb = b.point.x-basePoint.x;
-//				long dyb = b.point.y-basePoint.y;
-//				
-//				
-//				long sqDistA = dxa*dxa + dya*dya;
-//				long sqDistB = dxb*dxb + dyb*dyb;
-//				return Long.compare(sqDistA, sqDistB);
+				
+				long distA = pr.squaredDistance(a.point);
+				long distB = pr.squaredDistance(b.point);
 				return Long.compare(distA, distB);
 			};
 			Collections.sort(overlapPoints, p);

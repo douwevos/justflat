@@ -1,9 +1,9 @@
-package net.github.douwevos.justflat.contour;
+package net.github.douwevos.justflat.contour.scaler;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
+import net.github.douwevos.justflat.contour.Contour;
 import net.github.douwevos.justflat.logging.Log;
 import net.github.douwevos.justflat.types.Bounds2D;
 import net.github.douwevos.justflat.types.Line2D;
@@ -26,9 +26,9 @@ class ScaledContour {
 	public Contour createContour() {
 		TargetLine firstLine = lines.get(0);
 		TargetLine secondLine = lines.get(1);
-		Point2D startPoint = firstLine.pointA().crossPoint;
-		if (secondLine.pointA().crossPoint.equals(startPoint) || secondLine.pointB().crossPoint.equals(startPoint)) {
-			startPoint = firstLine.pointB().crossPoint;
+		Point2D startPoint = firstLine.pointA();
+		if (secondLine.pointA().equals(startPoint) || secondLine.pointB().equals(startPoint)) {
+			startPoint = firstLine.pointB();
 		}
 		
 		Point2D iterPoint = startPoint;
@@ -128,17 +128,17 @@ class ScaledContour {
 			if (a==null) {
 				return b;
 			}
-			if (a.pointA().crossPoint.x == a.pointB().crossPoint.x) {
+			if (a.pointA().x == a.pointB().x) {
 				return b;
 			}
-			if (b.pointA().crossPoint.x == b.pointB().crossPoint.x) {
+			if (b.pointA().x == b.pointB().x) {
 				return a;
 			}
 			
-			long yA0 = a.pointA().crossPoint.y;
-			long yA1 = a.pointB().crossPoint.y;
-			long yB0 = b.pointA().crossPoint.y;
-			long yB1 = b.pointB().crossPoint.y;
+			long yA0 = a.pointA().y;
+			long yA1 = a.pointB().y;
+			long yB0 = b.pointA().y;
+			long yB1 = b.pointB().y;
 			
 			if ((yA0<yB0 && yA0<yB1)
 					|| (yA1<yB0 && yA1<yB1)) {

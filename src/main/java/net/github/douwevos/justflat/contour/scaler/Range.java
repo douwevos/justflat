@@ -1,4 +1,4 @@
-package net.github.douwevos.justflat.contour;
+package net.github.douwevos.justflat.contour.scaler;
 
 public class Range {
 	public final double start;

@@ -9,14 +9,11 @@ import java.util.Objects;
 import net.github.douwevos.justflat.logging.Log;
 import net.github.douwevos.justflat.types.Point2D;
 
-public class DiscLayerResolutionReducer {
+public class ContourLayerResolutionReducer {
 
 	Log log = Log.instance();
 	
-	private ContourLayer input;
-
 	public ContourLayer reduceResolution(ContourLayer input, double distortionLevel, int stepping) {
-		this.input = input;
 		ContourLayer result = new ContourLayer(input.getWidth(), input.getHeight());
 		for(Contour contour : input) {
 //			System.out.println("dots.in="+contour.getDots().size());

@@ -3,10 +3,9 @@ package net.github.douwevos.justflat.contour.testui;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import net.github.douwevos.justflat.contour.CrossPoint;
-import net.github.douwevos.justflat.contour.MutableContour;
-import net.github.douwevos.justflat.contour.OverlapPoint;
-import net.github.douwevos.justflat.contour.TranslatedSegment;
+import net.github.douwevos.justflat.contour.scaler.MutableContour;
+import net.github.douwevos.justflat.contour.scaler.OverlapPoint;
+import net.github.douwevos.justflat.contour.scaler.TranslatedSegment;
 import net.github.douwevos.justflat.types.Bounds2D;
 import net.github.douwevos.justflat.types.Line2D;
 import net.github.douwevos.justflat.types.Point2D;
@@ -117,17 +116,17 @@ public class ScalerViewableModel implements ViewableModel {
 		public T get();
 	}
 	
-	public static class CrossPointSelection implements Selection<CrossPoint> {
+	public static class PointSelection implements Selection<Point2D> {
 		
-		public final CrossPoint crossPoint;
+		public final Point2D point;
 
-		public CrossPointSelection(CrossPoint crossPoint) {
-			this.crossPoint = crossPoint;
+		public PointSelection(Point2D point) {
+			this.point = point;
 		}
 		
 		@Override
-		public CrossPoint get() {
-			return crossPoint;
+		public Point2D get() {
+			return point;
 		}
 	}
 

@@ -1,20 +1,18 @@
-package net.github.douwevos.justflat.contour;
+package net.github.douwevos.justflat.contour.scaler;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import net.github.douwevos.justflat.contour.Contour;
 import net.github.douwevos.justflat.logging.Log;
 import net.github.douwevos.justflat.types.Line2D;
 import net.github.douwevos.justflat.types.Line2D.IntersectionInfo;
-import net.github.douwevos.justflat.util.NoRepeats;
 import net.github.douwevos.justflat.types.Point2D;
+import net.github.douwevos.justflat.util.NoRepeats;
 
 
 public class MutableContour {
@@ -29,10 +27,10 @@ public class MutableContour {
 
 //	public List<TranslatedSegmentPart> segementsParts;
 	
-	public MutableContour(Contour source, List<MutableLine> lines) {
-		this.source = source;
-//		this.lines = new ArrayList<>(lines);
-	}
+//	public MutableContour(Contour source, List<MutableLine> lines) {
+//		this.source = source;
+////		this.lines = new ArrayList<>(lines);
+//	}
 
 //	public Contour createContour() {
 //		MutableLine firstLine = lines.get(0);
@@ -143,6 +141,11 @@ public class MutableContour {
 //				segmentConnectPoints.add(nextPoint);
 			} else if (info.intersectionPoint!=null) {
 				nextPoint = info.intersectionPoint;
+				Point2D sp = line.getSecondPoint();
+				Point2D fp = nline.getFirstPoint();
+				nextPoint = Point2D.of((sp.x+fp.x)/2, (sp.y+fp.y)/2);
+//				translatedLines.set(idx, line.withSecondPoint(nextPoint));
+//				translatedLines.set(nidx, nline.withFirstPoint(nextPoint));
 //				long squaredDistance = line.getSecondPoint().squaredDistance(nline.getFirstPoint());
 //				long sqDist1 = info.intersectionPoint.squaredDistance(line.getSecondPoint());
 //				long sqDist2 = info.intersectionPoint.squaredDistance(nline.getFirstPoint());
@@ -166,12 +169,13 @@ public class MutableContour {
 			
 		}
 		
+		boolean isShrinking = thickness<0d;
 
 		List<TranslatedSegment> segments = new ArrayList<>();
 		for(int idx=0; idx<translatedLines.size(); idx++) {
 			Line2D baseLine = baseLines.get(idx);
 			Line2D transLine = translatedLines.get(idx);
-			TranslatedSegment segment = new TranslatedSegment(baseLine, transLine);
+			TranslatedSegment segment = new TranslatedSegment(baseLine, transLine, isShrinking);
 			segments.add(segment);
 		}
 		this.segements = segments;

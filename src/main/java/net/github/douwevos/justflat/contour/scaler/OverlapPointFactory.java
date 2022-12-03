@@ -1,9 +1,9 @@
-package net.github.douwevos.justflat.contour;
+package net.github.douwevos.justflat.contour.scaler;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import net.github.douwevos.justflat.contour.OverlapPoint.Taint;
+import net.github.douwevos.justflat.contour.scaler.OverlapPoint.Taint;
 import net.github.douwevos.justflat.types.Point2D;
 
 public class OverlapPointFactory {
