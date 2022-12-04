@@ -1,7 +1,7 @@
 package net.github.douwevos.justflat.contour.testui;
 
 import net.github.douwevos.justflat.contour.Contour;
-import net.github.douwevos.justflat.types.Line2D;
+import net.github.douwevos.justflat.types.values.Line2D;
 
 public class DirectedLine {
 	public final Contour contour;

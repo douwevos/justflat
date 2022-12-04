@@ -6,7 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
-import net.github.douwevos.justflat.types.Point2D;
+import net.github.douwevos.justflat.types.values.Point2D;
 
 public class DirectedLinesViewer extends ModelViewer<DirectedLinesViewableModel> {
 

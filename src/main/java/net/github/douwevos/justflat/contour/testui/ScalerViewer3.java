@@ -15,8 +15,8 @@ import net.github.douwevos.justflat.contour.scaler.TranslatedSegment;
 import net.github.douwevos.justflat.contour.scaler.OverlapPoint.Taint;
 import net.github.douwevos.justflat.contour.testui.ScalerViewableModel.OverlapPointSelection;
 import net.github.douwevos.justflat.contour.testui.ScalerViewableModel.TranslatedSegmentSelection;
-import net.github.douwevos.justflat.types.Line2D;
-import net.github.douwevos.justflat.types.Point2D;
+import net.github.douwevos.justflat.types.values.Line2D;
+import net.github.douwevos.justflat.types.values.Point2D;
 
 public class ScalerViewer3 extends ScalerViewerBase {
 
@@ -180,7 +180,7 @@ public class ScalerViewer3 extends ScalerViewerBase {
 //		double cosAlpha = line.getAlpha();
 //		int alpha = (int) Math.round(cosAlpha);
 //		double size = Math.abs(mutableLine.thickness*2d) / camera.getZoom();
-//		System.err.println("size="+size+" cosAlpha="+cosAlpha);
+//		log.debug("size="+size+" cosAlpha="+cosAlpha);
 //		int sizeI = (int) Math.round(size);
 //		int r = sizeI/2;
 //		int s1 = (alpha+180) % 360;

@@ -27,7 +27,7 @@ import net.github.douwevos.justflat.ttf.reader.TrueTypeFontParser;
 
 public class TtfViewer extends JFrame {
 
-	private static final Log log = Log.instance();
+	private static final Log log = Log.instance(false);
 	
 	public static void main(String[] args) {
 		TtfViewer ttfViewer = new TtfViewer();

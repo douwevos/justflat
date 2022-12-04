@@ -3,10 +3,10 @@ package net.github.douwevos.justflat.ttf;
 import java.util.List;
 
 import net.github.douwevos.justflat.startstop.OnOffArea;
-import net.github.douwevos.justflat.startstop.StartStop;
 import net.github.douwevos.justflat.startstop.StartStopLayer;
 import net.github.douwevos.justflat.types.Layer;
-import net.github.douwevos.justflat.types.Point2D;
+import net.github.douwevos.justflat.types.values.Point2D;
+import net.github.douwevos.justflat.types.values.StartStop;
 
 public class TextLayoutToCncLayer {
 

@@ -26,7 +26,7 @@ public class ObscuredInfo implements Iterable<Range> {
 		boolean isFullyObscured = false;
 		if (ranges.size() == 1) {
 			Range range = ranges.get(0);
-			isFullyObscured = (range.start==0d && range.end==360d);
+			isFullyObscured = (range.start<=0d && range.end>=359.9d);
 		}
 		
 		this.fullyObscured = isFullyObscured;
@@ -42,8 +42,8 @@ public class ObscuredInfo implements Iterable<Range> {
 //			return this;
 //		}
 		
-		double start = (r.start + 360d) % 360d;
-		double end = (r.end + 360d) % 360d;
+//		double start = (r.start + 360d) % 360d;
+//		double end = (r.end + 360d) % 360d;
 
 		
 		CopyOnWriteArrayList<Range> copyOnWriteArrayList = new CopyOnWriteArrayList<>(ranges);
@@ -136,14 +136,14 @@ public class ObscuredInfo implements Iterable<Range> {
 		
 		return new ObscuredInfo(out, true);
 	}
-	
-	
-	public static void main(String[] args) {
-		ObscuredInfo obscuredInfo = new ObscuredInfo();
-		obscuredInfo = obscuredInfo.add(new Range(86d, 266d, ""));
-		obscuredInfo = obscuredInfo.add(new Range(180d, 0d, ""));
-		
-		ObscuredInfo obscureInfo = obscuredInfo.reduceObscureInfo();
-	}
 
+
+	@Override
+	public String toString() {
+		StringBuilder buf = new StringBuilder();
+		for(Range range : ranges) {
+			buf.append(",").append(range);
+		}
+		return buf.toString();
+	}
 }

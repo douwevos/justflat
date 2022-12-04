@@ -6,13 +6,13 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.github.douwevos.justflat.startstop.OnOffLine;
-import net.github.douwevos.justflat.startstop.StartStop;
 import net.github.douwevos.justflat.startstop.StartStopLine;
-import net.github.douwevos.justflat.types.Bounds2D;
 import net.github.douwevos.justflat.types.Layer;
-import net.github.douwevos.justflat.types.Line2D;
-import net.github.douwevos.justflat.types.Line2D.IntersectionInfo;
-import net.github.douwevos.justflat.types.Point2D;
+import net.github.douwevos.justflat.types.values.Bounds2D;
+import net.github.douwevos.justflat.types.values.Line2D;
+import net.github.douwevos.justflat.types.values.Point2D;
+import net.github.douwevos.justflat.types.values.StartStop;
+import net.github.douwevos.justflat.types.values.Line2D.IntersectionInfo;
 
 public class ContourLayer implements Layer, Iterable<Contour> {
 
@@ -153,7 +153,7 @@ public class ContourLayer implements Layer, Iterable<Contour> {
 				dotIndex++;
 			}
 		}
-//		System.out.println("nx="+nx+", ny="+ny+", bestDot="+bestDot+", zoomFactor="+zoomFactor+" bestSqDist="+bestSqDist);
+//		log.debug("nx="+nx+", ny="+ny+", bestDot="+bestDot+", zoomFactor="+zoomFactor+" bestSqDist="+bestSqDist);
 		
 		if (bestDot!=null && bestSqDist<(400d*zoomFactor*zoomFactor)) {
 			return new Selection(bestContour, bestDotIndex, nx, ny);

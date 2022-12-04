@@ -30,20 +30,25 @@ import javax.swing.event.ChangeListener;
 
 import net.github.douwevos.justflat.contour.Contour;
 import net.github.douwevos.justflat.contour.ContourLayer;
-import net.github.douwevos.justflat.contour.DiscLayerOverlapCutter2;
+import net.github.douwevos.justflat.contour.ContourLayerOverlapCutter;
 import net.github.douwevos.justflat.contour.scaler.ContourLayerScaler;
 import net.github.douwevos.justflat.contour.testui.examples.ScalarTests;
 import net.github.douwevos.justflat.contour.testui.examples.ScalarTests.ScalarTest;
+import net.github.douwevos.justflat.logging.Log;
 import net.github.douwevos.justflat.ttf.TextLayout;
 import net.github.douwevos.justflat.ttf.TextLayoutToDiscLayer;
 import net.github.douwevos.justflat.ttf.format.Ttf;
 import net.github.douwevos.justflat.ttf.reader.TrueTypeFontParser;
 import net.github.douwevos.justflat.types.Layer;
-import net.github.douwevos.justflat.types.Point2D;
+import net.github.douwevos.justflat.types.values.Point2D;
 
 @SuppressWarnings("serial")
 public class LayerShower2 extends JPanel implements Runnable, ComponentListener {
 
+	private final static Log log = Log.instance(false);
+
+	private static final boolean RUN_REPEATS = false;
+	
 	private JComboBox<String> cmbTestModels;
 	
 	private ContourLayer designedLayer;
@@ -180,7 +185,7 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				thickness = jSlider.getValue();
-				System.out.println("thickness="+thickness);
+				log.debug("thickness="+thickness);
 			}
 		});
 		add(jSlider);
@@ -226,7 +231,7 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 		
 		while(true) {
 			if (dd == this.thickness && !dirty) {
-//				System.out.println("dd="+dd);
+//				log.debug("dd="+dd);
 				try {
 					Thread.sleep(20);
 				} catch (InterruptedException e) {
@@ -253,7 +258,7 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 				newLayer = discLayerFillContext.reduceResolution(discLayerFillContext.discLayer, discSizeSq, 1);
 			}
 
-			DiscLayerOverlapCutter2 overlapCutter = new DiscLayerOverlapCutter2();
+			ContourLayerOverlapCutter overlapCutter = new ContourLayerOverlapCutter();
 			newLayer = overlapCutter.scale(newLayer, false);
 
 			
@@ -290,26 +295,28 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 			discLayerScaler.scale(discLayerFillContext.reduceResolution, dd, false);
 			discLayerFillContext.scalerViewableModel = new ScalerViewableModel(discLayerScaler.allMutableContours);
 			
-			
-			ContourLayer multiResultLayer = new ContourLayer(100000, 100000);
-			newLayer = discLayerFillContext.reduceResolution;
-
-			for(int idx=0; idx<6; idx++) {
-				ContourLayer scaledLayer = discLayerFillContext.scale(newLayer, dd, false);
-				if (scaledLayer.isEmpty()) {
-					break;
+			if (RUN_REPEATS) {
+				
+				ContourLayer multiResultLayer = new ContourLayer(100000, 100000);
+				newLayer = discLayerFillContext.reduceResolution;
+	
+				for(int idx=0; idx<6; idx++) {
+					ContourLayer scaledLayer = discLayerFillContext.scale(newLayer, dd, false);
+					if (scaledLayer.isEmpty()) {
+						break;
+					}
+					
+					layers.add(scaledLayer);
+					newLayer = scaledLayer;
+					
+					for(Contour c : newLayer) {
+						multiResultLayer.add(c);
+					}
+	//				newLayer = discLayerFillContext.reduceResolution(newLayer, discSizeSq, 1);
 				}
 				
-				layers.add(scaledLayer);
-				newLayer = scaledLayer;
-				
-				for(Contour c : newLayer) {
-					multiResultLayer.add(c);
-				}
-//				newLayer = discLayerFillContext.reduceResolution(newLayer, discSizeSq, 1);
+				resultViewer.setModel(multiResultLayer);
 			}
-			
-			resultViewer.setModel(multiResultLayer);
 			
 			callPaint(discLayerFillContext);
 			

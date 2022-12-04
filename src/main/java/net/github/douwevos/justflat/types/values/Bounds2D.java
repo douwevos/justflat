@@ -1,5 +1,4 @@
-package net.github.douwevos.justflat.types;
-
+package net.github.douwevos.justflat.types.values;
 
 public class Bounds2D {
 
@@ -8,11 +7,6 @@ public class Bounds2D {
 	public final long top;
 	public final long bottom;
 	
-//	public Bounds2D(Point2D leftBottom, Point2D topRight) {
-//		this.leftBottom = leftBottom;
-//		this.topRight = topRight;
-//	}
-
 	public Bounds2D(long xa, long ya, long xb, long yb) {
 		if (xa<xb) {
 			left = xa;
@@ -29,7 +23,6 @@ public class Bounds2D {
 			bottom = yb;
 			top = ya;
 		}
-
 	}
 
 	public Bounds2D extend(long x, long y) {
@@ -85,17 +78,16 @@ public class Bounds2D {
 		return new Bounds2D(xa, ya, xb, yb);
 	}
 
+	public Bounds2D extend(Line2D line) {
+		return line==null ? this : extend(line.pointA(), line.pointB());
+	}
+
 
 	public Bounds2D scale(double scalar) {
 		return new Bounds2D(Math.round(left*scalar), Math.round(bottom*scalar), Math.round(right*scalar), Math.round(top*scalar));
 	}
 
-	@Override
-	public String toString() {
-		return "Bounds2D [left=" + left + ", right=" + right + ", top=" + top + ", bottom=" + bottom + "]";
-	}
-
-	public boolean doesIntersectWith(Bounds2D other) {
+	public boolean encloses(Bounds2D other) {
 		return other.left<=right && other.right>=left
 				&& other.bottom<=top && other.top>=bottom;
 	}
@@ -104,10 +96,6 @@ public class Bounds2D {
 		long dx = right-left;
 		long dy = top-bottom;
 		return dx*dy;
-	}
-
-	public Bounds2D extend(Line2D line) {
-		return line==null ? this : extend(line.pointA(), line.pointB());
 	}
 
 	@Override
@@ -122,5 +110,11 @@ public class Bounds2D {
 		}
 		return false;
 	}
-	
+
+	@Override
+	public String toString() {
+		return "Bounds2D [left=" + left + ", right=" + right + ", top=" + top + ", bottom=" + bottom + "]";
+	}
+
+
 }

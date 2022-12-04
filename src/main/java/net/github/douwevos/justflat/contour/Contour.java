@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import net.github.douwevos.justflat.startstop.OnOffLine;
-import net.github.douwevos.justflat.types.Bounds2D;
-import net.github.douwevos.justflat.types.Line2D;
-import net.github.douwevos.justflat.types.Point2D;
+import net.github.douwevos.justflat.types.values.Bounds2D;
+import net.github.douwevos.justflat.types.values.Line2D;
+import net.github.douwevos.justflat.types.values.Point2D;
 
 public class Contour implements Iterable<Point2D> {
 

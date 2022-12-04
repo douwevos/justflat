@@ -17,14 +17,17 @@ import net.github.douwevos.justflat.contour.Contour;
 import net.github.douwevos.justflat.contour.ContourLayer;
 import net.github.douwevos.justflat.contour.ContourLayer.LineSelection;
 import net.github.douwevos.justflat.contour.ContourLayer.Selection;
-import net.github.douwevos.justflat.startstop.StartStop;
-import net.github.douwevos.justflat.types.Line2D;
-import net.github.douwevos.justflat.types.Point2D;
+import net.github.douwevos.justflat.logging.Log;
+import net.github.douwevos.justflat.types.values.Line2D;
+import net.github.douwevos.justflat.types.values.Point2D;
+import net.github.douwevos.justflat.types.values.StartStop;
 
 
 @SuppressWarnings("serial")
 public class ContourLayerViewer extends ModelViewer<ContourLayerViewableModel> {
 
+	private static Log log = Log.instance(false);
+	
 	final Color colors[] = new Color[] { Color.red, Color.orange, Color.cyan, Color.magenta, Color.BLUE, Color.green, Color.pink, Color.yellow, new Color(192, 64, 64) };
 
 	protected long scanLine = -1;
@@ -307,7 +310,7 @@ public class ContourLayerViewer extends ModelViewer<ContourLayerViewableModel> {
 			
 			JPopupMenu p = new JPopupMenu();
 			
-			System.err.println("selected="+highlighted);
+			log.debug("selected="+highlighted);
 			
 			if (highlighted instanceof Selection) {
 				Selection s = (Selection) highlighted;
@@ -364,7 +367,7 @@ public class ContourLayerViewer extends ModelViewer<ContourLayerViewableModel> {
 			scanLine = ns;
 			repaint();
 		}
-//		System.out.println("scanLine="+scanLine+", loc="+loc);
+//		log.debug("scanLine="+scanLine+", loc="+loc);
 	
 	}
 }

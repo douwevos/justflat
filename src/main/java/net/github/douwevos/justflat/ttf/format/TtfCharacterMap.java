@@ -12,7 +12,7 @@ import net.github.douwevos.justflat.ttf.reader.TtfInputStream;
 
 public class TtfCharacterMap {
 
-	private static final Log log = Log.instance(); 
+	private static final Log log = Log.instance(false); 
 
 	private Index index;
 	private EncodingSubTable subTables[];
@@ -175,7 +175,7 @@ public class TtfCharacterMap {
 	
 	public static class Format0 implements Format {
 		
-		private Uint16 format = new Uint16(0);
+//		private Uint16 format = new Uint16(0);
 		private Uint16 length;
 		private Uint16 language;
 		private byte glyphIndexArray[] = new byte[256];
@@ -222,7 +222,7 @@ public class TtfCharacterMap {
 
 	public static class Format4 implements Format {
 		
-		private Uint16 format = new Uint16(0);
+//		private Uint16 format = new Uint16(0);
 		private Uint16 length;
 		private Uint16 language;
 		private Uint16 segCountX2;

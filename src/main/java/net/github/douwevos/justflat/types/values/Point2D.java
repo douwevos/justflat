@@ -1,4 +1,4 @@
-package net.github.douwevos.justflat.types;
+package net.github.douwevos.justflat.types.values;
 
 public class Point2D {
 

@@ -4,7 +4,7 @@ import net.github.douwevos.justflat.contour.Contour;
 import net.github.douwevos.justflat.contour.ContourLayer;
 import net.github.douwevos.justflat.contour.testui.ContourLayerTestProducer;
 import net.github.douwevos.justflat.contour.testui.LayerShower2.ScalerConfigProvider;
-import net.github.douwevos.justflat.types.Point2D;
+import net.github.douwevos.justflat.types.values.Point2D;
 
 public class TDBird2 implements ContourLayerTestProducer, ScalerConfigProvider {
 

@@ -29,7 +29,7 @@ import net.github.douwevos.justflat.ttf.format.TtfUtil;
 
 public class TrueTypeFontParser {
 
-	private static final Log log = Log.instance();
+	private static final Log log = Log.instance(false);
 	
 	public static void main(String[] args) {
 		try {

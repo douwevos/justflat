@@ -1,4 +1,4 @@
-package net.github.douwevos.justflat.types;
+package net.github.douwevos.justflat.types.values;
 
 import java.util.Objects;
 
@@ -6,9 +6,9 @@ import net.github.douwevos.justflat.logging.Log;
 
 public class Line2D {
 
-	Log log = Log.instance();
+	Log log = Log.instance(false);
 
-    Point2D pointA, pointB;
+    private final Point2D pointA, pointB;
 
     boolean mainValuesCalculated;
     double lineLengthSq, lineLength, lineCosAlpha, lineAlpha, lineAlphaDeg;
@@ -115,25 +115,6 @@ public class Line2D {
     	} else {
     		info.intersectionPoint = null;    		
     	}
-    	
-//    	if (result != null) {
-    		Point2D observePoint = new Point2D(29687l, 15508l);
-    		Point2D observePoint2 = new Point2D(25948l, 15887l);
-    		Point2D observePoint3 = new Point2D(25947l, 15876l);
-    		
-    		boolean isObservePoint = isFirstOrSecond(observePoint3)  && otherSegment.isFirstOrSecond(observePoint2);
-    		
-//    		boolean isObservePoint = (isFirstOrSecond(observePoint) && otherSegment.isFirstOrSecond(observePoint2))
-//    				|| (isFirstOrSecond(observePoint2) && otherSegment.isFirstOrSecond(observePoint));
-    		if (isObservePoint) {
-				log.debug2("||| info:{}, result:{}", info, result);
-				log.debug2("||| info2:{}, mainIntPoint={}", info2, mainIntPoint);
-				
-				log.debug2("||| this:{}", this);
-				log.debug2("||| otherSegment:{}", otherSegment);
-    		}
-//		}
-
     	
     	return result;
     }

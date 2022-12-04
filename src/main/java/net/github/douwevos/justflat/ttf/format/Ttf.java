@@ -4,7 +4,7 @@ import net.github.douwevos.justflat.logging.Log;
 
 public class Ttf {
 	
-	private static final Log log = Log.instance();
+	private static final Log log = Log.instance(false);
 
 	private TtfHead head;
 	private TtfHorizontalHeader horizontalHeader;

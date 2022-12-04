@@ -12,8 +12,8 @@ import net.github.douwevos.justflat.contour.scaler.MutableContour;
 import net.github.douwevos.justflat.contour.scaler.TargetLine;
 import net.github.douwevos.justflat.contour.scaler.TranslatedSegment;
 import net.github.douwevos.justflat.contour.testui.ScalerViewableModel.TranslatedSegmentSelection;
-import net.github.douwevos.justflat.types.Line2D;
-import net.github.douwevos.justflat.types.Point2D;
+import net.github.douwevos.justflat.types.values.Line2D;
+import net.github.douwevos.justflat.types.values.Point2D;
 
 
 @SuppressWarnings("serial")

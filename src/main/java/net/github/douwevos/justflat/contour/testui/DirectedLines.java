@@ -9,10 +9,10 @@ import java.util.stream.Stream;
 
 import net.github.douwevos.justflat.contour.Contour;
 import net.github.douwevos.justflat.contour.ContourLayer;
-import net.github.douwevos.justflat.startstop.StartStop;
-import net.github.douwevos.justflat.types.Bounds2D;
-import net.github.douwevos.justflat.types.Line2D;
-import net.github.douwevos.justflat.types.Point2D;
+import net.github.douwevos.justflat.types.values.Bounds2D;
+import net.github.douwevos.justflat.types.values.Line2D;
+import net.github.douwevos.justflat.types.values.Point2D;
+import net.github.douwevos.justflat.types.values.StartStop;
 
 public class DirectedLines implements Iterable<DirectedLine> {
 	

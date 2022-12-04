@@ -9,18 +9,16 @@ import net.github.douwevos.justflat.ttf.format.TtfCharacterMap;
 import net.github.douwevos.justflat.ttf.format.TtfGlyphData;
 import net.github.douwevos.justflat.ttf.format.TtfGlyphData.GlyphDefinition;
 import net.github.douwevos.justflat.ttf.format.TtfGlyphData.GlyphDot;
+import net.github.douwevos.justflat.types.values.Bounds2D;
 import net.github.douwevos.justflat.ttf.format.TtfHorizontalHeader;
-import net.github.douwevos.justflat.types.Bounds2D;
 
 public class TextLayout implements Iterable<TextLayoutGlyph> {
 
 	private final Ttf ttf;
-	private final String text;
 	private final TextLayoutGlyph glyphs[];
 	
 	public TextLayout(Ttf ttf, String text) {
 		this.ttf = ttf;
-		this.text = text;
 		
 		glyphs = new TextLayoutGlyph[text.length()];
 		
@@ -66,7 +64,6 @@ public class TextLayout implements Iterable<TextLayoutGlyph> {
 		GlyphDefinition glyphDefinition = description.getGlyphDefinition();
 		
 //		glyphDefinition.dump("  ");
-//		System.out.flush();
 		int xmax = 20;
 		if (description != null && description.getXMax()!=null) {
 			xmax = description.getXMax().getValue() + description.getXMin().getValue();

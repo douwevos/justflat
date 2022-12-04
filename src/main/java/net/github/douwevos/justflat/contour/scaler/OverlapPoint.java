@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.github.douwevos.justflat.types.Line2D;
-import net.github.douwevos.justflat.types.Point2D;
+import net.github.douwevos.justflat.types.values.Line2D;
+import net.github.douwevos.justflat.types.values.Point2D;
 
 public class OverlapPoint {
 	
@@ -147,15 +147,5 @@ public class OverlapPoint {
 	public boolean isFullyObscured() {
 		return obscuredInfo.isFullyObscured();
 	}
-	
-	public static void main(String[] args) {
-		double s = 86.403289d;
-		s = (s + 180d) % 360d;
-		System.out.println("s="+s);
-		s = (s + 180d) % 360d;
-		System.out.println("s="+s);
-	}
-
-
 	
 }

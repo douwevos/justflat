@@ -2,7 +2,7 @@ package net.github.douwevos.justflat.ttf;
 
 import net.github.douwevos.justflat.contour.Contour;
 import net.github.douwevos.justflat.contour.ContourLayer;
-import net.github.douwevos.justflat.types.Point2D;
+import net.github.douwevos.justflat.types.values.Point2D;
 
 public class TextLayoutToDiscLayer {
 

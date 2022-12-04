@@ -2,7 +2,7 @@ package net.github.douwevos.justflat.contour;
 
 import java.util.Objects;
 
-import net.github.douwevos.justflat.types.Point2D;
+import net.github.douwevos.justflat.types.values.Point2D;
 
 public class ContourComparator {
 

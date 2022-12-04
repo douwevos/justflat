@@ -9,11 +9,12 @@ import net.github.douwevos.justflat.ttf.TextLayoutToDiscLayer;
 import net.github.douwevos.justflat.ttf.format.Ttf;
 import net.github.douwevos.justflat.types.values.Point2D;
 
-public class TestModelOne implements ContourLayerTestProducer, ScalerConfigProvider {
+public class FullLetterR implements ContourLayerTestProducer, ScalerConfigProvider {
 
 	@Override
 	public int getThickness() {
-		return 3225;
+//		return 215;
+		return 732;
 	}
 
 	@Override
@@ -24,15 +25,21 @@ public class TestModelOne implements ContourLayerTestProducer, ScalerConfigProvi
 	@Override
 	public ContourLayer produceSourceLayer() {
 		Ttf freeSansTtf = TtfProducer.getFreeSansTtf();
-		TextLayout textLayout = new TextLayout(freeSansTtf, "d");
+		TextLayout textLayout = new TextLayout(freeSansTtf, "R");
 		int textSize = 60000;
 
 		TextLayoutToDiscLayer textLayoutToDiscLayer = new TextLayoutToDiscLayer(textLayout, textSize);
 		ContourLayer result = new ContourLayer(100000, 100000);
 		textLayoutToDiscLayer.produceLayer(result, 1000, 1000);
-		result.moveDot(Point2D.of(28218, 40764), Point2D.of(32000, 39000));
-		result.moveDot(Point2D.of(28218, 40764), Point2D.of(20944, 14946));
-		result.contours.remove(1);
+		
+//		Contour contour = result.contours.get(0);
+//		for(int idx=contour.dotCount()-1; idx>=0; idx--) {
+//			if ((idx%5)==0) {
+//				continue;
+//			}
+//			contour.removeAt(idx);
+//		}
+		
 		return result;
 	}
 

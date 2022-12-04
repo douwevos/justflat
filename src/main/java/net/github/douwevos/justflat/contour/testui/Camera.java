@@ -3,7 +3,7 @@ package net.github.douwevos.justflat.contour.testui;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.github.douwevos.justflat.types.Point2D;
+import net.github.douwevos.justflat.types.values.Point2D;
 
 class Camera {
 	

@@ -2,9 +2,10 @@ package net.github.douwevos.justflat.startstop;
 
 import java.util.List;
 
-import net.github.douwevos.justflat.types.Bounds2D;
 import net.github.douwevos.justflat.types.CircleCoords;
 import net.github.douwevos.justflat.types.Layer;
+import net.github.douwevos.justflat.types.values.Bounds2D;
+import net.github.douwevos.justflat.types.values.StartStop;
 
 public class StartStopLayer implements Layer {
 

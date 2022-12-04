@@ -7,20 +7,20 @@ import java.util.List;
 import java.util.Objects;
 
 import net.github.douwevos.justflat.logging.Log;
-import net.github.douwevos.justflat.types.Point2D;
+import net.github.douwevos.justflat.types.values.Point2D;
 
 public class ContourLayerResolutionReducer {
 
-	Log log = Log.instance();
+	Log log = Log.instance(false);
 	
 	public ContourLayer reduceResolution(ContourLayer input, double distortionLevel, int stepping) {
 		ContourLayer result = new ContourLayer(input.getWidth(), input.getHeight());
 		for(Contour contour : input) {
-//			System.out.println("dots.in="+contour.getDots().size());
+			log.debug("dots.in="+contour.getDots().size());
 			Contour contourReduced = reduceAndCreatePolyline(contour, contour.getDots(), distortionLevel, stepping);
 			if (contourReduced!=null) {
 				result.add(contourReduced);
-//				System.out.println("dots.out="+contourReduced.getDots().size());
+				log.debug("dots.out="+contourReduced.getDots().size());
 			}
 		}
 

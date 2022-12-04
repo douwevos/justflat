@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.github.douwevos.justflat.contour.scaler.OverlapPoint.Taint;
-import net.github.douwevos.justflat.types.Point2D;
+import net.github.douwevos.justflat.types.values.Point2D;
 
 public class OverlapPointFactory {
 

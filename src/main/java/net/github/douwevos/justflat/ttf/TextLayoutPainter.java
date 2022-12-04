@@ -2,7 +2,7 @@ package net.github.douwevos.justflat.ttf;
 
 import java.awt.Graphics2D;
 
-import net.github.douwevos.justflat.types.Point2D;
+import net.github.douwevos.justflat.types.values.Point2D;
 
 
 public class TextLayoutPainter {
@@ -28,14 +28,10 @@ public class TextLayoutPainter {
 	private static class GfxGlyphOutput implements TextLayoutGlyph.GlyphOutput {
 
 		private final Graphics2D gfx;
-		private final double scalar;
-		private final int maxHeight;
 		
 		public GfxGlyphOutput(Graphics2D gfx, double scalar, int maxHeight) {
 			
 			this.gfx = gfx;
-			this.scalar = scalar;
-			this.maxHeight = (int) (maxHeight*scalar);
 		}
 
 		@Override

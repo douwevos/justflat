@@ -8,13 +8,13 @@ import java.util.stream.Collectors;
 import net.github.douwevos.justflat.contour.testui.DirectedLine;
 import net.github.douwevos.justflat.contour.testui.DirectedLines;
 import net.github.douwevos.justflat.logging.Log;
-import net.github.douwevos.justflat.types.Line2D;
-import net.github.douwevos.justflat.types.Line2D.IntersectionInfo;
-import net.github.douwevos.justflat.types.Point2D;
+import net.github.douwevos.justflat.types.values.Line2D;
+import net.github.douwevos.justflat.types.values.Point2D;
+import net.github.douwevos.justflat.types.values.Line2D.IntersectionInfo;
 
-public class DiscLayerOverlapCutter2 {
+public class ContourLayerOverlapCutter {
 
-	Log log = Log.instance();
+	Log log = Log.instance(false);
 
 	boolean doDebug = false;
 
@@ -167,7 +167,7 @@ public class DiscLayerOverlapCutter2 {
 				log.debug("nextLine={}", nextLine);
 			}
 			if (nextLine == null) {
-				System.err.println("unfinished contour");
+				log.error("unfinished contour");
 				if (!doDebug) {
 					doDebug = true;
 					extractContour2(targetLines);
@@ -179,7 +179,7 @@ public class DiscLayerOverlapCutter2 {
 				if (nextLine == startLine) {
 					log.debug("Contour needly closed");
 				} else {
-					System.err.println("Non clean contour");
+					log.error("Non clean contour");
 				}
 				break;
 			}
@@ -215,11 +215,11 @@ public class DiscLayerOverlapCutter2 {
 				log.debug("nextLine={}", nextLine);
 			}
 			if (nextLine == null) {
-				System.err.println("unfinished contour");
+				log.error("unfinished contour");
 				return null;
 			}
 			if (passed.contains(nextLine)) {
-				System.err.println("should check if it is the startLine");
+				log.error("should check if it is the startLine");
 				break;
 			}
 			passed.add(nextLine);

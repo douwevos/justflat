@@ -19,8 +19,8 @@ import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 
 import net.github.douwevos.justflat.contour.testui.Camera.CameraListener;
-import net.github.douwevos.justflat.types.Bounds2D;
-import net.github.douwevos.justflat.types.Point2D;
+import net.github.douwevos.justflat.types.values.Bounds2D;
+import net.github.douwevos.justflat.types.values.Point2D;
 
 
 @SuppressWarnings("serial")
@@ -272,7 +272,7 @@ public abstract class ModelViewer<T extends ViewableModel> extends JPanel implem
 			}
 		}
 		
-//		System.out.println("mouseX="+mouseX+", nx="+nx);
+//		log.debug("mouseX="+mouseX+", nx="+nx);
 
 		camera.setTranslate(nx, ny);
 	}

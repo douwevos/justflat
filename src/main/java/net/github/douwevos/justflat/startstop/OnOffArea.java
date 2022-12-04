@@ -3,11 +3,15 @@ package net.github.douwevos.justflat.startstop;
 import java.util.Arrays;
 import java.util.List;
 
-import net.github.douwevos.justflat.types.Point2D;
+import net.github.douwevos.justflat.logging.Log;
+import net.github.douwevos.justflat.types.values.Point2D;
+import net.github.douwevos.justflat.types.values.StartStop;
 
 
 public class OnOffArea {
 
+	private static final Log log = Log.instance(false);
+	
 	private long bottom;
 	public OnOffLine onOffLine[];
 
@@ -37,12 +41,12 @@ public class OnOffArea {
 			if (xb==xa) {
 				return;
 			}
-//			System.out.println("["+xa+","+ya+"] - ["+xb+","+yb+"]");
+//			log.debug("["+xa+","+ya+"] - ["+xb+","+yb+"]");
 //			write(xa,ya);
 //			write(xb,yb);
 			return;
 		}
-//		System.out.println("["+xa+","+ya+"] - ["+xb+","+yb+"]");
+//		log.debug("["+xa+","+ya+"] - ["+xb+","+yb+"]");
 		boolean up = true;
 		if (delta<0) {
 			delta = -delta;
@@ -53,7 +57,7 @@ public class OnOffArea {
 		for(int step=0; step<=delta; step++) {
 			long ny = ya + Math.round((step*deltaYBA)/delta);
 			long nx = xa + Math.round((step*deltaXBA)/delta);
-//			System.out.println("  ["+nx+","+ny+"] - "+(up ? 'u' : 'd'));
+//			log.debug("  ["+nx+","+ny+"] - "+(up ? 'u' : 'd'));
 			write(nx, ny, up);
 		}
 		
@@ -71,7 +75,7 @@ public class OnOffArea {
 		}
 		onOffLine[lineIndex].add(x, up);
 		
-//		System.out.println("     " + layerLine[(int) (y-bottom)]);
+//		log.debug("     " + layerLine[(int) (y-bottom)]);
 	}
 	
 	public List<StartStop> lineToStartStopList(int lineIndex) {
@@ -86,22 +90,22 @@ public class OnOffArea {
 		return onOffLine.apply();
 	}
 	
-	
-	public static void main(String[] args) {
-		OnOffLine onOffLine = new OnOffLine();
-		
-		onOffLine.add(10, true);
-		onOffLine.add(11, true);
-		onOffLine.add(19, false);
-		onOffLine.add(20, false);
-		List<StartStop> apply = onOffLine.apply();
-		StartStopLine layerLine= new StartStopLine();
-		layerLine.invert(apply);
-//		layerLine.startStops = apply.toArray(new StartStop[apply.size()]);
-		System.out.println("layerLine.startStops="+Arrays.asList(layerLine.startStops));
-		StartStopLine.dumpLine(layerLine.startStops, 100);
-	}
-	
-	
+//	
+//	public static void main(String[] args) {
+//		OnOffLine onOffLine = new OnOffLine();
+//		
+//		onOffLine.add(10, true);
+//		onOffLine.add(11, true);
+//		onOffLine.add(19, false);
+//		onOffLine.add(20, false);
+//		List<StartStop> apply = onOffLine.apply();
+//		StartStopLine layerLine= new StartStopLine();
+//		layerLine.invert(apply);
+////		layerLine.startStops = apply.toArray(new StartStop[apply.size()]);
+//		log.debug("layerLine.startStops="+Arrays.asList(layerLine.startStops));
+//		StartStopLine.dumpLine(layerLine.startStops, 100);
+//	}
+//	
+//	
 
 }

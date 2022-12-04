@@ -6,9 +6,9 @@ import java.util.stream.Collectors;
 import net.github.douwevos.justflat.contour.scaler.MutableContour;
 import net.github.douwevos.justflat.contour.scaler.OverlapPoint;
 import net.github.douwevos.justflat.contour.scaler.TranslatedSegment;
-import net.github.douwevos.justflat.types.Bounds2D;
-import net.github.douwevos.justflat.types.Line2D;
-import net.github.douwevos.justflat.types.Point2D;
+import net.github.douwevos.justflat.types.values.Bounds2D;
+import net.github.douwevos.justflat.types.values.Line2D;
+import net.github.douwevos.justflat.types.values.Point2D;
 
 
 public class ScalerViewableModel implements ViewableModel {
@@ -66,7 +66,7 @@ public class ScalerViewableModel implements ViewableModel {
 				}
 			}			
 		}
-//		System.out.println("nx="+nx+", ny="+ny+", bestCrossPoint="+bestCrossPoint+", zoomFactor="+zoomFactor+" bestSqDist="+bestSqDist);
+//		log.debug("nx="+nx+", ny="+ny+", bestCrossPoint="+bestCrossPoint+", zoomFactor="+zoomFactor+" bestSqDist="+bestSqDist);
 		
 		if (bestOverlapPoint!=null && bestSqDist<(400d*zoomFactor*zoomFactor)) {
 			return new OverlapPointSelection(bestOverlapPoint);

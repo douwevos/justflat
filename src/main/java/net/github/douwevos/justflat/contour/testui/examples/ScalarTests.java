@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 
 import net.github.douwevos.justflat.contour.ContourComparator;
 import net.github.douwevos.justflat.contour.ContourLayer;
-import net.github.douwevos.justflat.contour.DiscLayerOverlapCutter2;
+import net.github.douwevos.justflat.contour.ContourLayerOverlapCutter;
 import net.github.douwevos.justflat.contour.testui.ContourLayerTestProducer;
 import net.github.douwevos.justflat.contour.testui.DiscLayerFillContext;
 
@@ -17,14 +17,15 @@ public class ScalarTests {
 
 	
 	public ScalarTests() {
-		add(new TestModelOne());
-		add(new TestModelOne2());
-		add(new Triangle());
-		add(new Triangle2());
-		add(new TDBird());
-		add(new TDBird2());
-		add(new OLetter());
-		add(new AlmostStraight());
+//		add(new TestModelOne());
+//		add(new TestModelOne2());
+//		add(new Triangle());
+//		add(new Triangle2());
+//		add(new TDBird());
+//		add(new TDBird2());
+//		add(new OLetter());
+		add(new FullLetterR());
+//		add(new AlmostStraight());
 		runTests();
 	}
 	
@@ -67,7 +68,7 @@ public class ScalarTests {
 		if (doReduceFirst) {
 			newLayer = discLayerFillContext.reduceResolution(discLayerFillContext.discLayer, discSizeSq, 1);
 		}
-		DiscLayerOverlapCutter2 overlapCutter = new DiscLayerOverlapCutter2();
+		ContourLayerOverlapCutter overlapCutter = new ContourLayerOverlapCutter();
 		newLayer = overlapCutter.scale(newLayer, false);
 		ContourLayer scaledLayer = discLayerFillContext.scale(newLayer, thickness, false);
 		return scaledLayer;

@@ -11,18 +11,18 @@ import net.github.douwevos.justflat.ttf.reader.TtfInputStream;
 
 public class TtfGlyphData {
 
-	private static final Log log = Log.instance();
+	private static final Log log = Log.instance(false);
 
 	public ArrayList<GlypDescription> glypDescriptions = new ArrayList<GlypDescription>();
 	
 	
 	private final MaxProfile maxProfile;
-	private final TtfHead head;
+//	private final TtfHead head;
 	private final LocationTable locationTable;
 	
 	public TtfGlyphData(MaxProfile maxProfile, TtfHead head, LocationTable locationTable) {
 		this.maxProfile = maxProfile;
-		this.head = head;
+//		this.head = head;
 		this.locationTable = locationTable;
 	}
 	

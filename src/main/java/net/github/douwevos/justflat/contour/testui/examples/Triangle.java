@@ -7,7 +7,7 @@ import net.github.douwevos.justflat.contour.testui.LayerShower2.ScalerConfigProv
 import net.github.douwevos.justflat.ttf.TextLayout;
 import net.github.douwevos.justflat.ttf.TextLayoutToDiscLayer;
 import net.github.douwevos.justflat.ttf.format.Ttf;
-import net.github.douwevos.justflat.types.Point2D;
+import net.github.douwevos.justflat.types.values.Point2D;
 
 public class Triangle implements ContourLayerTestProducer, ScalerConfigProvider {
 

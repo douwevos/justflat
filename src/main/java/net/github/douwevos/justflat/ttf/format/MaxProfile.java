@@ -8,7 +8,7 @@ import net.github.douwevos.justflat.ttf.format.types.Uint16;
 import net.github.douwevos.justflat.ttf.reader.TtfInputStream;
 
 public class MaxProfile {
-	private static final Log log = Log.instance();
+	private static final Log log = Log.instance(false);
 	
 	private Fixed  	version;
 	private Uint16 	numGlyphs;

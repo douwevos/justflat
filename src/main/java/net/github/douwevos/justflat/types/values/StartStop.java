@@ -1,4 +1,4 @@
-package net.github.douwevos.justflat.startstop;
+package net.github.douwevos.justflat.types.values;
 
 public class StartStop {
 	public final long start;
@@ -32,17 +32,6 @@ public class StartStop {
 		}
 		return new StartStop(start, stop);
 	}
-	
-	
-	public boolean fullyCovers(StartStop other) {
-		return other.start>=start && other.stop<=stop;
-	}
-	
-	@Override
-	public String toString() {
-		return "SS[" + start + " - " + stop + "]";
-	}
-
 
 	public StartStop widen(int l) {
 		if (l==0) {
@@ -57,6 +46,15 @@ public class StartStop {
 		}
 		return new StartStop(start-l, stop+l);
 	}
-	
+
+	public boolean fullyCovers(StartStop other) {
+		return other.start>=start && other.stop<=stop;
+	}
+
+	@Override
+	public String toString() {
+		return "SS[" + start + " - " + stop + "]";
+	}
+
 	
 }

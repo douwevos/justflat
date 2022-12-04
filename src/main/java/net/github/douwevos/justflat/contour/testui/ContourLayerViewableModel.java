@@ -1,7 +1,7 @@
 package net.github.douwevos.justflat.contour.testui;
 
 import net.github.douwevos.justflat.contour.ContourLayer;
-import net.github.douwevos.justflat.types.Bounds2D;
+import net.github.douwevos.justflat.types.values.Bounds2D;
 
 public class ContourLayerViewableModel implements ViewableModel {
 

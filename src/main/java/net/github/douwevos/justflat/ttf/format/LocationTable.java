@@ -7,7 +7,7 @@ import net.github.douwevos.justflat.ttf.reader.TtfInputStream;
 
 public class LocationTable {
 
-	private static final Log log = Log.instance();
+	private static final Log log = Log.instance(false);
 	
 	private final TtfHead head;
 	private final MaxProfile maxProfile;

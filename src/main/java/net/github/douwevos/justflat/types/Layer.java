@@ -2,6 +2,8 @@ package net.github.douwevos.justflat.types;
 
 import java.util.List;
 
+import net.github.douwevos.justflat.types.values.Bounds2D;
+
 public interface Layer {
 
 	long bottom();

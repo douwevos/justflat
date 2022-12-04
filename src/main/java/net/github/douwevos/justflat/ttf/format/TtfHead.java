@@ -13,7 +13,7 @@ import net.github.douwevos.justflat.ttf.reader.TtfInputStream;
 
 public class TtfHead {
 
-	private static final Log log = Log.instance(); 
+	private static final Log log = Log.instance(false); 
 	
 	private Fixed version;
 	private Fixed fontRevision;

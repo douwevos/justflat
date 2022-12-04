@@ -8,11 +8,14 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 import net.github.douwevos.justflat.contour.scaler.OverlapPoint.Taint;
-import net.github.douwevos.justflat.types.Line2D;
-import net.github.douwevos.justflat.types.Line2D.IntersectionInfo;
-import net.github.douwevos.justflat.types.Point2D;
+import net.github.douwevos.justflat.logging.Log;
+import net.github.douwevos.justflat.types.values.Line2D;
+import net.github.douwevos.justflat.types.values.Point2D;
+import net.github.douwevos.justflat.types.values.Line2D.IntersectionInfo;
 
 public class Route {
+	
+	private final static Log log = Log.instance(false);
 
 	public final Line2D base;
 	public final TranslatedSegment translatedSegment;
@@ -33,10 +36,10 @@ public class Route {
 		OverlapPoint other = overlapPoints.stream().filter(s -> s.point.equals(overlapPoint.point)).findAny().orElse(null);
 		if (other != null) {
 			if (overlapPoint.isTainted()!=other.isTainted()) {
-				System.err.println("###### other="+other+", overlapPoint="+overlapPoint);
+				log.debug("###### other={}, overlapPoint={}", other, overlapPoint);
 				other.taintWith(Taint.INVALID);
 			} else {
-				System.err.println("****** other="+other+", overlapPoint="+overlapPoint);
+				log.debug("****** other={}, overlapPoint={}",other, overlapPoint);
 			}
 			return;
 		}

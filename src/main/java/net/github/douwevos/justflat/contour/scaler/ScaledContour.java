@@ -5,13 +5,13 @@ import java.util.List;
 
 import net.github.douwevos.justflat.contour.Contour;
 import net.github.douwevos.justflat.logging.Log;
-import net.github.douwevos.justflat.types.Bounds2D;
-import net.github.douwevos.justflat.types.Line2D;
-import net.github.douwevos.justflat.types.Point2D;
+import net.github.douwevos.justflat.types.values.Bounds2D;
+import net.github.douwevos.justflat.types.values.Line2D;
+import net.github.douwevos.justflat.types.values.Point2D;
 
 class ScaledContour {
 		
-	Log log = Log.instance();
+	Log log = Log.instance(false);
 	
 	public final Contour source;
 	
@@ -49,7 +49,7 @@ class ScaledContour {
 			c.add(cur);
 			last = cur;
 		}
-		log.debug2("dots={}", c.getDots());
+		log.debug("dots={}", c.getDots());
 		return c;
 	}
 
@@ -94,11 +94,11 @@ class ScaledContour {
 //				left = right;
 //			}
 //			
-////				System.out.println("revaluate");
+////				log.debug("revaluate");
 ////				List<MutableLine> reduced = new ArrayList<>();
 //			int count = 0;
 //			for(MutableLine line : translatedLines) {
-////					System.out.println(" line ### "+line+"   "+line.sameDirection());
+////					log.debug(" line ### "+line+"   "+line.sameDirection());
 //				if (line.sameDirection()) {
 //					count++;
 //				}
@@ -106,7 +106,7 @@ class ScaledContour {
 //			keepLooping = (count!=lastCount) && count!=translatedLines.size();
 //			lastCount = count;
 //		}
-////			System.out.println("finished:"+translatedLines.size());
+////			log.debug("finished:"+translatedLines.size());
 ////			lines.clear();
 ////			lines.addAll(translatedLines);
 //	}
@@ -117,7 +117,7 @@ class ScaledContour {
 	
 	public void dumpLines() {
 		for(int idx=0; idx<lines.size(); idx++) {
-			log.debug2(" >> "+idx+" "+ lines.get(idx));
+			log.debug(" >> "+idx+" "+ lines.get(idx));
 		}
 	}
 
@@ -156,7 +156,7 @@ class ScaledContour {
 		Point2D pointB = line.pointB();
 		
 		boolean result = pointA.x<pointB.x;
-		System.err.println("ccw: "+line+" result="+result);
+		log.debug("ccw: {} result={}", line, result);
 		
 //		Point2D testPoint = new Point2D((pointA.x+pointB.x)/2, -5+(pointA.y+pointB.y)/2);
 //		return line.relativeCCW(testPoint)<0;

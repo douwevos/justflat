@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import net.github.douwevos.justflat.types.values.StartStop;
+
 public class OnOffLine {
 
 	List<OnOffDot> rawDots;
@@ -18,6 +20,10 @@ public class OnOffLine {
 		if (rawDots != null) {
 			rawDots.clear();
 		}
+	}
+	
+	public boolean isEmpty() {
+		return rawDots.isEmpty();
 	}
 
 	public List<StartStop> apply() {

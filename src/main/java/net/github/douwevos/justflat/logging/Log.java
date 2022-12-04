@@ -3,27 +3,38 @@ package net.github.douwevos.justflat.logging;
 public class Log {
 
 	private static final long startNs = System.nanoTime();
-	private static final Log log = new Log();
 
+	private final boolean enabled;
 	private int indent;
 
-	public static Log instance() {
-		return log;
+	private Log() {
+		enabled = true;
+	}
+	
+	private Log(boolean enabled) {
+		this.enabled = enabled;
+	}
+	
+	public boolean isDebugEnabled() {
+		return enabled;
+	}
+	
+	public static Log instance(boolean enabled) {
+		return new Log(enabled);
 	}
 
 	public void debug(String text, Object... args) {
 		log(text, args);
 	}
 
-	public void debug2(String text, Object... args) {
-		log1(text, args);
+	public void error(String text, Object... args) {
+		log(text, args);
 	}
 
 	public void log(String text, Object... args) {
-		return;
-	}
-
-	public void log1(String text, Object... args) {
+		if (!enabled) {
+			return;
+		}
 		StringBuilder buf = new StringBuilder();
 		buf.append(System.nanoTime() - startNs).append(" ");
 		for (int idx = 0; idx < indent; idx++) {
@@ -61,10 +72,6 @@ public class Log {
 
 	public void dedent() {
 		indent--;
-	}
-
-	public boolean isDebugEnabled() {
-		return true;
 	}
 
 }

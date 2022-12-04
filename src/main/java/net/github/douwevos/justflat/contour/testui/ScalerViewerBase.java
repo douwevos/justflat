@@ -20,7 +20,7 @@ import net.github.douwevos.justflat.contour.scaler.OverlapPoint.Taint;
 import net.github.douwevos.justflat.contour.testui.ScalerViewableModel.OverlapPointSelection;
 import net.github.douwevos.justflat.contour.testui.ScalerViewableModel.PointSelection;
 import net.github.douwevos.justflat.contour.testui.ScalerViewableModel.TranslatedSegmentSelection;
-import net.github.douwevos.justflat.types.Point2D;
+import net.github.douwevos.justflat.types.values.Point2D;
 
 public abstract class ScalerViewerBase extends ModelViewer<ScalerViewableModel> {
 

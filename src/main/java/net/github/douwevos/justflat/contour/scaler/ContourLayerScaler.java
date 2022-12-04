@@ -10,23 +10,21 @@ import net.github.douwevos.justflat.contour.Contour;
 import net.github.douwevos.justflat.contour.ContourLayer;
 import net.github.douwevos.justflat.contour.scaler.OverlapPoint.Taint;
 import net.github.douwevos.justflat.logging.Log;
-import net.github.douwevos.justflat.startstop.StartStop;
-import net.github.douwevos.justflat.types.Bounds2D;
-import net.github.douwevos.justflat.types.Line2D.IntersectionInfo;
-import net.github.douwevos.justflat.types.Point2D;
+import net.github.douwevos.justflat.types.values.Bounds2D;
+import net.github.douwevos.justflat.types.values.Point2D;
+import net.github.douwevos.justflat.types.values.StartStop;
+import net.github.douwevos.justflat.types.values.Line2D.IntersectionInfo;
 
 
 public class ContourLayerScaler {
 
-	boolean doDebug = false;
-	
-	Log log = Log.instance();
+	Log log = Log.instance(true);
 
 	
 	public List<MutableContour> allMutableContours = new ArrayList<>();
 	
 	public ContourLayer scale(ContourLayer input, double thickness, boolean cleanup) {
-		log.debug2("###################################################################### scaling "+thickness);
+		log.debug("## scaling "+thickness);
 		List<MutableContour> directedContours = createMutableContours(input, thickness);
 		List<Contour> scaledContourList = new ArrayList<>();
 		
@@ -89,7 +87,7 @@ public class ContourLayerScaler {
 			return Collections.emptyList();
 		}
 		
-		boolean isShrinking = thickness>0d;
+		boolean isShrinking = thickness>=0d;
 		
 		OverlapPointFactory overlapPointFactory = new OverlapPointFactory();
 		
@@ -111,20 +109,22 @@ public class ContourLayerScaler {
 				break;
 			}
 			ScaledContour scaledContour = pointsToScaledContour(mutableContour, startOverlapPoint);
-			
+			log.debug("scaledContour={}", scaledContour);
+			log.debug("isShrinking:{}, thickness:{}, reverse:{}", isShrinking, thickness, mutableContour.reverse);
 			
 			
 			if (scaledContour != null) {
-				if ((isShrinking && boundsDoNotExeed(scaledContour, mutableContour)) 
-						|| (!isShrinking && boundsExeed(scaledContour, mutableContour))) {
+				if ((!mutableContour.reverse && boundsDoNotExeed(scaledContour, mutableContour)) 
+						|| (mutableContour.reverse && boundsExeed(scaledContour, mutableContour))) {
 					result.add(scaledContour);
 				} else {
+					log.debug("mutableContour.reverse={}", mutableContour.reverse);
 					Bounds2D original = mutableContour.source.getBounds();
-					System.err.println("original:"+original);
+					log.debug("original:{}", original);
 					Bounds2D scaled = scaledContour.getBounds();
-					System.err.println("scaled  :"+scaled);
+					log.debug("scaled  :{}", scaled);
 					Bounds2D union = original.union(scaled);
-					System.err.println("union   :"+union);
+					log.debug("union   :{}", union);
 				}
 			}
 			
@@ -147,6 +147,8 @@ public class ContourLayerScaler {
 		Bounds2D scaled = scaledContour.getBounds();
 		Bounds2D union = original.union(scaled);
 		return union.equals(scaled);
+//		
+//		return true;
 	}
 
 	
@@ -208,8 +210,8 @@ public class ContourLayerScaler {
 			}
 			if (next == null) {
 				passed.forEach(s -> s.markUsed());
-				System.err.println("marked dirty at:"+current.point);
-				System.err.println(buf.toString());
+				log.debug("marked dirty at:{}", current.point);
+				log.debug(buf.toString());
 				return null;
 			}
 			int indexOf = passed.indexOf(next);
@@ -225,7 +227,7 @@ public class ContourLayerScaler {
 			originating = current;
 			current = next;
 			
-			System.err.println("from: "+originating.point+" .. "+current.point);
+			log.debug("from: {} .. {}", originating.point, current.point);
 		}
 		
 		
@@ -250,9 +252,10 @@ public class ContourLayerScaler {
 		}
 
 		if (!info.isFullyObscured()) {
+			log.debug("not fully obscured info={}", info);
 			return null;
 		}
-		System.err.println("lines="+lines);
+		log.debug("lines={}", lines);
 		
 		return new ScaledContour(mutableContour.getSource(), lines );
 	}
