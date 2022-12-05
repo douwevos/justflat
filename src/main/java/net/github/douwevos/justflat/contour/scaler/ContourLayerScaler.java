@@ -13,6 +13,7 @@ import net.github.douwevos.justflat.contour.ContourLayerMap.OrderedContour;
 import net.github.douwevos.justflat.contour.scaler.OverlapPoint.Taint;
 import net.github.douwevos.justflat.logging.Log;
 import net.github.douwevos.justflat.types.values.Bounds2D;
+import net.github.douwevos.justflat.types.values.Line2D;
 import net.github.douwevos.justflat.types.values.Point2D;
 import net.github.douwevos.justflat.types.values.StartStop;
 import net.github.douwevos.justflat.types.values.Line2D.IntersectionInfo;
@@ -60,12 +61,19 @@ public class ContourLayerScaler {
 
 	private void buildMain(OrderedContour main, double thickness) {
 		MutableContour mainMutableContour = new MutableContour(main.contour, false, -thickness);
-		List<ScaledContour> scaledContour = scale(mainMutableContour, thickness);
+		List<RouteList> mainRouteLists = scale2(mainMutableContour, thickness);
+		
+		List<RouteList> subsRouteLists = new ArrayList<>();
+		for(OrderedContour child : main.children) {
+			MutableContour childMutableContour = new MutableContour(main.contour, true, -thickness);
+			List<RouteList> childRouteLists = scale2(mainMutableContour, thickness);
+			subsRouteLists.addAll(childRouteLists);
+		}
 	}
 
 	
 
-	private List<ScaledContour> scale(MutableContour mutableContour, double thickness) {
+	private List<RouteList> scale2(MutableContour mutableContour, double thickness) {
 		if (mutableContour.isEmpty()) {
 			return Collections.emptyList();
 		}
@@ -84,31 +92,31 @@ public class ContourLayerScaler {
 
 		allMutableContours.add(mutableContour);
 		
-		List<ScaledContour> result = new ArrayList<>();
+		List<RouteList> result = new ArrayList<>();
 		
 		while(true) {
 			OverlapPoint startOverlapPoint = findNextUntaintedAndUnusedOverlapPoint(mutableContour);
 			if (startOverlapPoint == null) {
 				break;
 			}
-			ScaledContour scaledContour = pointsToScaledContour(mutableContour, startOverlapPoint);
-			log.debug("scaledContour={}", scaledContour);
+			RouteList routeList = pointsToScaledContour2(mutableContour, startOverlapPoint);
+			log.debug("routeList={}", routeList);
 			log.debug("isShrinking:{}, thickness:{}, reverse:{}", isShrinking, thickness, mutableContour.reverse);
 			
 			
-			if (scaledContour != null) {
-				if ((!mutableContour.reverse && boundsDoNotExeed(scaledContour, mutableContour)) 
-						|| (mutableContour.reverse && boundsExeed(scaledContour, mutableContour))) {
-					result.add(scaledContour);
-				} else {
-					log.debug("mutableContour.reverse={}", mutableContour.reverse);
-					Bounds2D original = mutableContour.source.getBounds();
-					log.debug("original:{}", original);
-					Bounds2D scaled = scaledContour.getBounds();
-					log.debug("scaled  :{}", scaled);
-					Bounds2D union = original.union(scaled);
-					log.debug("union   :{}", union);
-				}
+			if (routeList != null) {
+//				if ((!mutableContour.reverse && boundsDoNotExeed(scaledContour, mutableContour)) 
+//						|| (mutableContour.reverse && boundsExeed(scaledContour, mutableContour))) {
+					result.add(routeList);
+//				} else {
+//					log.debug("mutableContour.reverse={}", mutableContour.reverse);
+//					Bounds2D original = mutableContour.source.getBounds();
+//					log.debug("original:{}", original);
+//					Bounds2D scaled = scaledContour.getBounds();
+//					log.debug("scaled  :{}", scaled);
+//					Bounds2D union = original.union(scaled);
+//					log.debug("union   :{}", union);
+//				}
 			}
 			
 			startOverlapPoint.markUsed();
@@ -116,8 +124,170 @@ public class ContourLayerScaler {
 		
 		return result;
 	}
-
 	
+	private RouteList pointsToScaledContour2(MutableContour mutableContour, OverlapPoint startOverlapPoint) {
+//		List<OverlapPoint> overlapPoints = mutableContour.streamSegments().flatMap(s -> s.streamOverlapPoints())
+//				.filter(s -> !s.isTainted() && !s.isUSed())
+//				.distinct().collect(Collectors.toList());
+//		if (overlapPoints.isEmpty()) {
+//			return null;
+//		}
+//		
+		OverlapPoint originating = null;
+		OverlapPoint current = startOverlapPoint;
+		List<OverlapPoint> passed = new ArrayList<>();
+		StringBuilder buf = new StringBuilder();
+		while(true) {
+			buf.setLength(0);
+			OverlapPoint next = null;
+			buf.append("current="+current+"\n");
+			for(Route route : current.routeIterable()) {
+				route.ensureOrdered();
+				int indexOf = route.indexOf(current);
+				
+				int s = 0;
+				buf.append("   route-line: " + route.base + "\n");
+				buf.append("   points    : ");
+				for(OverlapPoint ov : route.overlapPointsIterable())  {
+					if (s==indexOf) {
+						buf.append("["+ov+"]");
+					} else {
+						buf.append(":"+ov);
+					}
+					s++;
+				}
+				buf.append("\n");
+
+				
+				
+				OverlapPoint left = route.overlapPointAt(indexOf-1);
+				buf.append("       left="+left+"\n");
+				if (left!=null && !left.isTainted() && !Objects.equals(left, originating)) {
+					next = left;
+					break;
+				}
+				OverlapPoint right = route.overlapPointAt(indexOf+1);
+				buf.append("       right="+right+"\n");
+				if (right!=null && !right.isTainted() && !Objects.equals(right, originating)) {
+					next = right;
+					break;
+				}
+			}
+			if (next == null) {
+				passed.forEach(s -> s.markUsed());
+				log.debug("marked dirty at:{}", current.point);
+				log.debug(buf.toString());
+				return null;
+			}
+			int indexOf = passed.indexOf(next);
+
+			if (indexOf>0) {
+				passed.subList(0, indexOf).clear();
+				break;
+			}
+			if (indexOf==0) {
+				break;
+			}
+			passed.add(next);
+			originating = current;
+			current = next;
+			
+			log.debug("from: {} .. {}", originating.point, current.point);
+		}
+		
+		
+		
+		ObscuredInfo info = new ObscuredInfo();
+		List<Route> routes = new ArrayList<>();
+		OverlapPoint overlapPoint = passed.get(0);
+		overlapPoint.markUsed();
+		Point2D start = overlapPoint.point;
+		info = info.invert(overlapPoint.getObscuredInfo());
+		Point2D cpStart = start;
+		
+		for(int idx=1; idx<passed.size(); idx++) {
+			overlapPoint = passed.get(idx);
+			info = info.invert(overlapPoint.getObscuredInfo());
+			overlapPoint.markUsed();
+			Point2D end = overlapPoint.point;
+			Point2D cpEnd = end;
+			
+			Route route = new Route(new Line2D(cpStart, cpEnd));
+			routes.add(route);
+			cpStart = cpEnd;
+		}
+
+		
+		if (!info.isFullyObscured()) {
+			log.debug("not fully obscured info={}", info);
+			return null;
+		}
+		log.debug("routes={}", routes);
+		
+		return new RouteList(routes);
+	}
+
+	static class RouteList {
+		
+		private final List<Route> routes;
+		public RouteList(List<Route> routes) {
+			this.routes = routes;
+		}
+	}
+
+//	private List<ScaledContour> scale(MutableContour mutableContour, double thickness) {
+//		if (mutableContour.isEmpty()) {
+//			return Collections.emptyList();
+//		}
+//		
+//		boolean isShrinking = thickness>=0d;
+//		
+//		OverlapPointFactory overlapPointFactory = new OverlapPointFactory();
+//		
+//		produceSegmentPoints(overlapPointFactory, mutableContour, isShrinking);
+//		
+//		markConnectingSegementPoints(overlapPointFactory, mutableContour, isShrinking);
+//		
+//		obscureInBetween(mutableContour);
+//		
+//		taintObscuredSegmentPoints(mutableContour);
+//
+//		allMutableContours.add(mutableContour);
+//		
+//		List<ScaledContour> result = new ArrayList<>();
+//		
+//		while(true) {
+//			OverlapPoint startOverlapPoint = findNextUntaintedAndUnusedOverlapPoint(mutableContour);
+//			if (startOverlapPoint == null) {
+//				break;
+//			}
+//			ScaledContour scaledContour = pointsToScaledContour(mutableContour, startOverlapPoint);
+//			log.debug("scaledContour={}", scaledContour);
+//			log.debug("isShrinking:{}, thickness:{}, reverse:{}", isShrinking, thickness, mutableContour.reverse);
+//			
+//			
+//			if (scaledContour != null) {
+//				if ((!mutableContour.reverse && boundsDoNotExeed(scaledContour, mutableContour)) 
+//						|| (mutableContour.reverse && boundsExeed(scaledContour, mutableContour))) {
+//					result.add(scaledContour);
+//				} else {
+//					log.debug("mutableContour.reverse={}", mutableContour.reverse);
+//					Bounds2D original = mutableContour.source.getBounds();
+//					log.debug("original:{}", original);
+//					Bounds2D scaled = scaledContour.getBounds();
+//					log.debug("scaled  :{}", scaled);
+//					Bounds2D union = original.union(scaled);
+//					log.debug("union   :{}", union);
+//				}
+//			}
+//			
+//			startOverlapPoint.markUsed();
+//		}
+//		
+//		return result;
+//	}
+//
+//	
 	
 	private List<MutableContour> createMutableContours(ContourLayer input, double thickness) {
 		List<MutableContour> result = new ArrayList<>();

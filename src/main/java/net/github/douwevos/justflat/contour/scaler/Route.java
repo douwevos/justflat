@@ -18,14 +18,12 @@ public class Route {
 	private final static Log log = Log.instance(false);
 
 	public final Line2D base;
-	public final TranslatedSegment translatedSegment;
 	
 	private List<OverlapPoint> overlapPoints = new ArrayList<>();
 
 	private boolean overlapPointsOrdered;
 
-	public Route(TranslatedSegment translatedSegment, Line2D base) {
-		this.translatedSegment = translatedSegment;
+	public Route(Line2D base) {
 		this.base = base;
 	}
 	

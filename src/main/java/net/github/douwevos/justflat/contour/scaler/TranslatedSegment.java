@@ -27,23 +27,23 @@ public class TranslatedSegment {
 			throw new RuntimeException();
 		}
 		this.shrink = shrink;
-		this.base = new Route(this, base);
-		this.translated = new Route(this, translated);
+		this.base = new Route(base);
+		this.translated = new Route(translated);
 		Line2D lineHead = new Line2D(base.getFirstPoint(), translated.getFirstPoint());
 		Line2D lineTail = new Line2D(base.getSecondPoint(), translated.getSecondPoint());
 		
 		Point2D crossPoint = lineHead.crossPoint(lineTail, null);
 		headTailCrossPoint = crossPoint;
 		if (crossPoint != null) {
-			head0 = new Route(this, new Line2D(crossPoint, base.getFirstPoint()));
-			head1 = new Route(this, new Line2D(crossPoint, translated.getFirstPoint()));
+			head0 = new Route(new Line2D(crossPoint, base.getFirstPoint()));
+			head1 = new Route(new Line2D(crossPoint, translated.getFirstPoint()));
 			
-			tail0 = new Route(this, new Line2D(base.getSecondPoint(), crossPoint));
-			tail1 = new Route(this, new Line2D(translated.getSecondPoint(), crossPoint));
+			tail0 = new Route(new Line2D(base.getSecondPoint(), crossPoint));
+			tail1 = new Route(new Line2D(translated.getSecondPoint(), crossPoint));
 
 		}
-		head = new Route(this, lineHead);
-		tail = new Route(this, lineTail);
+		head = new Route(lineHead);
+		tail = new Route(lineTail);
 		
 	}
 	
