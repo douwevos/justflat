@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 import net.github.douwevos.justflat.contour.Contour;
 import net.github.douwevos.justflat.contour.ContourLayer;
+import net.github.douwevos.justflat.contour.ContourLayerMap;
+import net.github.douwevos.justflat.contour.ContourLayerMap.OrderedContour;
 import net.github.douwevos.justflat.contour.scaler.OverlapPoint.Taint;
 import net.github.douwevos.justflat.logging.Log;
 import net.github.douwevos.justflat.types.values.Bounds2D;
@@ -24,6 +26,14 @@ public class ContourLayerScaler {
 	public List<MutableContour> allMutableContours = new ArrayList<>();
 	
 	public ContourLayer scale(ContourLayer input, double thickness, boolean cleanup) {
+		ContourLayerMap contourLayerMap = new ContourLayerMap(input);
+		contourLayerMap.rebuild();
+		
+		OrderedContour orderedContour = contourLayerMap.getRootOrderedContour();
+		buildIt(orderedContour, thickness);
+		
+		
+		
 		log.debug("## scaling "+thickness);
 		List<MutableContour> directedContours = createMutableContours(input, thickness);
 		List<Contour> scaledContourList = new ArrayList<>();
@@ -41,6 +51,74 @@ public class ContourLayerScaler {
 		return result;
 	}
 
+	private void buildIt(OrderedContour orderedContour, double thickness) {
+		for(OrderedContour main : orderedContour.children) {
+			buildMain(main, thickness);
+		}
+		
+	}
+
+	private void buildMain(OrderedContour main, double thickness) {
+		MutableContour mainMutableContour = new MutableContour(main.contour, false, -thickness);
+		List<ScaledContour> scaledContour = scale(mainMutableContour, thickness);
+	}
+
+	
+
+	private List<ScaledContour> scale(MutableContour mutableContour, double thickness) {
+		if (mutableContour.isEmpty()) {
+			return Collections.emptyList();
+		}
+		
+		boolean isShrinking = thickness>=0d;
+		
+		OverlapPointFactory overlapPointFactory = new OverlapPointFactory();
+		
+		produceSegmentPoints(overlapPointFactory, mutableContour, isShrinking);
+		
+		markConnectingSegementPoints(overlapPointFactory, mutableContour, isShrinking);
+		
+		obscureInBetween(mutableContour);
+		
+		taintObscuredSegmentPoints(mutableContour);
+
+		allMutableContours.add(mutableContour);
+		
+		List<ScaledContour> result = new ArrayList<>();
+		
+		while(true) {
+			OverlapPoint startOverlapPoint = findNextUntaintedAndUnusedOverlapPoint(mutableContour);
+			if (startOverlapPoint == null) {
+				break;
+			}
+			ScaledContour scaledContour = pointsToScaledContour(mutableContour, startOverlapPoint);
+			log.debug("scaledContour={}", scaledContour);
+			log.debug("isShrinking:{}, thickness:{}, reverse:{}", isShrinking, thickness, mutableContour.reverse);
+			
+			
+			if (scaledContour != null) {
+				if ((!mutableContour.reverse && boundsDoNotExeed(scaledContour, mutableContour)) 
+						|| (mutableContour.reverse && boundsExeed(scaledContour, mutableContour))) {
+					result.add(scaledContour);
+				} else {
+					log.debug("mutableContour.reverse={}", mutableContour.reverse);
+					Bounds2D original = mutableContour.source.getBounds();
+					log.debug("original:{}", original);
+					Bounds2D scaled = scaledContour.getBounds();
+					log.debug("scaled  :{}", scaled);
+					Bounds2D union = original.union(scaled);
+					log.debug("union   :{}", union);
+				}
+			}
+			
+			startOverlapPoint.markUsed();
+		}
+		
+		return result;
+	}
+
+	
+	
 	private List<MutableContour> createMutableContours(ContourLayer input, double thickness) {
 		List<MutableContour> result = new ArrayList<>();
 		for(Contour contour : input) {

@@ -25,14 +25,29 @@ public class ContourLayerMap {
 	}
 
 	private void sortContour(Contour contour) {
-		OrderedContour work = orderedContour;
 		List<OrderedContour> stack = new ArrayList<>();
+		stack.add(orderedContour);
+
+		OrderedContour insert = new OrderedContour(contour);
+		
+		
+		s:
 		while(!stack.isEmpty()) {
 			OrderedContour parent = stack.get(stack.size()-1);
-			for(OrderedContour child : parent.children) {
+			for(int idx=parent.children.size()-1; idx>=0; idx--) {
+				OrderedContour child = parent.children.get(idx);
 				OverlapInfo overlapInfo = calculateOrder(child.contour, contour);
-				
+				if (overlapInfo == OverlapInfo.A_OVER_B ) {
+					stack.add(child);
+					continue s;
+				}
+				if (overlapInfo == OverlapInfo.B_OVER_A) {
+					parent.children.remove(idx);
+					insert.children.add(child);
+				}
 			}
+			parent.children.add(insert);
+			return;
 		}
 		
 	}
@@ -115,8 +130,13 @@ public class ContourLayerMap {
 		A_OVER_B,
 		B_OVER_A
 	}
+	
+	
+	public OrderedContour getRootOrderedContour() {
+		return orderedContour;
+	}
 
-	static class OrderedContour {
+	public static class OrderedContour {
 		public final List<OrderedContour> children = new ArrayList<>();
 		public final Contour contour;
 		
