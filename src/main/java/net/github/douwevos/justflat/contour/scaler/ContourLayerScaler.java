@@ -73,10 +73,28 @@ public class ContourLayerScaler {
 			subsRouteLists.addAll(childRouteLists);
 		}
 		
+		
+		subsRouteLists = combineIfOverlap(subsRouteLists);
+		
 		mainRouteLists.addAll(subsRouteLists);
+		
+		
+		
+		
 		return mainRouteLists.stream().map(this::routeListToScaledContour).collect(Collectors.toList());
 	}
 	
+	private List<RouteList> combineIfOverlap(List<RouteList> input) {
+		while(!input.isEmpty()) {
+			RouteList routeList = input.get(input.size()-1);
+			for(int idx=input.size()-1; idx>=0; idx--) {
+				RouteList otherRouteList = input.get(idx);
+				
+			}
+		}
+		return null;
+	}
+
 	private ScaledContour routeListToScaledContour(RouteList routeList) {
 		List<TargetLine> lines = routeList.stream().map(r -> new TargetLine(r.base.pointA(), r.base.pointB())).collect(Collectors.toList());
 		return new ScaledContour(null, lines);
@@ -247,6 +265,57 @@ public class ContourLayerScaler {
 		public Stream<Route> stream() {
 			return routes.stream();
 		}
+	}
+	
+	
+	static class RouteListInteractionAnalyser {
+		
+		public final RouteList routeListA;
+		public final RouteList routeListB;
+		
+		public RouteListInteractionAnalyser(RouteList routeListA, RouteList routeListB) {
+			this.routeListA = routeListA;
+			this.routeListB = routeListB;
+		}
+		
+		public boolean overlap() {
+			OverlapPointFactory overlapPointFactory = new OverlapPointFactory();
+			IntersectionInfo info = new IntersectionInfo();
+			List<Route> routes = new ArrayList<>();
+			routes.addAll(routeListA.routes);
+			routes.addAll(routeListB.routes);
+			boolean hasOverlap = false;
+			Point2D mostLeftPoint = null;
+			for(int mainIdx=0; mainIdx<routes.size(); mainIdx++) {
+				Route routeMain = routes.get(mainIdx);
+				mostLeftPoint = mostLeftPoint(routeMain.base.pointA(), mostLeftPoint);
+				
+				for(int subIdx=mainIdx+1; subIdx<routes.size(); subIdx++) {
+					Route routeSub = routes.get(subIdx);
+					Point2D crossPoint = routeMain.crossPoint(routeSub.base, info);
+					if (crossPoint != null) {
+						overlapPointFactory.create(crossPoint, Taint.NONE, routeMain, routeSub);
+						hasOverlap = true;
+					}
+				}
+			}
+			
+			
+			if (hasOverlap) {
+			}
+			
+			
+			return hasOverlap;
+		}
+
+		private Point2D mostLeftPoint(Point2D pointNew, Point2D mostLeftPoint) {
+			if (mostLeftPoint == null) {
+				return pointNew;
+			}
+			return null;
+		}
+		
+		
 	}
 
 //	private List<ScaledContour> scale(MutableContour mutableContour, double thickness) {
