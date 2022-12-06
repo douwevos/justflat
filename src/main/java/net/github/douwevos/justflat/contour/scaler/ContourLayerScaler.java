@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import net.github.douwevos.justflat.contour.Contour;
 import net.github.douwevos.justflat.contour.ContourLayer;
@@ -31,44 +32,54 @@ public class ContourLayerScaler {
 		contourLayerMap.rebuild();
 		
 		OrderedContour orderedContour = contourLayerMap.getRootOrderedContour();
-		buildIt(orderedContour, thickness);
+		List<ScaledContour> scaled = buildIt(orderedContour, thickness);
+		List<Contour> scaledContourList = scaled.stream().map(sc -> sc.createContour()).collect(Collectors.toList());
 		
 		
-		
-		log.debug("## scaling "+thickness);
-		List<MutableContour> directedContours = createMutableContours(input, thickness);
-		List<Contour> scaledContourList = new ArrayList<>();
-		
-		for(MutableContour contour : directedContours) {
-			List<ScaledContour> scaledContour = scale(contour, thickness, cleanup);
-			
-			scaledContour.removeIf((c) ->  c.lineCount()<2);
-			scaledContour.stream().map(sc -> sc.createContour()).forEach(c -> scaledContourList.add(c));
-//			scaledContourList.addAll(scaledContour);
-		}
+//		log.debug("## scaling "+thickness);
+//		List<MutableContour> directedContours = createMutableContours(input, thickness);
+//		List<Contour> scaledContourList = new ArrayList<>();
+//		
+//		for(MutableContour contour : directedContours) {
+//			List<ScaledContour> scaledContour = scale(contour, thickness, cleanup);
+//			
+//			scaledContour.removeIf((c) ->  c.lineCount()<2);
+//			scaledContour.stream().map(sc -> sc.createContour()).forEach(c -> scaledContourList.add(c));
+////			scaledContourList.addAll(scaledContour);
+//		}
 		
 		ContourLayer result = new ContourLayer(input.getWidth(), input.getHeight());
 		scaledContourList.stream().forEach(result::add);
 		return result;
 	}
 
-	private void buildIt(OrderedContour orderedContour, double thickness) {
+	private List<ScaledContour> buildIt(OrderedContour orderedContour, double thickness) {
+		List<ScaledContour> result = new ArrayList<>();
 		for(OrderedContour main : orderedContour.children) {
-			buildMain(main, thickness);
+			List<ScaledContour> buildMain = buildMain(main, thickness);
+			result.addAll(buildMain);
 		}
-		
+		return result;
 	}
 
-	private void buildMain(OrderedContour main, double thickness) {
+	private List<ScaledContour> buildMain(OrderedContour main, double thickness) {
 		MutableContour mainMutableContour = new MutableContour(main.contour, false, -thickness);
 		List<RouteList> mainRouteLists = scale2(mainMutableContour, thickness);
 		
 		List<RouteList> subsRouteLists = new ArrayList<>();
 		for(OrderedContour child : main.children) {
-			MutableContour childMutableContour = new MutableContour(main.contour, true, -thickness);
-			List<RouteList> childRouteLists = scale2(mainMutableContour, thickness);
+			MutableContour childMutableContour = new MutableContour(child.contour, true, -thickness);
+			List<RouteList> childRouteLists = scale2(childMutableContour, thickness);
 			subsRouteLists.addAll(childRouteLists);
 		}
+		
+		mainRouteLists.addAll(subsRouteLists);
+		return mainRouteLists.stream().map(this::routeListToScaledContour).collect(Collectors.toList());
+	}
+	
+	private ScaledContour routeListToScaledContour(RouteList routeList) {
+		List<TargetLine> lines = routeList.stream().map(r -> new TargetLine(r.base.pointA(), r.base.pointB())).collect(Collectors.toList());
+		return new ScaledContour(null, lines);
 	}
 
 	
@@ -232,6 +243,9 @@ public class ContourLayerScaler {
 		private final List<Route> routes;
 		public RouteList(List<Route> routes) {
 			this.routes = routes;
+		}
+		public Stream<Route> stream() {
+			return routes.stream();
 		}
 	}
 

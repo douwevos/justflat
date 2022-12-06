@@ -10,8 +10,8 @@ import net.github.douwevos.justflat.types.values.Line2D;
 import net.github.douwevos.justflat.types.values.Point2D;
 
 class ScaledContour {
-		
 	Log log = Log.instance(false);
+	
 	
 	public final Contour source;
 	

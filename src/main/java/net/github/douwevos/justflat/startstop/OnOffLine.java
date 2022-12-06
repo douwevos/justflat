@@ -23,7 +23,7 @@ public class OnOffLine {
 	}
 	
 	public boolean isEmpty() {
-		return rawDots.isEmpty();
+		return rawDots==null || rawDots.isEmpty();
 	}
 
 	public List<StartStop> apply() {
