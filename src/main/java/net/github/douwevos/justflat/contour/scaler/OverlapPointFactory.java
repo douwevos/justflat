@@ -34,4 +34,7 @@ public class OverlapPointFactory {
 		return result;
 	}
 
+	public OverlapPoint get(Point2D point) {
+		return overlapPoints.get(point);
+	}
 }

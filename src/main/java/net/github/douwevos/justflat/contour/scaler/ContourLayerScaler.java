@@ -85,14 +85,20 @@ public class ContourLayerScaler {
 	}
 	
 	private List<RouteList> combineIfOverlap(List<RouteList> input) {
+		List<RouteList> result = new ArrayList<>();
 		while(!input.isEmpty()) {
 			RouteList routeList = input.get(input.size()-1);
 			for(int idx=input.size()-1; idx>=0; idx--) {
 				RouteList otherRouteList = input.get(idx);
-				
+				RouteListInteractionAnalyser analyser = new RouteListInteractionAnalyser(routeList, otherRouteList);
+				if (analyser.overlap()) {
+					routeList = analyser.rebuildRoutList();
+					input.remove(idx);
+				}
 			}
+			result.add(routeList);
 		}
-		return null;
+		return result;
 	}
 
 	private ScaledContour routeListToScaledContour(RouteList routeList) {
@@ -272,12 +278,22 @@ public class ContourLayerScaler {
 		
 		public final RouteList routeListA;
 		public final RouteList routeListB;
+
+		public List<OverlapPoint> overlapPoints;
 		
 		public RouteListInteractionAnalyser(RouteList routeListA, RouteList routeListB) {
 			this.routeListA = routeListA;
 			this.routeListB = routeListB;
 		}
 		
+		public RouteList rebuildRoutList() {
+			
+			for(int idx=0; idx<overlapPoints.size(); idx++) {
+				OverlapPoint overlapPoint = overlapPoints.get(idx);
+			}
+			return null;
+		}
+
 		public boolean overlap() {
 			OverlapPointFactory overlapPointFactory = new OverlapPointFactory();
 			IntersectionInfo info = new IntersectionInfo();
@@ -288,7 +304,13 @@ public class ContourLayerScaler {
 			Point2D mostLeftPoint = null;
 			for(int mainIdx=0; mainIdx<routes.size(); mainIdx++) {
 				Route routeMain = routes.get(mainIdx);
-				mostLeftPoint = mostLeftPoint(routeMain.base.pointA(), mostLeftPoint);
+				Point2D pointA = routeMain.base.pointA();
+				mostLeftPoint = mostLeftPoint(pointA, mostLeftPoint);
+				Point2D pointB = routeMain.base.pointB();
+				mostLeftPoint = mostLeftPoint(pointB, mostLeftPoint);
+				
+				overlapPointFactory.create(pointA, Taint.ORIGINAL, routeMain);
+				overlapPointFactory.create(pointB, Taint.ORIGINAL, routeMain);
 				
 				for(int subIdx=mainIdx+1; subIdx<routes.size(); subIdx++) {
 					Route routeSub = routes.get(subIdx);
@@ -302,6 +324,92 @@ public class ContourLayerScaler {
 			
 			
 			if (hasOverlap) {
+				OverlapPoint startOverlapPoint = overlapPointFactory.get(mostLeftPoint);
+				Route startRoute = null;
+				OverlapPoint startNextPoint = null;
+				boolean isForward = true;
+				for(Route route : startOverlapPoint.routeIterable()) {
+					int indexOf = route.indexOf(startOverlapPoint);
+					OverlapPoint pointAt = route.overlapPointAt(indexOf+1);
+					if (pointAt!=null) {
+						if ((startNextPoint == null) || (pointAt.point.x<startNextPoint.point.x)) {
+							startNextPoint = pointAt;
+							startRoute = route;
+							isForward = true;
+						}
+						
+					}
+					pointAt = route.overlapPointAt(indexOf-1);
+					if (pointAt!=null) {
+						if ((startNextPoint == null) || (pointAt.point.x<startNextPoint.point.x)) {
+							startNextPoint = pointAt;
+							startRoute = route;
+							isForward = false;
+						}
+						
+					}
+				}
+				
+
+				OverlapPoint pointA = startOverlapPoint;
+				OverlapPoint pointB = startNextPoint;
+				
+				double alpha = startRoute.base.getAlpha();
+				if (!isForward) {
+					alpha = (alpha+180d) % 360d;
+				}
+
+				List<OverlapPoint> enlisted = new ArrayList<>();
+				enlisted.add(pointA);
+				enlisted.add(pointB);
+				
+				Route currentRoute = startRoute;
+				while(true) {
+//					Point2D connectPoint = currentRoute.base.getSecondPoint();
+//					OverlapPoint overlapPoint = overlapPointFactory.get(connectPoint);
+					
+					
+					OverlapPoint bestNextOP = null;
+					double bestAlphaDiff = 0d;
+					
+					for(Route route : pointB.routeIterable()) {
+						Line2D base = route.base;
+						double alpha2 = base.getAlpha();
+						int indexOf = route.indexOf(pointB);
+						OverlapPoint overlapPointFwd = route.overlapPointAt(indexOf+1);
+						if (overlapPointFwd!=null && overlapPointFwd!=pointA) {
+							double alphaDiff = (360d+alpha-alpha2)%360d;
+							if (bestNextOP==null || alphaDiff<bestAlphaDiff) {
+								bestNextOP = overlapPointFwd;
+								bestAlphaDiff = alphaDiff;
+							}
+						}
+						OverlapPoint overlapPointRev = route.overlapPointAt(indexOf-1);
+						if (overlapPointRev!=null && overlapPointRev!=pointA) {
+							alpha2 = (alpha2+180d)%360d;
+							double alphaDiff = (360d+alpha-alpha2)%360d;
+							if (bestNextOP==null || alphaDiff<bestAlphaDiff) {
+								bestNextOP = overlapPointRev;
+								bestAlphaDiff = alphaDiff;
+							}
+						}
+
+					}
+					
+					
+					if (bestNextOP==null) {
+						return true;
+					}
+					pointA = pointB;
+					pointB = bestNextOP;
+					int indexOf = enlisted.indexOf(bestNextOP);
+					enlisted.add(bestNextOP);
+					if (indexOf>=0) {
+						break;
+					}
+				}
+				this.overlapPoints = enlisted;
+				
 			}
 			
 			
@@ -312,7 +420,7 @@ public class ContourLayerScaler {
 			if (mostLeftPoint == null) {
 				return pointNew;
 			}
-			return null;
+			return mostLeftPoint.x<pointNew.x ? mostLeftPoint : pointNew;
 		}
 		
 		
