@@ -73,7 +73,7 @@ public abstract class ScalerViewerBase extends ModelViewer<ScalerViewableModel> 
 	
 	
 	@Override
-	public boolean onDrag(ModelMouseEvent event, Object selected) {
+	public boolean onDrag(ModelMouseEvent event, Selection<?> selected) {
 		return false;
 	}
 

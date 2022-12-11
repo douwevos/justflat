@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
@@ -348,9 +347,9 @@ public class ContourLayerViewer extends ModelViewer<ContourLayerViewableModel> {
 	
 	
 	
-	
+
 	@Override
-	public boolean onDrag(ModelMouseEvent event, Object selected) {
+	public boolean onDrag(ModelMouseEvent event, Selection<?> selected) {
 		return model==null ? false : model.discLayer.dragTo(selected, event.modelX, event.modelY);
 	}
 	

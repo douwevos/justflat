@@ -252,10 +252,17 @@ public abstract class ModelViewer<T extends ViewableModel> extends JPanel implem
 				return;
 			}
 		}
-		camera.setTranslate(modelEvent.modelX, modelEvent.modelY);
+
+		int mouseX = e.getX();
+		int mouseY = e.getY();
+		double cameraZoom = camera.getZoom();
+		double nx = dragTX + (dragX - mouseX)*cameraZoom;
+		double ny = dragTY + (mouseY - dragY)*cameraZoom;
+
+		camera.setTranslate(nx,ny);
 	}
 
-	public abstract boolean onDrag(ModelMouseEvent event, Object selected);
+	public abstract boolean onDrag(ModelMouseEvent event, Selection<?> selected);
 	
 	public void onModelChanged() {
 		

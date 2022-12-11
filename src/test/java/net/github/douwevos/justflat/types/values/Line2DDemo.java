@@ -9,10 +9,8 @@ import javax.swing.JPanel;
 
 import net.github.douwevos.justflat.demo.Camera;
 
-public class Line2DDemo  extends JPanel implements ComponentListener {
+public class Line2DDemo extends JPanel implements ComponentListener {
 
-	
-	
 	
 	Line2DViewer designViewer;
 	

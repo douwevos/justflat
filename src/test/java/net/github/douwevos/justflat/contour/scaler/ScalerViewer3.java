@@ -16,6 +16,7 @@ import net.github.douwevos.justflat.contour.scaler.OverlapPoint.Taint;
 import net.github.douwevos.justflat.contour.scaler.ScalerViewableModel.OverlapPointSelection;
 import net.github.douwevos.justflat.contour.scaler.ScalerViewableModel.TranslatedSegmentSelection;
 import net.github.douwevos.justflat.demo.ModelMouseEvent;
+import net.github.douwevos.justflat.demo.Selection;
 import net.github.douwevos.justflat.types.values.Line2D;
 import net.github.douwevos.justflat.types.values.Point2D;
 
@@ -108,7 +109,7 @@ public class ScalerViewer3 extends ScalerViewerBase {
 
 	
 	@Override
-	public boolean onDrag(ModelMouseEvent event, Object selected) {
+	public boolean onDrag(ModelMouseEvent event, Selection<?> selected) {
 		return false;
 	}
 

@@ -7,6 +7,8 @@ import java.awt.image.BufferedImage;
 import net.github.douwevos.justflat.demo.Camera;
 import net.github.douwevos.justflat.demo.ModelMouseEvent;
 import net.github.douwevos.justflat.demo.ModelViewer;
+import net.github.douwevos.justflat.demo.Selection;
+import net.github.douwevos.justflat.types.values.Line2DViewableModel.LinePointSelection;
 
 @SuppressWarnings("serial")
 public class Line2DViewer extends ModelViewer<Line2DViewableModel> {
@@ -18,8 +20,8 @@ public class Line2DViewer extends ModelViewer<Line2DViewableModel> {
 	
 	@Override
 	protected void paintModel(BufferedImage image, Graphics2D gfx, Line2DViewableModel model) {
-		Line2D lineA = model.lineA;
-		Line2D lineB = model.lineB;
+		Line2D lineA = model.lines.get(0);
+		Line2D lineB = model.lines.get(1);
 
 		
 		Camera camera = getCamera();
@@ -50,16 +52,23 @@ public class Line2DViewer extends ModelViewer<Line2DViewableModel> {
 		gfx.drawLine(xa, ya, xb, yb);
 	}
 
-	
 	@Override
-	public boolean onDrag(ModelMouseEvent event, Object selected) {
-		return false;
+	public boolean onDrag(ModelMouseEvent event, Selection<?> selected) {
+		return model==null ? false : model.dragTo(selected, event.modelX, event.modelY);
 	}
 
 	
 	@Override
-	protected void onMove(ModelMouseEvent modelEvent) {
-		
+	protected void paintSelected(Graphics2D g, Selection<?> selected) {
+		if (selected instanceof LinePointSelection) {
+			paintHighlightLinePointSelection(g, (LinePointSelection) selected);
+		}
 	}
+
+	private void paintHighlightLinePointSelection(Graphics2D g, LinePointSelection selected) {
+		Point2D point2d = selected.get();
+		paintSelectedPointWithLocation(g, point2d);
+	}
+	
 
 }
