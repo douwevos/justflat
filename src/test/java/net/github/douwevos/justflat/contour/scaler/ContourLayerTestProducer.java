@@ -1,4 +1,4 @@
-package net.github.douwevos.justflat.contour.testui;
+package net.github.douwevos.justflat.contour.scaler;
 
 import net.github.douwevos.justflat.contour.ContourLayer;
 

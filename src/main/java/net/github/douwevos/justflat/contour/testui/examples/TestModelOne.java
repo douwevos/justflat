@@ -2,8 +2,8 @@ package net.github.douwevos.justflat.contour.testui.examples;
 
 import net.github.douwevos.justflat.contour.Contour;
 import net.github.douwevos.justflat.contour.ContourLayer;
-import net.github.douwevos.justflat.contour.testui.ContourLayerTestProducer;
-import net.github.douwevos.justflat.contour.testui.LayerShower2.ScalerConfigProvider;
+import net.github.douwevos.justflat.contour.scaler.ContourLayerTestProducer;
+import net.github.douwevos.justflat.contour.scaler.ContourLayerScalerDemo.ScalerConfigProvider;
 import net.github.douwevos.justflat.ttf.TextLayout;
 import net.github.douwevos.justflat.ttf.TextLayoutToDiscLayer;
 import net.github.douwevos.justflat.ttf.format.Ttf;

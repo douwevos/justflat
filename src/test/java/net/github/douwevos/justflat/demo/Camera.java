@@ -1,11 +1,11 @@
-package net.github.douwevos.justflat.contour.testui;
+package net.github.douwevos.justflat.demo;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import net.github.douwevos.justflat.types.values.Point2D;
 
-class Camera {
+public class Camera {
 	
 	private CameraLockType cameraLockType;
 	private double zoom;

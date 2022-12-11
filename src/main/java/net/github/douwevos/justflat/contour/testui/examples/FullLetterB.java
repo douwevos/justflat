@@ -9,35 +9,41 @@ import net.github.douwevos.justflat.ttf.TextLayoutToDiscLayer;
 import net.github.douwevos.justflat.ttf.format.Ttf;
 import net.github.douwevos.justflat.types.values.Point2D;
 
-public class TestModelOne2 implements ContourLayerTestProducer, ScalerConfigProvider {
+public class FullLetterB implements ContourLayerTestProducer, ScalerConfigProvider {
 
 	@Override
 	public int getThickness() {
-		return 3225;
+//		return 215;
+		return 2657;
 	}
 
 	@Override
 	public String name() {
-		return "SansFree outer-d 2";
+		return "SansFree outer-d";
 	}
 
 	@Override
 	public ContourLayer produceSourceLayer() {
 		Ttf freeSansTtf = TtfProducer.getFreeSansTtf();
-		TextLayout textLayout = new TextLayout(freeSansTtf, "d");
+		TextLayout textLayout = new TextLayout(freeSansTtf, "B");
 		int textSize = 60000;
 
 		TextLayoutToDiscLayer textLayoutToDiscLayer = new TextLayoutToDiscLayer(textLayout, textSize);
 		ContourLayer result = new ContourLayer(100000, 100000);
 		textLayoutToDiscLayer.produceLayer(result, 1000, 1000);
-		result.moveDot(Point2D.of(28218, 40764), Point2D.of(32000, 39000));
-//		result.moveDot(Point2D.of(28218, 40764), Point2D.of(20944, 14946));
-		result.moveDot(Point2D.of(28218, 40764), Point2D.of(29566, 14821));
-		result.contours.remove(1);
+		
+//		Contour contour = result.contours.get(0);
+//		for(int idx=contour.dotCount()-1; idx>=0; idx--) {
+//			if ((idx%5)==0) {
+//				continue;
+//			}
+//			contour.removeAt(idx);
+//		}
+		
 		return result;
 	}
 
-	
+
 	public ContourLayer produceResultLayer() {
 		ContourLayer contourLayer = new ContourLayer(100000, 100000);
 		Contour contour0 = new Contour();
@@ -57,9 +63,9 @@ public class TestModelOne2 implements ContourLayerTestProducer, ScalerConfigProv
 		contour0.add(Point2D.of(18627, 3764));
 		contour0.add(Point2D.of(19499, 4348));
 		contour0.add(Point2D.of(20458, 5256));
-		contour0.add(Point2D.of(26086, 12372));
-		contour0.add(Point2D.of(26356, 15136));
-		contour0.add(Point2D.of(26470, 16266));
+		contour0.add(Point2D.of(21605, 6706));
+		contour0.add(Point2D.of(17354, 14857));
+		contour0.add(Point2D.of(21390, 23637));
 		contour0.add(Point2D.of(20778, 24524));
 		contour0.add(Point2D.of(20591, 24770));
 		contour0.add(Point2D.of(20171, 25243));
@@ -80,8 +86,8 @@ public class TestModelOne2 implements ContourLayerTestProducer, ScalerConfigProv
 		contourLayer.add(contour0);
 
 		Contour contour1 = new Contour();
-		contour1.add(Point2D.of(26916, 20699));
-		contour1.add(Point2D.of(28562, 37045));
+		contour1.add(Point2D.of(26916, 35661));
+		contour1.add(Point2D.of(27730, 37433));
 		contour1.add(Point2D.of(27502, 37539));
 		contour1.add(Point2D.of(26916, 37539));
 		contour1.setClosed(true);
@@ -89,5 +95,4 @@ public class TestModelOne2 implements ContourLayerTestProducer, ScalerConfigProv
 
 		return contourLayer;
 	}
-	
 }

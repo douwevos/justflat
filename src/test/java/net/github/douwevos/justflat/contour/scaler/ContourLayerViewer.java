@@ -1,4 +1,4 @@
-package net.github.douwevos.justflat.contour.testui;
+package net.github.douwevos.justflat.contour.scaler;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -15,8 +15,11 @@ import javax.swing.JPopupMenu;
 
 import net.github.douwevos.justflat.contour.Contour;
 import net.github.douwevos.justflat.contour.ContourLayer;
+import net.github.douwevos.justflat.contour.ContourLayer.ContourDotSelection;
 import net.github.douwevos.justflat.contour.ContourLayer.LineSelection;
-import net.github.douwevos.justflat.contour.ContourLayer.Selection;
+import net.github.douwevos.justflat.demo.ModelMouseEvent;
+import net.github.douwevos.justflat.demo.ModelViewer;
+import net.github.douwevos.justflat.demo.Selection;
 import net.github.douwevos.justflat.logging.Log;
 import net.github.douwevos.justflat.types.values.Line2D;
 import net.github.douwevos.justflat.types.values.Point2D;
@@ -176,11 +179,11 @@ public class ContourLayerViewer extends ModelViewer<ContourLayerViewableModel> {
 		
 	}
 
-	protected void paintSelected(Graphics2D g, Object sel) {
+	protected void paintSelected(Graphics2D g, Selection<?> sel) {
 		super.paintSelected(g, sel);
 		Dimension viewDimension = getViewDimension();
-		if (sel instanceof ContourLayer.Selection) {
-			ContourLayer.Selection selection = (ContourLayer.Selection) sel;
+		if (sel instanceof ContourLayer.ContourDotSelection) {
+			ContourLayer.ContourDotSelection selection = (ContourLayer.ContourDotSelection) sel;
 			if (selection.dotIndex>=0) {
 				
 				double transX =  -camera.getTranslateX();
@@ -256,8 +259,8 @@ public class ContourLayerViewer extends ModelViewer<ContourLayerViewableModel> {
 	public Contour getSelectedContour() {
 		Object sel = this.highlighted;
 
-		if (sel instanceof ContourLayer.Selection) {
-			ContourLayer.Selection selection = (ContourLayer.Selection) sel;
+		if (sel instanceof ContourLayer.ContourDotSelection) {
+			ContourLayer.ContourDotSelection selection = (ContourLayer.ContourDotSelection) sel;
 			return selection.contour;
 		} else if (sel instanceof ContourLayer.LineSelection) {
 			ContourLayer.LineSelection selection = (ContourLayer.LineSelection) sel;
@@ -304,16 +307,16 @@ public class ContourLayerViewer extends ModelViewer<ContourLayerViewableModel> {
 
 	
 	@Override
-	protected void onClicked(MouseEvent event, double modelX, double modelY) {
-		super.onClicked(event, modelX, modelY);
-		if (event.getButton() == 3) {
+	protected void onClicked(ModelMouseEvent modelEvent) {
+		super.onClicked(modelEvent);
+		if (modelEvent.event.getButton() == 3) {
 			
 			JPopupMenu p = new JPopupMenu();
 			
 			log.debug("selected="+highlighted);
 			
-			if (highlighted instanceof Selection) {
-				Selection s = (Selection) highlighted;
+			if (highlighted instanceof ContourDotSelection) {
+				ContourDotSelection s = (ContourDotSelection) highlighted;
 				Action actDeletePoint = new AbstractAction("Delete point") {
 					
 					@Override
@@ -331,31 +334,32 @@ public class ContourLayerViewer extends ModelViewer<ContourLayerViewableModel> {
 				Action actDummy = new AbstractAction("Add point") {
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						l.contour.addAt(new Point2D(Math.round(modelX), Math.round(modelY)), l.dotIndex+1);
+						l.contour.addAt(new Point2D(Math.round(modelEvent.modelX), Math.round(modelEvent.modelY)), l.dotIndex+1);
 						layerImage = null;
 						repaint();
 					}
 				};
 				p.add(actDummy);
 			}
-
 			
-
-			
-			p.show(this, event.getX(), event.getY());
-			
-			
+			p.show(this, modelEvent.event.getX(), modelEvent.event.getY());
 		}
 	}
 	
+	
+	
+	
 	@Override
-	public boolean onDrag(MouseEvent event, Object selected, double mx, double my) {
-		return model==null ? false : model.discLayer.dragTo(selected, mx, my);
+	public boolean onDrag(ModelMouseEvent event, Object selected) {
+		return model==null ? false : model.discLayer.dragTo(selected, event.modelX, event.modelY);
 	}
 	
 	
+	
 	@Override
-	protected void onMove(MouseEvent event, double modelX, double modelY) {
+	protected void onMove(ModelMouseEvent modelEvent) {
+		double modelX = modelEvent.modelX;
+		double modelY = modelEvent.modelY;
 		Contour oldContour = getSelectedContour();
 		highlighted = model==null ? null : model.discLayer.selectAt(modelX, modelY, camera.getZoom());
 		Contour newContour = getSelectedContour();

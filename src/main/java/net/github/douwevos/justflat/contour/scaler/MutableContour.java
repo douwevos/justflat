@@ -27,22 +27,22 @@ public class MutableContour {
 	public MutableContour(Contour source, boolean reverse, double thickness) {
 		this.reverse = reverse;
 		this.source = source;
-		ArrayList<Point2D> dots = new ArrayList<>(source.getDots());
-		if (reverse) {
-			Collections.reverse(dots);
-			Point2D last = dots.remove(dots.size()-1);
-			dots.add(0, last);
-		}
-		
-		Point2D last = dots.get(dots.size()-1);
-		for(int d=dots.size()-2; d>=0; d--) {
-			Point2D next = dots.get(d);
-			if (Objects.equals(next, last)) {
-				dots.remove(d+1);
-			}
-			last = next;
-		}
-		
+//		ArrayList<Point2D> dots = new ArrayList<>(source.getDots());
+//		if (reverse) {
+//			Collections.reverse(dots);
+//			Point2D last = dots.remove(dots.size()-1);
+//			dots.add(0, last);
+//		}
+//		
+//		Point2D last = dots.get(dots.size()-1);
+//		for(int d=dots.size()-2; d>=0; d--) {
+//			Point2D next = dots.get(d);
+//			if (Objects.equals(next, last)) {
+//				dots.remove(d+1);
+//			}
+//			last = next;
+//		}
+//		
 		List<Point2D> filteredPoints = source.getDots().stream().filter(NoRepeats.filter()).collect(Collectors.toList());
 		if (reverse) {
 			Collections.reverse(filteredPoints);

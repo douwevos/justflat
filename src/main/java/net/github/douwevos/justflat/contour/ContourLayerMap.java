@@ -3,12 +3,15 @@ package net.github.douwevos.justflat.contour;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.github.douwevos.justflat.logging.Log;
 import net.github.douwevos.justflat.startstop.OnOffLine;
 import net.github.douwevos.justflat.types.values.Bounds2D;
 import net.github.douwevos.justflat.types.values.StartStopLine;
 
 public class ContourLayerMap {
 
+	Log log = Log.instance(false);
+	
 	public final ContourLayer layer;
 	
 	private OrderedContour orderedContour;
@@ -22,6 +25,28 @@ public class ContourLayerMap {
 		for(Contour contour : layer.contours) {
 			sortContour(contour);
 		}
+		
+		dump();
+	}
+
+	private void dump() {
+		if (log.isDebugEnabled()) {
+			log.debug("----------");
+			dump("", orderedContour);
+		}
+		
+	}
+
+	private void dump(String prefix, OrderedContour orderedContour) {
+		if (orderedContour.contour!=null) {
+			log.debug("{}{}", prefix, orderedContour.contour.getBounds());
+		}
+		prefix = prefix+"   ";
+		for(OrderedContour child : orderedContour.children) {
+			dump(prefix, child);
+		}
+		
+		
 	}
 
 	private void sortContour(Contour contour) {
@@ -37,6 +62,7 @@ public class ContourLayerMap {
 			for(int idx=parent.children.size()-1; idx>=0; idx--) {
 				OrderedContour child = parent.children.get(idx);
 				OverlapInfo overlapInfo = calculateOrder(child.contour, contour);
+				log.debug("overlapInfo={}", overlapInfo);
 				if (overlapInfo == OverlapInfo.A_OVER_B ) {
 					stack.add(child);
 					continue s;
@@ -65,7 +91,7 @@ public class ContourLayerMap {
 		OnOffLine onOffLineA = new OnOffLine();
 		OnOffLine onOffLineB = new OnOffLine();
 		
-		long midA = (boundsA.bottom +  boundsA.top);
+		long midA = (boundsA.bottom +  boundsA.top)/2;
 		if (midA>=boundsB.bottom && midA<=boundsB.top) {
 			OverlapInfo overlapInfo = calculateOrderByScanline(midA, contourA, onOffLineA, contourB, onOffLineB);
 			if (overlapInfo != OverlapInfo.NO_OVERLAP) {
@@ -73,7 +99,7 @@ public class ContourLayerMap {
 			}
 		}
 
-		long midB = (boundsB.bottom +  boundsB.top);
+		long midB = (boundsB.bottom +  boundsB.top)/2;
 		if (midB>=boundsA.bottom && midB<=boundsA.top) {
 			OverlapInfo overlapInfo = calculateOrderByScanline(midB, contourA, onOffLineA, contourB, onOffLineB);
 			if (overlapInfo != OverlapInfo.NO_OVERLAP) {

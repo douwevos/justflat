@@ -31,7 +31,7 @@ public class TtfViewer extends JFrame {
 	
 	public static void main(String[] args) {
 		TtfViewer ttfViewer = new TtfViewer();
-		ttfViewer.setBounds(0,0, 600,500);
+		ttfViewer.setBounds(0,0, 1600,1800);
 		ttfViewer.setVisible(true);
 	}
 	
@@ -80,9 +80,9 @@ public class TtfViewer extends JFrame {
 			
 //			drawTtfText(gfx, "HWAallo", 0, 0, 80);
 			
-			TextLayout textLayout = new TextLayout(ttf, "Douwe is cool");
-			TextLayoutPainter textLayoutPainter = new TextLayoutPainter(textLayout, 80);
-			textLayoutPainter.draw(gfx, 0, 100);
+			TextLayout textLayout = new TextLayout(ttf, "Blauw.");
+			TextLayoutPainter textLayoutPainter = new TextLayoutPainter(textLayout, 800);
+			textLayoutPainter.draw(gfx, 0, 1000);
 
 			
 		}
@@ -139,6 +139,7 @@ public class TtfViewer extends JFrame {
 		}
 
 		public void draw(Graphics2D gfx, float xpos, float ypos, ArrayList<Contour> contourList, float zoomFactor, boolean drawCurves) {
+			drawCurves = false;
 			for (Contour contour : contourList) {
 				ArrayList<GlyphDot> dotList = contour.dotList;
 	

@@ -1,4 +1,4 @@
-package net.github.douwevos.justflat.contour.testui;
+package net.github.douwevos.justflat.contour.scaler;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -8,8 +8,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.ItemEvent;
-import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,19 +29,15 @@ import javax.swing.event.ChangeListener;
 import net.github.douwevos.justflat.contour.Contour;
 import net.github.douwevos.justflat.contour.ContourLayer;
 import net.github.douwevos.justflat.contour.ContourLayerOverlapCutter;
-import net.github.douwevos.justflat.contour.scaler.ContourLayerScaler;
 import net.github.douwevos.justflat.contour.testui.examples.ScalarTests;
 import net.github.douwevos.justflat.contour.testui.examples.ScalarTests.ScalarTest;
+import net.github.douwevos.justflat.demo.Camera;
 import net.github.douwevos.justflat.logging.Log;
-import net.github.douwevos.justflat.ttf.TextLayout;
-import net.github.douwevos.justflat.ttf.TextLayoutToDiscLayer;
-import net.github.douwevos.justflat.ttf.format.Ttf;
-import net.github.douwevos.justflat.ttf.reader.TrueTypeFontParser;
 import net.github.douwevos.justflat.types.Layer;
 import net.github.douwevos.justflat.types.values.Point2D;
 
 @SuppressWarnings("serial")
-public class LayerShower2 extends JPanel implements Runnable, ComponentListener {
+public class ContourLayerScalerDemo extends JPanel implements Runnable, ComponentListener {
 
 	private final static Log log = Log.instance(false);
 
@@ -75,7 +69,7 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 	
 	ScalarTests scalarTests;
 	
-	public LayerShower2() {
+	public ContourLayerScalerDemo() {
 
 		scalarTests = new ScalarTests();
 
@@ -217,7 +211,7 @@ public class LayerShower2 extends JPanel implements Runnable, ComponentListener 
 	public static void main(String[] args) {
 		JFrame jFrame = new JFrame();
 		jFrame.setSize(3000, 2000);
-		jFrame.getContentPane().add(new LayerShower2());
+		jFrame.getContentPane().add(new ContourLayerScalerDemo());
 		jFrame.setVisible(true);
 		jFrame.setExtendedState(jFrame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
 	}

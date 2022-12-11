@@ -1,8 +1,7 @@
-package net.github.douwevos.justflat.contour.testui;
+package net.github.douwevos.justflat.contour.scaler;
 
 import net.github.douwevos.justflat.contour.ContourLayer;
 import net.github.douwevos.justflat.contour.ContourLayerResolutionReducer;
-import net.github.douwevos.justflat.contour.scaler.ContourLayerScaler;
 
 public class DiscLayerFillContext {
 

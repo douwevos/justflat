@@ -3,6 +3,7 @@ package net.github.douwevos.justflat.ttf;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.github.douwevos.justflat.logging.Log;
 import net.github.douwevos.justflat.ttf.format.TtfGlyphData.Contour;
 import net.github.douwevos.justflat.ttf.format.TtfGlyphData.GlyphDefinition;
 import net.github.douwevos.justflat.ttf.format.TtfGlyphData.GlyphDot;
@@ -10,6 +11,8 @@ import net.github.douwevos.justflat.types.values.Point2D;
 
 public class TextLayoutGlyph {
 
+	Log log = Log.instance(true);
+	
 	private final char ch;
 	private final int glyphIndex;
 	private final GlyphDefinition glyphDefinition;
@@ -55,21 +58,33 @@ public class TextLayoutGlyph {
 
 			int dotCount = dotList.size();
 			GlyphDot dot = dotList.get(0);
-			GlyphDot lastDot = dot; 
-			double x0 = (double) lastDot.x + glyphLeft;
-			double y0 = (double) lastDot.y;
+			double x0 = (double) dot.x + glyphLeft;
+			double y0 = (double) dot.y;
 
+			GlyphDot tailDot = dotList.get(dotCount-1);
+			if (dot.isCurve && tailDot.isCurve) {
+				double tdx = (double) tailDot.x + glyphLeft;
+				double tdy = (double) tailDot.y;
+				x0 = (tdx+x0)/2;
+				y0 = (tdy+y0)/2;
+			} else {
+				double tdx = (double) tailDot.x + glyphLeft;
+				double tdy = (double) tailDot.y;
+				x0 = tdx;
+				y0 = tdy;
+			}
 			Point2D pointA = Point2D.of(xpos + (long) Math.round(x0*zoomFactor), ypos + (long) Math.round(y0*zoomFactor));
+			
 			
 			for(int dotIdx=0; dotIdx<=dotCount; dotIdx++) {
 				dot = dotList.get(dotIdx % dotCount);
 				GlyphDot nextDot = dotList.get((dotIdx+1)%dotCount);
 				
+				boolean doit = dotIdx>0;
 				double x1 = dot.x + glyphLeft;
 				double y1 = dot.y;
-//				log.log(""+(dotIdx % dotCount)+" ## x0="+x0+", y0="+y0+", x1="+x1+", y1="+y1);
+//				log.log(""+(dotIdx % dotCount)+" ## x0="+x0+", y0="+y0+", x1="+x1+", y1="+y1+", dot.isCurve="+dot.isCurve+" dot["+dot.x+", "+dot.y+"]");
 				if (dot.isCurve && drawCurves) {
-
 					
 					double x2 = (double) nextDot.x + glyphLeft;
 					double y2 = (double) nextDot.y;
@@ -84,22 +99,25 @@ public class TextLayoutGlyph {
 					double xb = (2f*x1+x2)/3f;
 					double yb = (2f*y1+y2)/3f;
 
-					pointA = layerCurveTo(output, pointA
-							, xpos + x0*zoomFactor, ypos + y0*zoomFactor
-							, xpos + xa*zoomFactor, ypos + ya*zoomFactor
-							, xpos + xb*zoomFactor, ypos + yb*zoomFactor
-							, xpos + x2*zoomFactor, ypos + y2*zoomFactor);
+					if (doit) {
+						pointA = layerCurveTo(output, pointA
+								, xpos + x0*zoomFactor, ypos + y0*zoomFactor
+								, xpos + xa*zoomFactor, ypos + ya*zoomFactor
+								, xpos + xb*zoomFactor, ypos + yb*zoomFactor
+								, xpos + x2*zoomFactor, ypos + y2*zoomFactor);
+					} else {
+						pointA = Point2D.of(xpos + (long) Math.round(x2*zoomFactor), ypos + (long) Math.round(y2*zoomFactor));
+					}
+
+					
 
 					x0 = x2;
 					y0 = y2;
 				} else {
-//					if (nextDot.isCurve) {
-//						x1 = (x1+x0)/2f;
-//						y1 = (y1+y0)/2f;
-//					}
 					Point2D pointB = Point2D.of(xpos + (int) Math.round(x1*zoomFactor), ypos + (int) Math.round(y1*zoomFactor));
-					output.line(pointA, pointB);
-//					gfx.drawLine(xpos + (int) (x0*zoomFactor), ypos + (int) (y0*zoomFactor), xpos + (int) (x1*zoomFactor), ypos + (int) (y1*zoomFactor));
+					if (doit) {
+						output.line(pointA, pointB);
+					}
 					x0 = x1;
 					y0 = y1;
 					pointA = pointB;
@@ -130,8 +148,8 @@ public class TextLayoutGlyph {
 	List<XY> bezierCurve(double x[] , double y[]) {
 	    double xu = 0.0 , yu = 0.0;
 	    List<XY> result = new ArrayList<>();
-	    for(int p=0; p<=100; p++) {
-	    	double u = p/100d;
+	    for(int p=0; p<=3; p++) {
+	    	double u = p/3d;
 	    	double v = 1.0d - u;
 	    	double powMU2 = v*v;
 	        double powMU3 = powMU2*v;

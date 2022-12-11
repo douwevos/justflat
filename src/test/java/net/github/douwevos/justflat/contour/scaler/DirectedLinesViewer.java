@@ -1,4 +1,4 @@
-package net.github.douwevos.justflat.contour.testui;
+package net.github.douwevos.justflat.contour.scaler;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -6,6 +6,8 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
+import net.github.douwevos.justflat.demo.ModelMouseEvent;
+import net.github.douwevos.justflat.demo.ModelViewer;
 import net.github.douwevos.justflat.types.values.Point2D;
 
 public class DirectedLinesViewer extends ModelViewer<DirectedLinesViewableModel> {
@@ -109,13 +111,13 @@ public class DirectedLinesViewer extends ModelViewer<DirectedLinesViewableModel>
 	}
 
 	@Override
-	public boolean onDrag(MouseEvent event, Object selected, double mouseX, double mouseY) {
+	public boolean onDrag(ModelMouseEvent event, Object selected) {
 		return false;
 	}
 
+	
 	@Override
-	protected void onMove(MouseEvent event, double modelX, double modelY) {
-		
+	protected void onMove(ModelMouseEvent modelEvent) {
 	}
 
 	public void setModel(DirectedLines directedLines) {

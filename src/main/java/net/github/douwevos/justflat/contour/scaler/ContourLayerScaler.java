@@ -87,7 +87,7 @@ public class ContourLayerScaler {
 	private List<RouteList> combineIfOverlap(List<RouteList> input) {
 		List<RouteList> result = new ArrayList<>();
 		while(!input.isEmpty()) {
-			RouteList routeList = input.get(input.size()-1);
+			RouteList routeList = input.remove(input.size()-1);
 			for(int idx=input.size()-1; idx>=0; idx--) {
 				RouteList otherRouteList = input.get(idx);
 				RouteListInteractionAnalyser analyser = new RouteListInteractionAnalyser(routeList, otherRouteList);
@@ -253,10 +253,10 @@ public class ContourLayerScaler {
 		}
 
 		
-		if (!info.isFullyObscured()) {
-			log.debug("not fully obscured info={}", info);
-			return null;
-		}
+//		if (!info.isFullyObscured()) {
+//			log.debug("not fully obscured info={}", info);
+//			return null;
+//		}
 		log.debug("routes={}", routes);
 		
 		return new RouteList(routes);
@@ -398,10 +398,10 @@ public class ContourLayerScaler {
 					
 					
 					if (bestNextOP==null) {
-						return true;
+						return false;
 					}
 					pointA = pointB;
-					pointB = bestNextOP;
+					pointB = bestNextOP; 
 					int indexOf = enlisted.indexOf(bestNextOP);
 					enlisted.add(bestNextOP);
 					if (indexOf>=0) {

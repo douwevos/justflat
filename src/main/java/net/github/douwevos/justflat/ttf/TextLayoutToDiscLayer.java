@@ -59,7 +59,7 @@ public class TextLayoutToDiscLayer {
 		@Override
 		public void contourEnd() {
 			if (!first) {
-				contour.reverse();
+//				contour.reverse();
 			}
 			
 			first = false;

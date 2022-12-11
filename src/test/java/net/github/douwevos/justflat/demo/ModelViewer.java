@@ -1,4 +1,4 @@
-package net.github.douwevos.justflat.contour.testui;
+package net.github.douwevos.justflat.demo;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -18,7 +18,7 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
 
-import net.github.douwevos.justflat.contour.testui.Camera.CameraListener;
+import net.github.douwevos.justflat.demo.Camera.CameraListener;
 import net.github.douwevos.justflat.types.values.Bounds2D;
 import net.github.douwevos.justflat.types.values.Point2D;
 
@@ -33,7 +33,7 @@ public abstract class ModelViewer<T extends ViewableModel> extends JPanel implem
 	
 	protected Image layerImage;
 	
-	protected Object highlighted;
+	protected Selection<?> highlighted;
 	
 	protected boolean fillWithAlpha = false;
 	
@@ -91,7 +91,7 @@ public abstract class ModelViewer<T extends ViewableModel> extends JPanel implem
 			paintOnTopLayer(gfx, model);
 		}
 
-		Object localSelected = highlighted;
+		Selection<?> localSelected = highlighted;
 		if (localSelected != null) {
 			paintSelected(gfx, localSelected);
 		}
@@ -103,7 +103,7 @@ public abstract class ModelViewer<T extends ViewableModel> extends JPanel implem
 	public abstract void paintOnTopLayer(Graphics2D gfx, T model);
 	
 	
-	protected void paintSelected(Graphics2D g, Object selected) {
+	protected void paintSelected(Graphics2D g, Selection<?> selected) {
 		if (selected instanceof Point2D) {
 			Point2D dot = (Point2D) selected;
 			paintSelectedPointWithLocation(g, dot);
@@ -206,16 +206,8 @@ public abstract class ModelViewer<T extends ViewableModel> extends JPanel implem
 				camera.setLockType(CameraLockType.FIT_MODEL);
 				updateCamera();
 			} else {
-				int mouseY = e.getY();
-				int mouseX = e.getX();
-				
-				int bottom = getViewDimension().height-1;
-				int loc = bottom-mouseY;
-
-				double cameraZoom = camera.getZoom();
-				double ny = camera.getTranslateY() + loc * cameraZoom;
-				double nx = camera.getTranslateX() + mouseX * cameraZoom;
-				onClicked(e, nx, ny);
+				ModelMouseEvent modelEvent = ModelMouseEvent.create(e, camera, getViewDimension());
+				onClicked(modelEvent);
 			}
 //		}
 		
@@ -251,33 +243,19 @@ public abstract class ModelViewer<T extends ViewableModel> extends JPanel implem
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		int mouseX = e.getX();
-		int mouseY = e.getY();
-		
-		double cameraZoom = camera.getZoom();
-		double nx = dragTX + (dragX - mouseX)*cameraZoom;
-		double ny = dragTY + (mouseY - dragY)*cameraZoom;
-
+		ModelMouseEvent modelEvent = ModelMouseEvent.create(e, camera, getViewDimension());
 		if (model!=null && highlighted!=null) {
-
-			int bottom = getViewDimension().height-1;
-			int loc = bottom-mouseY;
-			double my = camera.getTranslateY() + loc * cameraZoom;
-			double mx = camera.getTranslateX() + mouseX * cameraZoom;
-			if (onDrag(e, highlighted, mx, my)) {
+			if (onDrag(modelEvent, highlighted)) {
 				layerImage = null;
 				onModelChanged();
 				repaint();
 				return;
 			}
 		}
-		
-//		log.debug("mouseX="+mouseX+", nx="+nx);
-
-		camera.setTranslate(nx, ny);
+		camera.setTranslate(modelEvent.modelX, modelEvent.modelY);
 	}
 
-	public abstract boolean onDrag(MouseEvent event, Object selected, double mouseX, double mouseY);
+	public abstract boolean onDrag(ModelMouseEvent event, Object selected);
 	
 	public void onModelChanged() {
 		
@@ -285,21 +263,36 @@ public abstract class ModelViewer<T extends ViewableModel> extends JPanel implem
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		int mouseY = e.getY();
-		int mouseX = e.getX();
-		
-		int bottom = getViewDimension().height-1;
-		int loc = bottom-mouseY;
-
-		double cameraZoom = camera.getZoom();
-		double ny = camera.getTranslateY() + loc * cameraZoom;
-		double nx = camera.getTranslateX() + mouseX * cameraZoom;
-		onMove(e, nx, ny);
+		ModelMouseEvent event = ModelMouseEvent.create(e, camera, getViewDimension());
+//		int mouseY = e.getY();
+//		int mouseX = e.getX();
+//		
+//		int bottom = getViewDimension().height-1;
+//		int loc = bottom-mouseY;
+//
+//		double cameraZoom = camera.getZoom();
+//		double ny = camera.getTranslateY() + loc * cameraZoom;
+//		double nx = camera.getTranslateX() + mouseX * cameraZoom;
+//		onMove(e, nx, ny);
+		onMove(event);
 	}
 	
-	protected abstract void onMove(MouseEvent event, double modelX, double modelY);
+	protected void onMove(ModelMouseEvent modelEvent) {
+		double modelX = modelEvent.modelX;
+		double modelY = modelEvent.modelY;
+		
+		Selection<?> selectedOld = highlighted;
+		highlighted = model==null ? null : model.selectAt(modelEvent);
 
-	protected void onClicked(MouseEvent event, double modelX, double modelY) {
+		if (selectedOld == highlighted) {
+			return;
+		}
+		repaint();
+	}
+	
+	
+
+	protected void onClicked(ModelMouseEvent modelEvent) {
 	}
 
 	@Override

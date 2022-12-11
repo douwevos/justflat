@@ -1,31 +1,26 @@
-package net.github.douwevos.justflat.contour.testui;
+package net.github.douwevos.justflat.contour.scaler;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.event.MouseEvent;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.github.douwevos.justflat.contour.scaler.MutableContour;
-import net.github.douwevos.justflat.contour.scaler.ObscuredInfo;
-import net.github.douwevos.justflat.contour.scaler.OverlapPoint;
-import net.github.douwevos.justflat.contour.scaler.Range;
-import net.github.douwevos.justflat.contour.scaler.TranslatedSegment;
 import net.github.douwevos.justflat.contour.scaler.OverlapPoint.Taint;
-import net.github.douwevos.justflat.contour.testui.ScalerViewableModel.OverlapPointSelection;
-import net.github.douwevos.justflat.contour.testui.ScalerViewableModel.PointSelection;
-import net.github.douwevos.justflat.contour.testui.ScalerViewableModel.TranslatedSegmentSelection;
+import net.github.douwevos.justflat.contour.scaler.ScalerViewableModel.OverlapPointSelection;
+import net.github.douwevos.justflat.contour.scaler.ScalerViewableModel.PointSelection;
+import net.github.douwevos.justflat.contour.scaler.ScalerViewableModel.TranslatedSegmentSelection;
+import net.github.douwevos.justflat.demo.ModelMouseEvent;
+import net.github.douwevos.justflat.demo.ModelViewer;
+import net.github.douwevos.justflat.demo.Selection;
 import net.github.douwevos.justflat.types.values.Point2D;
 
+@SuppressWarnings("serial")
 public abstract class ScalerViewerBase extends ModelViewer<ScalerViewableModel> {
-
-	protected double mouseModelX;
-	protected double mouseModelY;
 
 	protected Map<Taint, Color> taintColorMap = new EnumMap<>(Taint.class);
 	
@@ -61,7 +56,7 @@ public abstract class ScalerViewerBase extends ModelViewer<ScalerViewableModel> 
 
 	
 	@Override
-	protected void paintSelected(Graphics2D g, Object selected) {
+	protected void paintSelected(Graphics2D g, Selection<?> selected) {
 		super.paintSelected(g, selected);
 
 		if (selected instanceof PointSelection) {
@@ -76,29 +71,22 @@ public abstract class ScalerViewerBase extends ModelViewer<ScalerViewableModel> 
 
 	}
 	
-
+	
 	@Override
-	public boolean onDrag(MouseEvent event, Object selected, double mouseX, double mouseY) {
+	public boolean onDrag(ModelMouseEvent event, Object selected) {
 		return false;
 	}
 
 	@Override
-	protected void onMove(MouseEvent event, double modelX, double modelY) {
-		mouseModelX = modelX;
-		mouseModelY = modelY;
-		
-		Object selectedOld = highlighted;
-		highlighted = model==null ? null : model.selectAt(modelX, modelY, camera.getZoom());
+	protected void onMove(ModelMouseEvent modelEvent) {
+		Selection<?> selectedOld = highlighted;
+		highlighted = model==null ? null : model.selectAt(modelEvent);
 
 		if (selectedOld == highlighted) {
 			return;
 		}
-		
 		repaint();
 	}
-	
-	
-	
 
 	protected void drawAllPoints(Graphics2D gfx, int viewHeight, List<MutableContour> mutableContours) {
 		double cameraZoom = camera.getZoom();

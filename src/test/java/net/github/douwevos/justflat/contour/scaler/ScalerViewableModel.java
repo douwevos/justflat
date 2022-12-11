@@ -1,11 +1,11 @@
-package net.github.douwevos.justflat.contour.testui;
+package net.github.douwevos.justflat.contour.scaler;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import net.github.douwevos.justflat.contour.scaler.MutableContour;
-import net.github.douwevos.justflat.contour.scaler.OverlapPoint;
-import net.github.douwevos.justflat.contour.scaler.TranslatedSegment;
+import net.github.douwevos.justflat.demo.ModelMouseEvent;
+import net.github.douwevos.justflat.demo.Selection;
+import net.github.douwevos.justflat.demo.ViewableModel;
 import net.github.douwevos.justflat.types.values.Bounds2D;
 import net.github.douwevos.justflat.types.values.Line2D;
 import net.github.douwevos.justflat.types.values.Point2D;
@@ -47,9 +47,14 @@ public class ScalerViewableModel implements ViewableModel {
 		return result;
 	}
 	
-	public Selection<?> selectAt(double nx, double ny, double zoomFactor) {
+	@Override
+	public Selection<?> selectAt(ModelMouseEvent modelMouseEvent) {
 		OverlapPoint bestOverlapPoint = null;
 		double bestSqDist = 0;
+		
+		double nx = modelMouseEvent.modelX;
+		double ny = modelMouseEvent.modelY;
+		double zoomFactor = modelMouseEvent.camera.getZoom();
 		
 		for(MutableContour mutableContour : mutableContours) {
 			
@@ -111,10 +116,6 @@ public class ScalerViewableModel implements ViewableModel {
 		return null;
 	}
 	
-	
-	public interface Selection<T> {
-		public T get();
-	}
 	
 	public static class PointSelection implements Selection<Point2D> {
 		

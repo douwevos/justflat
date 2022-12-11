@@ -8,8 +8,8 @@ import java.util.stream.Stream;
 import net.github.douwevos.justflat.contour.ContourComparator;
 import net.github.douwevos.justflat.contour.ContourLayer;
 import net.github.douwevos.justflat.contour.ContourLayerOverlapCutter;
-import net.github.douwevos.justflat.contour.testui.ContourLayerTestProducer;
-import net.github.douwevos.justflat.contour.testui.DiscLayerFillContext;
+import net.github.douwevos.justflat.contour.scaler.ContourLayerTestProducer;
+import net.github.douwevos.justflat.contour.scaler.DiscLayerFillContext;
 
 public class ScalarTests {
 
@@ -24,7 +24,8 @@ public class ScalarTests {
 //		add(new TDBird());
 //		add(new TDBird2());
 //		add(new OLetter());
-		add(new FullLetterR());
+//		add(new FullLetterR());
+		add(new FullLetterB());
 //		add(new AlmostStraight());
 		runTests();
 	}

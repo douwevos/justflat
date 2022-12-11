@@ -1,4 +1,4 @@
-package net.github.douwevos.justflat.contour.testui;
+package net.github.douwevos.justflat.contour.scaler;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -11,7 +11,8 @@ import java.util.List;
 import net.github.douwevos.justflat.contour.scaler.MutableContour;
 import net.github.douwevos.justflat.contour.scaler.TargetLine;
 import net.github.douwevos.justflat.contour.scaler.TranslatedSegment;
-import net.github.douwevos.justflat.contour.testui.ScalerViewableModel.TranslatedSegmentSelection;
+import net.github.douwevos.justflat.contour.scaler.ScalerViewableModel.TranslatedSegmentSelection;
+import net.github.douwevos.justflat.demo.ModelMouseEvent;
 import net.github.douwevos.justflat.types.values.Line2D;
 import net.github.douwevos.justflat.types.values.Point2D;
 
@@ -73,19 +74,23 @@ public class ScalerSegmentViewer extends ScalerViewerBase {
 
 
 	@Override
-	public boolean onDrag(MouseEvent event, Object selected, double mouseX, double mouseY) {
+	public boolean onDrag(ModelMouseEvent event, Object selected) {
 		return false;
 	}
 
+	
 	@Override
-	protected void onMove(MouseEvent event, double modelX, double modelY) {
-		
+	protected void onMove(ModelMouseEvent modelEvent) {
+
+		double modelX = modelEvent.modelX;
+		double modelY = modelEvent.modelY;
+
 		mouseModelX = modelX;
 		mouseModelY = modelY;
 
 		
 		Object selectedOld = highlighted;
-		highlighted = model==null ? null : model.selectAt(modelX, modelY, camera.getZoom());
+		highlighted = model==null ? null : model.selectAt(modelEvent);
 
 //		if (selectedOld == selected) {
 //			return;
@@ -94,9 +99,10 @@ public class ScalerSegmentViewer extends ScalerViewerBase {
 		repaint();
 	}
 	
+	
 	@Override
-	protected void onClicked(MouseEvent event, double modelX, double modelY) {
-		Object selectOnClick = model==null ? null : model.selectAt(modelX, modelY, camera.getZoom());
+	protected void onClicked(ModelMouseEvent modelEvent) {
+		Object selectOnClick = model==null ? null : model.selectAt(modelEvent);
 //		if (selectOnClick instanceof TargetLineSelection) {
 //			TargetLineSelection targetLineSelection = (TargetLineSelection) selectOnClick;
 //			selectedTargetLine = targetLineSelection.get();

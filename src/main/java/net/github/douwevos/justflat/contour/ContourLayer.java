@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import net.github.douwevos.justflat.demo.Selection;
 import net.github.douwevos.justflat.startstop.OnOffLine;
 import net.github.douwevos.justflat.startstop.StartStopLine;
 import net.github.douwevos.justflat.types.Layer;
@@ -132,7 +133,7 @@ public class ContourLayer implements Layer, Iterable<Contour> {
 		return contours.get(index);
 	}
 	
-	public Object selectAt(double nx, double ny, double zoomFactor) {
+	public Selection<?> selectAt(double nx, double ny, double zoomFactor) {
 		Point2D bestDot = null;
 		Contour bestContour = null;
 		int bestDotIndex = -1;
@@ -156,7 +157,7 @@ public class ContourLayer implements Layer, Iterable<Contour> {
 //		log.debug("nx="+nx+", ny="+ny+", bestDot="+bestDot+", zoomFactor="+zoomFactor+" bestSqDist="+bestSqDist);
 		
 		if (bestDot!=null && bestSqDist<(400d*zoomFactor*zoomFactor)) {
-			return new Selection(bestContour, bestDotIndex, nx, ny);
+			return new ContourDotSelection(bestContour, bestDotIndex, nx, ny);
 		}
 
 		bestDot = null;
@@ -189,7 +190,7 @@ public class ContourLayer implements Layer, Iterable<Contour> {
 	}
 	
 	
-	private Object enrichIntersectionPoint(LineSelection lineSelection, List<Contour> contours, double nx, double ny,
+	private Selection<?> enrichIntersectionPoint(LineSelection lineSelection, List<Contour> contours, double nx, double ny,
 			double zoomFactor) {
 		Line2D lineMain = lineSelection.getLine();
 		
@@ -225,15 +226,15 @@ public class ContourLayer implements Layer, Iterable<Contour> {
 	}
 
 	public boolean dragTo(Object selected, double nx, double ny) {
-		if (selected instanceof Selection) {
-			return dragSelection((Selection) selected, nx, ny);
+		if (selected instanceof ContourDotSelection) {
+			return dragSelection((ContourDotSelection) selected, nx, ny);
 		}
 		return false;
 	}
 	
 	
 	
-	private boolean dragSelection(Selection selected, double nx, double ny) {
+	private boolean dragSelection(ContourDotSelection selected, double nx, double ny) {
 		if (selected.dotIndex<0) {
 			return false;
 		}
@@ -255,14 +256,14 @@ public class ContourLayer implements Layer, Iterable<Contour> {
 
 
 
-	public static class Selection {
+	public static class ContourDotSelection implements Selection<Point2D> {
 		public final Contour contour;
 		public final int dotIndex;
 		public final double grabX;
 		public final double grabY;
 		public Point2D startDot;
 		
-		public Selection(Contour contour, int dotIndex, double grabX, double grabY) {
+		public ContourDotSelection(Contour contour, int dotIndex, double grabX, double grabY) {
 			this.contour = contour;
 			this.dotIndex = dotIndex;
 			this.grabX = grabX;
@@ -272,9 +273,14 @@ public class ContourLayer implements Layer, Iterable<Contour> {
 		public Point2D getDot() {
 			return dotIndex<0 ? null : contour.dotAt(dotIndex);
 		}
+		
+		@Override
+		public Point2D get() {
+			return startDot;
+		}
 	}
 
-	public static class LineSelection {
+	public static class LineSelection implements Selection<Line2D> {
 		public final Contour contour;
 		public final int dotIndex;
 		public final Line2D line;
@@ -303,6 +309,11 @@ public class ContourLayer implements Layer, Iterable<Contour> {
 		
 		public Point2D getIntersectionPoint() {
 			return intersectionPoint;
+		}
+		
+		@Override
+		public Line2D get() {
+			return line;
 		}
 	}
 

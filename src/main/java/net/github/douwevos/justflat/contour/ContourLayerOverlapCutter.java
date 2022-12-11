@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import net.github.douwevos.justflat.contour.testui.DirectedLine;
-import net.github.douwevos.justflat.contour.testui.DirectedLines;
+import net.github.douwevos.justflat.contour.scaler.DirectedLine;
+import net.github.douwevos.justflat.contour.scaler.DirectedLines;
 import net.github.douwevos.justflat.logging.Log;
 import net.github.douwevos.justflat.types.values.Line2D;
 import net.github.douwevos.justflat.types.values.Point2D;

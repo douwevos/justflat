@@ -1,4 +1,4 @@
-package net.github.douwevos.justflat.contour.testui;
+package net.github.douwevos.justflat.contour.scaler;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -13,8 +13,9 @@ import net.github.douwevos.justflat.contour.scaler.OverlapPoint;
 import net.github.douwevos.justflat.contour.scaler.Route;
 import net.github.douwevos.justflat.contour.scaler.TranslatedSegment;
 import net.github.douwevos.justflat.contour.scaler.OverlapPoint.Taint;
-import net.github.douwevos.justflat.contour.testui.ScalerViewableModel.OverlapPointSelection;
-import net.github.douwevos.justflat.contour.testui.ScalerViewableModel.TranslatedSegmentSelection;
+import net.github.douwevos.justflat.contour.scaler.ScalerViewableModel.OverlapPointSelection;
+import net.github.douwevos.justflat.contour.scaler.ScalerViewableModel.TranslatedSegmentSelection;
+import net.github.douwevos.justflat.demo.ModelMouseEvent;
 import net.github.douwevos.justflat.types.values.Line2D;
 import net.github.douwevos.justflat.types.values.Point2D;
 
@@ -105,31 +106,34 @@ public class ScalerViewer3 extends ScalerViewerBase {
 		gfx.drawLine(x[2], y[2], x[3], y[3]);
 	}
 
-
-
+	
 	@Override
-	public boolean onDrag(MouseEvent event, Object selected, double mouseX, double mouseY) {
+	public boolean onDrag(ModelMouseEvent event, Object selected) {
 		return false;
 	}
 
+	
 	@Override
-	protected void onMove(MouseEvent event, double modelX, double modelY) {
+	protected void onMove(ModelMouseEvent modelEvent) {
+		double modelX = modelEvent.modelX;
+		double modelY = modelEvent.modelY;
 		
 		mouseModelX = modelX;
 		mouseModelY = modelY;
 
 		if (selected == null) {
-			highlighted = model==null ? null : model.selectAt(modelX, modelY, camera.getZoom());
+			highlighted = model==null ? null : model.selectAt(modelEvent);
 		} else {
-			highlighted = model==null ? null : model.selectAt(modelX, modelY, camera.getZoom());
+			highlighted = model==null ? null : model.selectAt(modelEvent);
 			mouse = Point2D.of(Math.round(modelX), Math.round(modelY));
 		}
 		repaint();
 	}
 	
+	
 	@Override
-	protected void onClicked(MouseEvent event, double modelX, double modelY) {
-		Object selectOnClick = model==null ? null : model.selectAt(modelX, modelY, camera.getZoom());
+	protected void onClicked(ModelMouseEvent modelEvent) {
+		Object selectOnClick = model==null ? null : model.selectAt(modelEvent);
 		if (selectOnClick instanceof TranslatedSegmentSelection) {
 //			TargetLineSelection targetLineSelection = (TargetLineSelection) selectOnClick;
 			selected = (TranslatedSegmentSelection) selectOnClick;
