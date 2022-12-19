@@ -51,10 +51,14 @@ public class StartStop {
 		return other.start>=start && other.stop<=stop;
 	}
 
+	public boolean contains(long x) {
+		return x>=start && x<=stop;
+	}
+
+	
 	@Override
 	public String toString() {
 		return "SS[" + start + " - " + stop + "]";
 	}
-
 	
 }

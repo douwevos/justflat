@@ -45,8 +45,8 @@ public class Bounds2D {
 		long y1 = pb.y;
 
 		long xl = left; 
-		x0 = x0<xl ? x0 : xl;
-		x0 = x1<xl ? x1 : xl;
+		xl = x0<xl ? x0 : xl;
+		xl = x1<xl ? x1 : xl;
 		
 		long xr = right;
 		xr = x0>xr ? x0 : xr;
@@ -92,6 +92,13 @@ public class Bounds2D {
 				&& other.bottom<=top && other.top>=bottom;
 	}
 
+
+	public boolean intersect(Bounds2D other) {
+		return !(other.left>right || other.right<left
+				|| other.bottom>top || other.top<bottom);
+	}
+	
+
 	public long sqaure() {
 		long dx = right-left;
 		long dy = top-bottom;
@@ -116,5 +123,14 @@ public class Bounds2D {
 		return "Bounds2D [left=" + left + ", right=" + right + ", top=" + top + ", bottom=" + bottom + "]";
 	}
 
+	public static Bounds2D reduce(Bounds2D a, Bounds2D b) {
+		if (a==null) {
+			return b;
+		}
+		if (b==null) {
+			return a;
+		}
+		return a.union(b);
+	}
 
 }

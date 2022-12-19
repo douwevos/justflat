@@ -67,6 +67,34 @@ public class StartStopLine {
 			if (startStop.fullyCovers(other)) {
 				return true;
 			}
+
+			if (other.start<startStop.start && startStop.start<=other.stop) {
+				if (!fullyCovers(other.withStop(startStop.start-1))) {
+					return false;
+				}
+			}
+
+			if (other.stop>startStop.stop && startStop.stop>=other.start) {
+				if (!fullyCovers(other.withStart(startStop.stop+1))) {
+					return false;
+				}
+			}
+
+			return true;
+			
+		}
+		return false;
+	}
+
+	
+	public boolean fullyCoversOld(StartStop other) {
+		for(StartStop startStop : startStops) {
+			if ((startStop.stop<other.start) || (startStop.start>other.stop)) {
+				continue;
+			}
+			if (startStop.fullyCovers(other)) {
+				return true;
+			}
 			
 			if (startStop.stop>other.start) {
 				if (!fullyCovers(new StartStop(other.start, startStop.stop))) {

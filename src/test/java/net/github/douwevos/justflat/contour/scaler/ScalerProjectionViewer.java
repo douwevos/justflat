@@ -4,14 +4,9 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
-import net.github.douwevos.justflat.contour.scaler.MutableContour;
-import net.github.douwevos.justflat.contour.scaler.OverlapPoint;
-import net.github.douwevos.justflat.contour.scaler.Route;
-import net.github.douwevos.justflat.contour.scaler.TranslatedSegment;
 import net.github.douwevos.justflat.contour.scaler.OverlapPoint.Taint;
 import net.github.douwevos.justflat.contour.scaler.ScalerViewableModel.OverlapPointSelection;
 import net.github.douwevos.justflat.contour.scaler.ScalerViewableModel.TranslatedSegmentSelection;
@@ -20,7 +15,8 @@ import net.github.douwevos.justflat.demo.Selection;
 import net.github.douwevos.justflat.types.values.Line2D;
 import net.github.douwevos.justflat.types.values.Point2D;
 
-public class ScalerViewer3 extends ScalerViewerBase {
+@SuppressWarnings("serial")
+public class ScalerProjectionViewer extends ScalerViewerBase {
 
 	double mouseModelX;
 	double mouseModelY;
@@ -53,7 +49,7 @@ public class ScalerViewer3 extends ScalerViewerBase {
 			paintHighlightedTranslatedSegment(gfx, selected);
 		}
 		
-		int y = 20;
+		int y = 40;
 		for(Taint taint : Taint.values()) {
 			gfx.setColor(taintColorMap.get(taint));
 			gfx.fillRect(0, y, 25, 25);

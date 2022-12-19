@@ -1,8 +1,11 @@
 package net.github.douwevos.justflat.contour;
 
+import java.util.List;
 import java.util.Objects;
 
+import net.github.douwevos.justflat.startstop.OnOffLine;
 import net.github.douwevos.justflat.types.values.Point2D;
+import net.github.douwevos.justflat.types.values.StartStop;
 
 public class ContourComparator {
 
@@ -57,6 +60,21 @@ public class ContourComparator {
 		}
 		
 		return true;
+	}
+
+	public boolean aContainsB(Contour mainContour, Contour cutContour) {
+		return cutContour.streamDots().allMatch(dot -> contourContainsDot(mainContour, dot));
+	}
+
+	
+	private boolean contourContainsDot(Contour mainContour, Point2D dot) {
+		OnOffLine onOffLine = new OnOffLine(); 
+		mainContour.scanlineHorizontal(dot.y, onOffLine);
+		List<StartStop> ssList = onOffLine.apply();
+		if (ssList==null) {
+			return false;
+		}
+		return ssList.stream().anyMatch(ss -> ss.contains(dot.x) || ss.widen(2).contains(dot.x));
 	}
 	
 }

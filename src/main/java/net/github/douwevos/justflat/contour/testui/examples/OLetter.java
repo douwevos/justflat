@@ -31,15 +31,6 @@ public class OLetter implements ContourLayerTestProducer, ScalerConfigProvider {
 		ContourLayer result = new ContourLayer(100000, 100000);
 		textLayoutToDiscLayer.produceLayer(result, 1000, 1000);
 		
-		result.contours.remove(1);
-		Contour contour = result.contours.get(0);
-		for(int idx=contour.dotCount()-1; idx>=0; idx--) {
-			if ((idx%5)==0) {
-				continue;
-			}
-			contour.removeAt(idx);
-		}
-		
 		return result;
 	}
 

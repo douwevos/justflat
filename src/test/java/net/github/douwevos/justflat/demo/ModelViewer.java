@@ -2,6 +2,7 @@ package net.github.douwevos.justflat.demo;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -37,6 +38,7 @@ public abstract class ModelViewer<T extends ViewableModel> extends JPanel implem
 	
 	protected boolean fillWithAlpha = false;
 	
+	protected String title;
 	
 	public ModelViewer() {
 		camera = new Camera();
@@ -131,8 +133,23 @@ public abstract class ModelViewer<T extends ViewableModel> extends JPanel implem
 		g.drawArc(ixa-6, iya-6, 13,13,0,360);
 
 		Color color = g.getColor();
-		drawVisibleText(g, ""+dot, ixa+10, iya+4, color, new Color(0,0,0,100));
+		drawVisibleText(g, ""+dot, ixa+10, iya+4, color, new Color(0,0,0,160));
 		g.setColor(color);
+	}
+
+	protected void drawPointNoLocation(Graphics g, Dimension viewDimension, Point2D dot) {
+		double transX =  -camera.getTranslateX();
+		double transY =  camera.getTranslateY();
+		double cameraZoom = camera.getZoom();
+
+		
+		long xb = dot.x;
+		long yb = dot.y;
+		
+		int ixa = (int) Math.round((transX + xb)/cameraZoom);
+		int iya = viewDimension.height+(int) Math.round((transY - yb)/cameraZoom);
+
+		g.drawArc(ixa-6, iya-6, 13,13,0,360);
 	}
 
 
@@ -189,6 +206,25 @@ public abstract class ModelViewer<T extends ViewableModel> extends JPanel implem
 		BufferedImage image = new BufferedImage(viewDimension.width, viewDimension.height, BufferedImage.TYPE_INT_RGB);
 		Graphics2D graphics2d = image.createGraphics();
 		paintModel(image, graphics2d, modelLayer);
+		
+		if (title!=null) {
+			Font font = graphics2d.getFont();
+			Font font2 = new Font(font.getName(), Font.PLAIN, font.getSize()*2);
+			FontMetrics fontMetrics = graphics2d.getFontMetrics(font2);
+			Rectangle2D textBounds = fontMetrics.getStringBounds(title, graphics2d);
+			int textWidth = (int) Math.round(textBounds.getWidth());
+			int textHeight = (int) Math.round(textBounds.getHeight());
+			
+			int left = (getWidth()-textWidth)/2;
+			
+			graphics2d.setColor(new Color(0,0,0,120));
+			graphics2d.fillRect(left, 0, textWidth, textHeight);
+			graphics2d.setFont(font2);
+			graphics2d.setColor(new Color(224,224,224,180));
+			graphics2d.drawString(title, left, 20);
+		}
+
+		
 		graphics2d.dispose();
 
 		return image;
@@ -285,9 +321,6 @@ public abstract class ModelViewer<T extends ViewableModel> extends JPanel implem
 	}
 	
 	protected void onMove(ModelMouseEvent modelEvent) {
-		double modelX = modelEvent.modelX;
-		double modelY = modelEvent.modelY;
-		
 		Selection<?> selectedOld = highlighted;
 		highlighted = model==null ? null : model.selectAt(modelEvent);
 
@@ -332,7 +365,7 @@ public abstract class ModelViewer<T extends ViewableModel> extends JPanel implem
 			camera.setValues(1d, 0, 0);
 			return;
 		}
-		int INSETS = 5;
+		int INSETS = 10;
 		int mViewWidth = viewWidth - INSETS*2;
 		int mViewHeight = viewHeight - INSETS*2;
 		
@@ -341,25 +374,25 @@ public abstract class ModelViewer<T extends ViewableModel> extends JPanel implem
 		double zoom = 1d;
 		Bounds2D bounds = layer.bounds();
 		if (bounds != null) {
-			int modelHeight = (int) (1l + bounds.top - bounds.bottom);
 
 	//		if (camera.cameraLockType == CameraLockType.FIT_LAYER) {
-			ty = INSETS + bounds.bottom;
 	//		}
 	
+			int modelHeight = (int) (1l + bounds.top - bounds.bottom);
+			int modelWidth = (int) (1l + bounds.right-bounds.left);
 			
 			double zoomY = (double) modelHeight/mViewHeight;
+			double zoomX = (double) modelWidth/mViewWidth;
 			zoom = zoomY;
 	
-			int modelWidth = (int) (1l + bounds.right-bounds.left);
-			double zoomX = (double) modelWidth/mViewWidth;
-			tx = INSETS + bounds.left;
 			if (zoomX>zoomY) {
 				zoom = zoomX;
-				ty = INSETS + (modelHeight-viewHeight*zoom)/2;
+				tx = -INSETS*zoom + bounds.left;
+				ty = -INSETS*zoom + bounds.bottom + (modelHeight-viewHeight*zoom)/2;
 			} else {
 				zoom = zoomY;
-				tx = (modelWidth-viewWidth*zoom)/2;
+				ty = -INSETS*zoom + bounds.bottom;
+				tx = -INSETS*zoom + bounds.left + (modelWidth-viewWidth*zoom)/2;
 			}
 		}
 

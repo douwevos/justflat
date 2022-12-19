@@ -14,7 +14,7 @@ public class FullLetterB implements ContourLayerTestProducer, ScalerConfigProvid
 	@Override
 	public int getThickness() {
 //		return 215;
-		return 2657;
+		return 2505;
 	}
 
 	@Override
@@ -31,6 +31,9 @@ public class FullLetterB implements ContourLayerTestProducer, ScalerConfigProvid
 		TextLayoutToDiscLayer textLayoutToDiscLayer = new TextLayoutToDiscLayer(textLayout, textSize);
 		ContourLayer result = new ContourLayer(100000, 100000);
 		textLayoutToDiscLayer.produceLayer(result, 1000, 1000);
+		
+//		result.moveDot(Point2D.of(10436,19164), Point2D.of(9249,20509));
+
 		
 //		Contour contour = result.contours.get(0);
 //		for(int idx=contour.dotCount()-1; idx>=0; idx--) {

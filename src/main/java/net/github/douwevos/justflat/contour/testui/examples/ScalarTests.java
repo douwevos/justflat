@@ -25,7 +25,7 @@ public class ScalarTests {
 //		add(new TDBird2());
 //		add(new OLetter());
 //		add(new FullLetterR());
-		add(new FullLetterB());
+		add(new FullLetterBError2());
 //		add(new AlmostStraight());
 		runTests();
 	}
