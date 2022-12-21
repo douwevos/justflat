@@ -112,6 +112,10 @@ public class Route {
 		return index<0 || index>=overlapPoints.size() ? null : overlapPoints.get(index);
 	}
 
+	public int overlapPointCount() {
+		return overlapPoints.size();
+	}
+	
 	public int relativeCCW(OverlapPoint overlapPoint) {
 		if (overlapPoints.contains(overlapPoint)) {
 			return 0;

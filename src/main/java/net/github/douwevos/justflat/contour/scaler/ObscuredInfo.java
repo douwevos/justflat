@@ -37,24 +37,8 @@ public class ObscuredInfo implements Iterable<Range> {
 	}
 	
 	public ObscuredInfo add(Range r) {
-		
-//		if (!r.name.endsWith("reconnect")) {
-//			return this;
-//		}
-		
-//		double start = (r.start + 360d) % 360d;
-//		double end = (r.end + 360d) % 360d;
-
-		
 		CopyOnWriteArrayList<Range> copyOnWriteArrayList = new CopyOnWriteArrayList<>(ranges);
 		copyOnWriteArrayList.add(r);
-//		if (start<end) {
-//			copyOnWriteArrayList.add(new Range(start, end));
-//		} else {
-//			copyOnWriteArrayList.add(new Range(0, start));
-//			copyOnWriteArrayList.add(new Range(end, 359d));
-//			
-//		}
 		return new ObscuredInfo(copyOnWriteArrayList, false);
 	}
 	

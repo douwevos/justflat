@@ -51,7 +51,8 @@ public class Line2DViewer extends ModelViewer<Line2DViewableModel> {
 		int yb = (int) pointB.y;
 
 		gfx.drawLine(xa, ya, xb, yb);
-	}
+	}		
+
 
 	@Override
 	public boolean onDrag(ModelMouseEvent event, Selection<?> selected) {

@@ -38,8 +38,16 @@ public class Line2DCrossPointViewer extends ModelViewer<Line2DViewableModel> {
 		double cameraZoom = camera.getZoom();
 		
 		int viewHeight = getViewDimension().height;
-		
-		gfx.setColor(Color.WHITE);
+
+		if (model.lineRelation.intersectionPoint!=null && !model.lineRelation.intersectionPoint.equals(model.crossPoint)) {
+			System.err.println("intersectionPoint="+model.lineRelation.intersectionPoint+", cp="+model.crossPoint);
+			gfx.setColor(Color.red);
+			paintCrossPoint(gfx, model.lineRelation.intersectionPoint, lineA, lineB);
+
+			gfx.setColor(Color.ORANGE);
+		} else {
+			gfx.setColor(Color.WHITE);
+		}
 		drawLine(gfx, lineA, viewHeight);
 		drawLine(gfx, lineB, viewHeight);
 
@@ -51,7 +59,8 @@ public class Line2DCrossPointViewer extends ModelViewer<Line2DViewableModel> {
 			gfx.setColor(Color.magenta);
 			paintCrossPoint(gfx, model.info.intersectionPoint, lineA, lineB);
 		}
-		
+
+
 		
 	}
 
