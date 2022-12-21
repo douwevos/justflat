@@ -13,13 +13,13 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JPopupMenu;
 
+import net.github.douwevos.justflat.Selection;
 import net.github.douwevos.justflat.contour.Contour;
 import net.github.douwevos.justflat.contour.ContourLayer;
 import net.github.douwevos.justflat.contour.ContourLayer.ContourDotSelection;
 import net.github.douwevos.justflat.contour.ContourLayer.LineSelection;
 import net.github.douwevos.justflat.demo.ModelMouseEvent;
 import net.github.douwevos.justflat.demo.ModelViewer;
-import net.github.douwevos.justflat.demo.Selection;
 import net.github.douwevos.justflat.logging.Log;
 import net.github.douwevos.justflat.types.values.Line2D;
 import net.github.douwevos.justflat.types.values.Point2D;

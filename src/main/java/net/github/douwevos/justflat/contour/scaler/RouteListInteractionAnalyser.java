@@ -143,7 +143,6 @@ public class RouteListInteractionAnalyser {
 		}
 		
 		boolean ccw = relativeCCW<=0;
-//		ccw=true;
 
 		List<OverlapPoint> enlisted = new ArrayList<>();
 		enlisted.add(pointA);

@@ -80,10 +80,9 @@ public class ContourLayerMap {
 	
 	
 	
-	public OverlapInfo calculateOrder(Contour contourA, Contour contourB) {
+	private OverlapInfo calculateOrder(Contour contourA, Contour contourB) {
 		Bounds2D boundsA = contourA.getBounds();
 		Bounds2D boundsB = contourB.getBounds();
-		// TODO think this over again !
 		boolean encloses = boundsA.encloses(boundsB) || boundsB.encloses(boundsA);
 		if (!encloses) {
 			return OverlapInfo.NO_OVERLAP;
@@ -152,7 +151,7 @@ public class ContourLayerMap {
 		return OverlapInfo.NO_OVERLAP;
 	}
 
-	public static enum OverlapInfo {
+	static enum OverlapInfo {
 		NO_OVERLAP,
 		A_OVER_B,
 		B_OVER_A

@@ -3,8 +3,8 @@ package net.github.douwevos.justflat.contour.scaler;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import net.github.douwevos.justflat.Selection;
 import net.github.douwevos.justflat.demo.ModelMouseEvent;
-import net.github.douwevos.justflat.demo.Selection;
 import net.github.douwevos.justflat.demo.ViewableModel;
 import net.github.douwevos.justflat.types.values.Bounds2D;
 import net.github.douwevos.justflat.types.values.Line2D;

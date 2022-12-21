@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import net.github.douwevos.justflat.demo.Selection;
+import net.github.douwevos.justflat.Selection;
 import net.github.douwevos.justflat.startstop.OnOffLine;
 import net.github.douwevos.justflat.startstop.StartStopLine;
 import net.github.douwevos.justflat.types.Layer;

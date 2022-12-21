@@ -10,13 +10,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.github.douwevos.justflat.Selection;
 import net.github.douwevos.justflat.contour.scaler.OverlapPoint.Taint;
 import net.github.douwevos.justflat.contour.scaler.ScalerViewableModel.OverlapPointSelection;
 import net.github.douwevos.justflat.contour.scaler.ScalerViewableModel.PointSelection;
 import net.github.douwevos.justflat.contour.scaler.ScalerViewableModel.TranslatedSegmentSelection;
 import net.github.douwevos.justflat.demo.ModelMouseEvent;
 import net.github.douwevos.justflat.demo.ModelViewer;
-import net.github.douwevos.justflat.demo.Selection;
 import net.github.douwevos.justflat.types.values.Point2D;
 
 @SuppressWarnings("serial")

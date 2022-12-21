@@ -3,9 +3,9 @@ package net.github.douwevos.justflat.contour.scaler;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import net.github.douwevos.justflat.Selection;
 import net.github.douwevos.justflat.contour.scaler.ScalerViewableModel.OverlapPointSelection;
 import net.github.douwevos.justflat.demo.ModelMouseEvent;
-import net.github.douwevos.justflat.demo.Selection;
 import net.github.douwevos.justflat.demo.ViewableModel;
 import net.github.douwevos.justflat.types.values.Bounds2D;
 import net.github.douwevos.justflat.types.values.Point2D;
@@ -38,9 +38,6 @@ public class RouteListScaledDownCombinatorViewableModel implements ViewableModel
 	@Override
 	public Selection<?> selectAt(ModelMouseEvent modelMouseEvent) {
 		RouteListInteractionAnalyser analyser = getAnalyser();
-		if (analyser==null || analyser.overlapPointFactory==null) {
-			return null;
-		}
 		
 		OverlapPoint bestOverlapPoint = null;
 		double bestSqDist = 0;

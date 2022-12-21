@@ -6,8 +6,6 @@ import java.util.List;
 import net.github.douwevos.justflat.contour.Contour;
 import net.github.douwevos.justflat.contour.ContourComparator;
 import net.github.douwevos.justflat.contour.ContourLayer;
-import net.github.douwevos.justflat.contour.ContourLayerMap;
-import net.github.douwevos.justflat.contour.ContourLayerMap.OverlapInfo;
 import net.github.douwevos.justflat.contour.ContourLayerOverlapCutter;
 import net.github.douwevos.justflat.types.values.Line2D;
 import net.github.douwevos.justflat.types.values.Point2D;
@@ -29,14 +27,14 @@ public class RouteListScaledDownCombinator {
 	public List<RouteList> rebuiltRouteLists() {
 		combined  = combineInflated(subsRouteLists);
 		
-//		ArrayList<RouteList> result = new ArrayList<>();
-//		for(RouteList mainRoute : mainRouteLists) {
-//			cutByMain(result, mainRoute, combined);
-//		}
+		ArrayList<RouteList> result = new ArrayList<>();
+		for(RouteList mainRoute : mainRouteLists) {
+			cutByMain(result, mainRoute, combined);
+		}
+		
 //		
-//		
-		ArrayList<RouteList> result = new ArrayList<>(combined);
-		result.addAll(mainRouteLists);
+//		ArrayList<RouteList> result = new ArrayList<>(combined);
+//		result.addAll(mainRouteLists);
 		return result;
 		
 	}

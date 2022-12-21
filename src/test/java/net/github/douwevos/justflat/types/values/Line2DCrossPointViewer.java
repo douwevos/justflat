@@ -6,10 +6,10 @@ import java.awt.Graphics2D;
 import java.awt.event.InputEvent;
 import java.awt.image.BufferedImage;
 
+import net.github.douwevos.justflat.Selection;
 import net.github.douwevos.justflat.demo.Camera;
 import net.github.douwevos.justflat.demo.ModelMouseEvent;
 import net.github.douwevos.justflat.demo.ModelViewer;
-import net.github.douwevos.justflat.demo.Selection;
 import net.github.douwevos.justflat.types.values.Line2D.IntersectionInfo;
 import net.github.douwevos.justflat.types.values.Line2DViewableModel.CrossPointSelection;
 import net.github.douwevos.justflat.types.values.Line2DViewableModel.LinePointSelection;
@@ -38,16 +38,8 @@ public class Line2DCrossPointViewer extends ModelViewer<Line2DViewableModel> {
 		double cameraZoom = camera.getZoom();
 		
 		int viewHeight = getViewDimension().height;
-
-		if (model.lineRelation.intersectionPoint!=null && !model.lineRelation.intersectionPoint.equals(model.crossPoint)) {
-			System.err.println("intersectionPoint="+model.lineRelation.intersectionPoint+", cp="+model.crossPoint);
-			gfx.setColor(Color.red);
-			paintCrossPoint(gfx, model.lineRelation.intersectionPoint, lineA, lineB);
-
-			gfx.setColor(Color.ORANGE);
-		} else {
-			gfx.setColor(Color.WHITE);
-		}
+		
+		gfx.setColor(Color.WHITE);
 		drawLine(gfx, lineA, viewHeight);
 		drawLine(gfx, lineB, viewHeight);
 
@@ -59,8 +51,7 @@ public class Line2DCrossPointViewer extends ModelViewer<Line2DViewableModel> {
 			gfx.setColor(Color.magenta);
 			paintCrossPoint(gfx, model.info.intersectionPoint, lineA, lineB);
 		}
-
-
+		
 		
 	}
 

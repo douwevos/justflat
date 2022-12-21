@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import net.github.douwevos.justflat.Selection;
 import net.github.douwevos.justflat.demo.ModelMouseEvent;
-import net.github.douwevos.justflat.demo.Selection;
 import net.github.douwevos.justflat.demo.ViewableModel;
 import net.github.douwevos.justflat.types.values.Line2D.IntersectionInfo;
 

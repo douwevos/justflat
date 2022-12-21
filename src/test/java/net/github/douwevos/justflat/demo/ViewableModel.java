@@ -1,5 +1,6 @@
 package net.github.douwevos.justflat.demo;
 
+import net.github.douwevos.justflat.Selection;
 import net.github.douwevos.justflat.types.values.Bounds2D;
 
 public interface ViewableModel {

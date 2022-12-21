@@ -19,6 +19,7 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
 
+import net.github.douwevos.justflat.Selection;
 import net.github.douwevos.justflat.demo.Camera.CameraListener;
 import net.github.douwevos.justflat.types.values.Bounds2D;
 import net.github.douwevos.justflat.types.values.Point2D;
@@ -210,18 +211,9 @@ public abstract class ModelViewer<T extends ViewableModel> extends JPanel implem
 		if (title!=null) {
 			Font font = graphics2d.getFont();
 			Font font2 = new Font(font.getName(), Font.PLAIN, font.getSize()*2);
-			FontMetrics fontMetrics = graphics2d.getFontMetrics(font2);
-			Rectangle2D textBounds = fontMetrics.getStringBounds(title, graphics2d);
-			int textWidth = (int) Math.round(textBounds.getWidth());
-			int textHeight = (int) Math.round(textBounds.getHeight());
-			
-			int left = (getWidth()-textWidth)/2;
-			
-			graphics2d.setColor(new Color(0,0,0,120));
-			graphics2d.fillRect(left, 0, textWidth, textHeight);
 			graphics2d.setFont(font2);
-			graphics2d.setColor(new Color(224,224,224,180));
-			graphics2d.drawString(title, left, 20);
+			graphics2d.setColor(new Color(192,192,192,180));
+			graphics2d.drawString(title, 0, 20);
 		}
 
 		

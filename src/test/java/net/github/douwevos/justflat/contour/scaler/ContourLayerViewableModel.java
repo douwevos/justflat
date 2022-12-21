@@ -1,8 +1,8 @@
 package net.github.douwevos.justflat.contour.scaler;
 
+import net.github.douwevos.justflat.Selection;
 import net.github.douwevos.justflat.contour.ContourLayer;
 import net.github.douwevos.justflat.demo.ModelMouseEvent;
-import net.github.douwevos.justflat.demo.Selection;
 import net.github.douwevos.justflat.demo.ViewableModel;
 import net.github.douwevos.justflat.types.values.Bounds2D;
 

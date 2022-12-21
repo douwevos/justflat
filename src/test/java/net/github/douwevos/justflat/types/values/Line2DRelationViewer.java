@@ -6,10 +6,10 @@ import java.awt.Graphics2D;
 import java.awt.event.InputEvent;
 import java.awt.image.BufferedImage;
 
+import net.github.douwevos.justflat.Selection;
 import net.github.douwevos.justflat.demo.Camera;
 import net.github.douwevos.justflat.demo.ModelMouseEvent;
 import net.github.douwevos.justflat.demo.ModelViewer;
-import net.github.douwevos.justflat.demo.Selection;
 import net.github.douwevos.justflat.types.values.Line2DViewableModel.CrossPointSelection;
 import net.github.douwevos.justflat.types.values.Line2DViewableModel.LinePointSelection;
 

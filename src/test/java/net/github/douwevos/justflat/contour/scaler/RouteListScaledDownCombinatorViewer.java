@@ -7,11 +7,11 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.github.douwevos.justflat.Selection;
 import net.github.douwevos.justflat.contour.scaler.ScalerViewableModel.OverlapPointSelection;
 import net.github.douwevos.justflat.demo.Camera;
 import net.github.douwevos.justflat.demo.ModelMouseEvent;
 import net.github.douwevos.justflat.demo.ModelViewer;
-import net.github.douwevos.justflat.demo.Selection;
 import net.github.douwevos.justflat.types.values.Line2D;
 import net.github.douwevos.justflat.types.values.Point2D;
 
@@ -112,11 +112,8 @@ public class RouteListScaledDownCombinatorViewer extends ModelViewer<RouteListSc
 
 	@Override
 	protected void paintModel(BufferedImage image, Graphics2D gfx, RouteListScaledDownCombinatorViewableModel model) {
-		if (model==null) {
-			return;
-		}
 		RouteListInteractionAnalyser analyser = model.getAnalyser();
-		if (analyser == null) {
+		if (analyser==null || analyser.allRoutes==null) {
 			return;
 		}
 		

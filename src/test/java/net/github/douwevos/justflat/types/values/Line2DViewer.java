@@ -5,10 +5,10 @@ import java.awt.Graphics2D;
 import java.awt.event.InputEvent;
 import java.awt.image.BufferedImage;
 
+import net.github.douwevos.justflat.Selection;
 import net.github.douwevos.justflat.demo.Camera;
 import net.github.douwevos.justflat.demo.ModelMouseEvent;
 import net.github.douwevos.justflat.demo.ModelViewer;
-import net.github.douwevos.justflat.demo.Selection;
 import net.github.douwevos.justflat.types.values.Line2DViewableModel.LinePointSelection;
 
 @SuppressWarnings("serial")
@@ -51,8 +51,7 @@ public class Line2DViewer extends ModelViewer<Line2DViewableModel> {
 		int yb = (int) pointB.y;
 
 		gfx.drawLine(xa, ya, xb, yb);
-	}		
-
+	}
 
 	@Override
 	public boolean onDrag(ModelMouseEvent event, Selection<?> selected) {
