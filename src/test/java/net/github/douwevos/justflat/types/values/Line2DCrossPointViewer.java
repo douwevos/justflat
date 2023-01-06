@@ -17,13 +17,19 @@ import net.github.douwevos.justflat.types.values.Line2DViewableModel.LinePointSe
 @SuppressWarnings("serial")
 public class Line2DCrossPointViewer extends ModelViewer<Line2DViewableModel> {
 
+	Point2D mouse = new Point2D(0, 0);
+	
 	public Line2DCrossPointViewer() {
 		title = "Cross-Point";
 	}
 	
 	@Override
 	public void paintOnTopLayer(Graphics2D gfx, Line2DViewableModel model) {
-		
+		Line2D lineA = model.lines.get(0);
+		double pointDistance = lineA.pointDistance(mouse);
+		drawVisibleText(gfx, "dist   :"+pointDistance, 20, 20, Color.white, Color.black);
+		pointDistance = lineA.pointDistanceSq(mouse);
+		drawVisibleText(gfx, "distSq :"+Math.sqrt(pointDistance), 20, 60, Color.white, Color.black);
 	}
 	
 	@Override
@@ -137,6 +143,7 @@ public class Line2DCrossPointViewer extends ModelViewer<Line2DViewableModel> {
 
 
 	protected void onMove(ModelMouseEvent modelEvent) {
+		mouse = new Point2D(Math.round(modelEvent.modelX), Math.round(modelEvent.modelY));
 		Selection<?> selectedOld = highlighted;
 		if (model==null) {
 			highlighted = null;
@@ -144,10 +151,10 @@ public class Line2DCrossPointViewer extends ModelViewer<Line2DViewableModel> {
 			highlighted = model.selectAt(modelEvent);
 		}
 
+		repaint();
 		if (selectedOld == highlighted) {
 			return;
 		}
-		repaint();
 	}
 
 	

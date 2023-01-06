@@ -70,6 +70,60 @@ public class Line2D {
 		return java.awt.geom.Line2D.ptSegDistSq(pointA.x, pointA.y, pointB.x, pointB.y, point.x, point.y);
     }
     
+    public double pointDistance(Point2D E) {
+    	Point2D A = pointA;
+    	Point2D B = pointB;
+    	// vector AB
+    	double abX = B.x - A.x;
+    	double abY = B.y - A.y;
+
+    	// vector BP
+    	double beX = E.x - B.x;
+    	double beY = E.y - B.y;
+
+    	// vector AP
+    	double aeX = E.x - A.x;
+    	double aeY = E.y - A.y;
+
+    	// Calculating the dot product
+    	double AB_BE = (abX * beX + abY * beY);
+    	double AB_AE = (abX * aeX + abY * aeY);
+
+    	// Minimum distance from
+    	// point E to the line segment
+    	double reqAns = 0;
+
+    	// Case 1
+    	if (AB_BE > 0) {
+
+    		// Finding the magnitude
+    		double y = E.y - B.y;
+    		double x = E.x - B.x;
+    		reqAns = Math.sqrt(x * x + y * y);
+    	}
+
+    	// Case 2
+    	else if (AB_AE < 0) {
+    		double y = E.y - A.y;
+    		double x = E.x - A.x;
+    		reqAns = Math.sqrt(x * x + y * y);
+    	}
+
+    	// Case 3
+    	else {
+
+    		// Finding the perpendicular distance
+    		double x1 = abX;
+    		double y1 = abY;
+    		double x2 = aeX;
+    		double y2 = aeY;
+    		double mod = Math.sqrt(x1 * x1 + y1 * y1);
+    		reqAns = Math.abs(x1 * y2 - y1 * x2) / mod;
+    	}
+    	return reqAns;
+    }
+    
+    
 	public long signedAlignedDistanceSq(Point2D point) {
 		long dxA = point.x-pointA.x;
 		long dyA = point.y-pointA.y;
